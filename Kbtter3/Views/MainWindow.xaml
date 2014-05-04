@@ -6,7 +6,7 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:Kbtter3.Views"
         xmlns:vm="clr-namespace:Kbtter3.ViewModels"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Kbtter3 Polystyrene" Height="500" Width="525">
     
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -31,8 +31,87 @@
         <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
 
     </i:Interaction.Triggers>
+
+    <Window.Resources>
+        <ResourceDictionary Source="KbtterResource.xaml"/>
+    </Window.Resources>
     
-    <Grid>
-        
+    <Grid Background="{StaticResource TwitterColorWhite}" Name="GridMain">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="24"/>
+        </Grid.RowDefinitions>
+
+        <Grid Background="{StaticResource TwitterColorPrimary}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="36"/>
+            </Grid.ColumnDefinitions>
+            <Menu Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="Transparent">
+                <MenuItem VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <MenuItem.Header>
+                        <TextBlock FontFamily="Marlett" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">6</TextBlock>
+                    </MenuItem.Header>
+                    <MenuItem Name="MenuSetting" Header="設定"/>
+                    <MenuItem Name="MenuExit" Header="終了"/>
+                </MenuItem>
+            </Menu>
+        </Grid>
+
+        <Expander Name="ExpanderNewTweet" Grid.Row="1" Header="新しいツイート">
+            <Grid VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="160"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Name="PanelNewTweetReply"/>
+                <StackPanel Grid.Row="2" Name="PanelNewTweetImages"/>
+
+                <TextBox Grid.Row="2" Name="TextBoxNewTweetText" AcceptsReturn="True" 
+                             VerticalAlignment="Stretch"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                             FontSize="14" Margin="4"/>
+                <DockPanel Grid.Column="1" Grid.Row="2">
+                    <StackPanel DockPanel.Dock="Top">
+                        <StackPanel Orientation="Horizontal" Margin="4">
+                            <TextBlock Width="80" TextAlignment="Center" VerticalAlignment="Center">残り</TextBlock>
+                            <TextBlock Name="TextBlockNewTweetRestLetters" FontSize="16" TextAlignment="Right">140</TextBlock>
+                        </StackPanel>
+                        <Button Name="ButtonNewTweetAddImage" Margin="4">画像を追加</Button>
+                    </StackPanel>
+                    <Button Name="ButtonNewTweetSend" Margin="4" DockPanel.Dock="Bottom">つぶやく</Button>
+                </DockPanel>
+            </Grid>
+        </Expander>
+
+        <TabControl Name="TabControlMain" Grid.Row="3" Margin="0,2,0,0" Background="{StaticResource TwitterColorWhite}" Style="{StaticResource RoundTabControl}">
+            <TabItem Header="タイムライン" Name="TabTimeline" Style="{StaticResource RoundTabItem}">
+                <ListBox Name="ListBoxTimeline" HorizontalContentAlignment="Stretch" 
+                         ScrollViewer.CanContentScroll="False"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         />
+            </TabItem>
+            <TabItem Header="通知" Name="TabNotify" Style="{StaticResource RoundTabItem}">
+                <ListBox Name="ListBoxNotify" HorizontalContentAlignment="Stretch" 
+                         ScrollViewer.CanContentScroll="False"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+            </TabItem>
+        </TabControl>
+
+
+        <StatusBar Grid.Row="4" Name="StatusBarMain">
+
+        </StatusBar>
     </Grid>
 </Window>

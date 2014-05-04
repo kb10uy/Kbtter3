@@ -18,5 +18,11 @@ namespace Kbtter3.Models
         /*
          * NotificationObjectはプロパティ変更通知の仕組みを実装したオブジェクトです。
          */
+        public Tokens Token { get; set; }
+
+        public void Initialize(string at, string ats)
+        {
+            Token = Tokens.Create("", "", at, ats);
+        }
     }
 }
