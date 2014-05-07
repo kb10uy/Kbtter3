@@ -34,6 +34,42 @@
             This is used for a class.
             </summary>
         </member>
+        <member name="T:CoreTweet.ConnectionOptions">
+            <summary>
+            Properties for requesting.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.ConnectionOptions.Clone">
+            <summary>
+            Creates a new object that is a copy of the current instance.
+            </summary>
+            <returns>A copy of this instance.</returns>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.Timeout">
+            <summary>
+            Gets or sets the time-out value in milliseconds.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.ReadWriteTimeout">
+            <summary>
+            Gets or sets a time-out in milliseconds when writing to or reading from a stream.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.UserAgent">
+            <summary>
+            Gets or sets the value of the User-agent HTTP header.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.Proxy">
+            <summary>
+            Gets or sets proxy information for the request.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.BeforeRequestAction">
+            <summary>
+            Gets or sets action which is called before sending request.
+            </summary>
+        </member>
         <member name="T:CoreTweet.ParsingException">
             <summary>
             Exception when parsing.
@@ -209,6 +245,9 @@
             <param name='json'>
             The json message.
             </param>
+            <param name="jsonPath">
+            JSONPath of object to be deserialize.
+            </param>
             <typeparam name='T'>
             The type of a twitter object.
             </typeparam>
@@ -229,6 +268,9 @@
             </param>
             <param name='json'>
             The json message.
+            </param>
+            <param name="jsonPath">
+            JSONPath of object to be deserialize.
             </param>
             <typeparam name='T'>
             The type of a twitter object.
@@ -251,6 +293,9 @@
             </param>
             <param name='json'>
             The json message.
+            </param>
+            <param name="jsonPath">
+            JSONPath of object to be deserialize.
             </param>
             <typeparam name='T'>
             The type of a twitter object.
@@ -331,14 +376,13 @@
             <returns>
             The stream.
             </returns>
-            <param name="type">
+            <param name='type'>
             Type of HTTP request.
-            <see cref="!:CoreTweet.MethodType.PostNoResponse"/> will be treated as <see cref="F:CoreTweet.MethodType.Post"/>
             </param>
-            <param name="url">
+            <param name='url'>
             URL.
             </param>
-            <param name="parameters">
+            <param name='parameters'>
             Parameters.
             </param>
         </member>
@@ -349,14 +393,13 @@
             <returns>
             The stream.
             </returns>
-            <param name="type">
+            <param name='type'>
             Type of HTTP request.
-            <see cref="!:CoreTweet.MethodType.PostNoResponse"/> will be treated as <see cref="F:CoreTweet.MethodType.Post"/>
             </param>
-            <param name="url">
+            <param name='url'>
             URL.
             </param>
-            <param name="parameters">
+            <param name='parameters'>
             Parameters.
             </param>
         </member>
@@ -367,14 +410,13 @@
             <returns>
             The stream.
             </returns>
-            <param name="type">
+            <param name='type'>
             Type of HTTP request.
-            <see cref="!:CoreTweet.MethodType.PostNoResponse"/> will be treated as <see cref="F:CoreTweet.MethodType.Post"/>
             </param>
-            <param name="url">
+            <param name='url'>
             URL.
             </param>
-            <param name="parameters">
+            <param name='parameters'>
             Parameters.
             </param>
         </member>
@@ -468,14 +510,9 @@
             Streaming API.
             </summary>
         </member>
-        <member name="P:CoreTweet.Core.TokensBase.UserAgent">
+        <member name="P:CoreTweet.Core.TokensBase.ConnectionOptions">
             <summary>
-            Gets or sets the value of the User-agent HTTP header.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Core.TokensBase.Proxy">
-            <summary>
-            Gets or sets proxy information for the request.
+            Gets or sets options of connection.
             </summary>
         </member>
         <member name="M:CoreTweet.Core.InternalUtils.ResolveObject``1(``0,System.Reflection.BindingFlags)">
@@ -529,7 +566,7 @@
             id, slug, etc
             </summary>
         </member>
-        <member name="M:CoreTweet.OAuth.AuthorizeAsync(System.String,System.String,System.String,System.Net.IWebProxy,System.Threading.CancellationToken)">
+        <member name="M:CoreTweet.OAuth.AuthorizeAsync(System.String,System.String,System.String,CoreTweet.ConnectionOptions,System.Threading.CancellationToken)">
             <summary>
                 Generates the authorize URI.
                 Then call GetTokens(string) after get the pin code.
@@ -570,7 +607,7 @@
             The authorize URL.
             </summary>
         </member>
-        <member name="M:CoreTweet.OAuth.Authorize(System.String,System.String,System.String,System.Net.IWebProxy)">
+        <member name="M:CoreTweet.OAuth.Authorize(System.String,System.String,System.String,CoreTweet.ConnectionOptions)">
             <summary>
                 Generates the authorize URI.
                 Then call GetTokens(string) after get the pin code.
@@ -617,9 +654,9 @@
             </summary>
             <value>The request token secret.</value>
         </member>
-        <member name="P:CoreTweet.OAuth.OAuthSession.Proxy">
+        <member name="P:CoreTweet.OAuth.OAuthSession.ConnectionOptions">
             <summary>
-            Gets or sets proxy information for the request.
+            Gets or sets the options of connection.
             </summary>
         </member>
         <member name="P:CoreTweet.OAuth.OAuthSession.AuthorizeUri">
@@ -628,7 +665,7 @@
             </summary>
             <value>The authorize URL.</value>
         </member>
-        <member name="M:CoreTweet.OAuth2.GetTokenAsync(System.String,System.String,System.Net.IWebProxy,System.Threading.CancellationToken)">
+        <member name="M:CoreTweet.OAuth2.GetTokenAsync(System.String,System.String,CoreTweet.ConnectionOptions,System.Threading.CancellationToken)">
             <summary>
             Gets the OAuth 2 Bearer Token.
             </summary>
@@ -656,7 +693,7 @@
             The URL to revoke a OAuth2 Bearer Token.
             </summary>
         </member>
-        <member name="M:CoreTweet.OAuth2.GetToken(System.String,System.String,System.Net.IWebProxy)">
+        <member name="M:CoreTweet.OAuth2.GetToken(System.String,System.String,CoreTweet.ConnectionOptions)">
             <summary>
             Gets the OAuth 2 Bearer Token.
             </summary>
@@ -824,7 +861,7 @@
                 An expanded version of display_url. Links to the media display page.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.ID">
+        <member name="P:CoreTweet.Media.Id">
             <summary>
                 ID of the media expressed as a 64-bit integer.
             </summary>
@@ -849,7 +886,7 @@
                 An object showing available sizes for the media file.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.SourceStatusID">
+        <member name="P:CoreTweet.Media.SourceStatusId">
             <summary>
                 For Tweets containing media that was originally associated with a different tweet, this ID points to the original Tweet.
             </summary>
@@ -919,7 +956,7 @@
                 Wrapped URL, corresponding to the value embedded directly into the raw Tweet text, and the values for the indices parameter.
             </summary>
         </member>
-        <member name="P:CoreTweet.UserMention.ID">
+        <member name="P:CoreTweet.UserMention.Id">
             <summary>
                 ID of the mentioned user, as an integer.
             </summary>
@@ -1061,7 +1098,7 @@
                 Number of members in this List .
             </summary>
         </member>
-        <member name="P:CoreTweet.List.ID">
+        <member name="P:CoreTweet.List.Id">
             <summary>
                 The integer representation of the unique identifier for this List.
             </summary>
@@ -1144,7 +1181,7 @@
                 Full human-readable representation of the place's name.
             </summary>
         </member>
-        <member name="P:CoreTweet.Place.ID">
+        <member name="P:CoreTweet.Place.Id">
             <summary>
                 ID representing this place. Note that this is represented as a string, not an integer.
                 In trends/avaliable or trends/closest, ID is a Yahoo! Where On Earth ID.
@@ -1266,7 +1303,7 @@
                 The name of this location.
             </summary>
         </member>
-        <member name="P:CoreTweet.Location.WoeID">
+        <member name="P:CoreTweet.Location.WoeId">
             <summary>
                 The WOEID of this location.
             </summary>
@@ -1346,7 +1383,7 @@
             Tweets can be embedded, replied to, favorited, unfavorited and deleted.
             </summary>
         </member>
-        <member name="P:CoreTweet.Status.ID">
+        <member name="P:CoreTweet.Status.Id">
             <summary>
                 The integer representation of the unique identifier for this Tweet.
             </summary>
@@ -1392,12 +1429,12 @@
                 Nullable. If the represented Tweet is a reply, this field will contain the screen name of the original Tweet's author.
             </summary>
         </member>
-        <member name="P:CoreTweet.Status.InReplyToStatusID">
+        <member name="P:CoreTweet.Status.InReplyToStatusId">
             <summary>
                 Nullable. If the represented Tweet is a reply, this field will contain the integer representation of the original Tweet's ID.
             </summary>
         </member>
-        <member name="P:CoreTweet.Status.InReplyToUserID">
+        <member name="P:CoreTweet.Status.InReplyToUserId">
             <summary>
                 Nullable. If the represented Tweet is a reply, this field will contain the integer representation of the original Tweet's author ID.
             </summary>
@@ -1490,7 +1527,7 @@
             on behalf of the official tweet author.
             </summary>
         </member>
-        <member name="P:CoreTweet.Contributors.ID">
+        <member name="P:CoreTweet.Contributors.Id">
             <summary>
                 The integer representation of the ID of the user who contributed to this Tweet.
             </summary>
@@ -1535,7 +1572,7 @@
             Direct message.
             </summary>
         </member>
-        <member name="P:CoreTweet.DirectMessage.ID">
+        <member name="P:CoreTweet.DirectMessage.Id">
             <summary>
             The integer representation of the unique identifier for this Direct message.
             </summary>
@@ -1614,7 +1651,7 @@
             The access token secret.
             </summary> 
         </member>
-        <member name="P:CoreTweet.Tokens.UserID">
+        <member name="P:CoreTweet.Tokens.UserId">
             <summary>
             The user ID.
             </summary>
@@ -1684,7 +1721,7 @@
                 When true, indicates that the user has enabled the possibility of geotagging their Tweets. This field must be true for the current user to attach geographic data when using POST statuses/update.
             </summary>
         </member>
-        <member name="P:CoreTweet.User.ID">
+        <member name="P:CoreTweet.User.Id">
             <summary>
                 The integer representation of the unique identifier for this User. This number is greater than 53 bits and some programming languages may have difficulty/silent defects in interpreting it. Using a signed 64 bit integer for storing this identifier is safe. Use id_str for fetching the identifier to stay on the safe side.
             </summary>
@@ -1845,7 +1882,7 @@
             The source.
             </value>
         </member>
-        <member name="P:CoreTweet.Friendship.ID">
+        <member name="P:CoreTweet.Friendship.Id">
             <summary>
             The ID of the user.
             </summary>
@@ -1877,7 +1914,7 @@
             The bool value.
             </value>
         </member>
-        <member name="P:CoreTweet.Friendship.CanDm">
+        <member name="P:CoreTweet.Friendship.CanDM">
             <summary>
             When true, you can send a direct message to the user.
             </summary>
@@ -1984,7 +2021,7 @@
             Sends a request to Twitter and some other web services.
             </summary>
         </member>
-        <member name="M:CoreTweet.Request.HttpGetAsync(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,System.String,System.Net.IWebProxy,System.Threading.CancellationToken)">
+        <member name="M:CoreTweet.Request.HttpGetAsync(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,CoreTweet.ConnectionOptions,System.Threading.CancellationToken)">
             <summary>
             Sends a GET request.
             </summary>
@@ -1996,7 +2033,7 @@
             <param name="proxy">Proxy information for the request.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
-        <member name="M:CoreTweet.Request.HttpPostAsync(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,System.String,System.Net.IWebProxy,System.Threading.CancellationToken)">
+        <member name="M:CoreTweet.Request.HttpPostAsync(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,CoreTweet.ConnectionOptions,System.Threading.CancellationToken)">
             <summary>
             Sends a POST request.
             </summary>
@@ -2008,7 +2045,7 @@
             <param name="proxy">Proxy information for the request.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
-        <member name="M:CoreTweet.Request.HttpPostWithMultipartFormDataAsync(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,System.String,System.Net.IWebProxy,System.Threading.CancellationToken)">
+        <member name="M:CoreTweet.Request.HttpPostWithMultipartFormDataAsync(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,CoreTweet.ConnectionOptions,System.Threading.CancellationToken)">
             <summary>
             Sends a POST request with multipart/form-data.
             </summary>
@@ -2020,7 +2057,7 @@
             <param name="proxy">Proxy information for the request.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
-        <member name="M:CoreTweet.Request.HttpGet(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,System.String,System.Net.IWebProxy)">
+        <member name="M:CoreTweet.Request.HttpGet(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,CoreTweet.ConnectionOptions)">
             <summary>
             Sends a GET request.
             </summary>
@@ -2031,7 +2068,7 @@
             <param name="userAgent">User-Agent header.</param>
             <param name="proxy">Proxy information for the request.</param>
         </member>
-        <member name="M:CoreTweet.Request.HttpPost(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,System.String,System.Net.IWebProxy)">
+        <member name="M:CoreTweet.Request.HttpPost(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,CoreTweet.ConnectionOptions)">
             <summary>
             Sends a POST request.
             </summary>
@@ -2042,7 +2079,7 @@
             <param name="userAgent">User-Agent header.</param>
             <param name="proxy">Proxy information for the request.</param>
         </member>
-        <member name="M:CoreTweet.Request.HttpPostWithMultipartFormData(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,System.String,System.Net.IWebProxy)">
+        <member name="M:CoreTweet.Request.HttpPostWithMultipartFormData(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}},System.String,CoreTweet.ConnectionOptions)">
             <summary>
             Sends a POST request with multipart/form-data.
             </summary>
@@ -2287,7 +2324,7 @@
         <member name="T:CoreTweet.Rest.Blocks">
             <summary>GET/POST blocks</summary>
         </member>
-        <member name="M:CoreTweet.Rest.Blocks.IDsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Blocks.IdsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking.</para>
             <para>Avaliable parameters: </para>
@@ -2343,7 +2380,7 @@
             Parameters.
             </param>
         </member>
-        <member name="M:CoreTweet.Rest.Blocks.IDs(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Blocks.Ids(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns an array of numeric user ids the authenticating user is blocking.</para>
             <para>Avaliable parameters: </para>
@@ -2355,7 +2392,7 @@
             </param>
             <see cref="!:https://dev.twitter.com/docs/misc/cursoring"/>
         </member>
-        <member name="M:CoreTweet.Rest.Blocks.EnumerateIDs(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Blocks.EnumerateIds(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Enumerates numeric user ids the authenticating user is blocking.</para>
             <para>Avaliable parameters: </para>
@@ -2631,7 +2668,7 @@
         <member name="T:CoreTweet.Rest.Followers">
             <summary>GET followers</summary>
         </member>
-        <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Followers.IDsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
+        <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Followers.IdsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
         <member name="M:CoreTweet.Rest.Followers.ListAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns a cursored collection of user objects for users following the specified user.</para>
@@ -2650,8 +2687,8 @@
             <returns>Users.</returns>
             <see cref="!:https://dev.twitter.com/docs/misc/cursoring"/>
         </member>
-        <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Followers.IDs(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
-        <member name="M:CoreTweet.Rest.Followers.EnumerateIDs(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Followers.Ids(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
+        <member name="M:CoreTweet.Rest.Followers.EnumerateIds(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Enumerates user IDs for every user following the specified user.</para>
             <para>At this time, results are ordered with the most recent following first - however, this ordering is subject to unannounced change and eventual consistency issues. Results are given in groups of 5,000 user IDs and multiple "pages" of results can be navigated through using the next_cursor value in subsequent requests. See Using cursors to navigate collections for more information.</para>
@@ -2717,7 +2754,7 @@
         <member name="T:CoreTweet.Rest.Friends">
             <summary>GET firends</summary>
         </member>
-        <member name="M:CoreTweet.Rest.Friends.IDsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Friends.IdsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns a cursored collection of user IDs for every user the specified user is following (otherwise known as their "friends").</para>
             <para>At this time, results are ordered with the most recent following first - however, this ordering is subject to unannounced change and eventual consistency issues. Results are given in groups of 5,000 user IDs and multiple "pages" of results can be navigated through using the next_cursor value in subsequent requests. See Using cursors to navigate collections for more information.</para>
@@ -2751,7 +2788,7 @@
             <returns>Users.</returns>
             <see cref="!:https://dev.twitter.com/docs/misc/cursoring"/>
         </member>
-        <member name="M:CoreTweet.Rest.Friends.IDs(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Friends.Ids(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns a cursored collection of user IDs for every user the specified user is following (otherwise known as their "friends").</para>
             <para>At this time, results are ordered with the most recent following first - however, this ordering is subject to unannounced change and eventual consistency issues. Results are given in groups of 5,000 user IDs and multiple "pages" of results can be navigated through using the next_cursor value in subsequent requests. See Using cursors to navigate collections for more information.</para>
@@ -2767,7 +2804,7 @@
             <returns>IDs.</returns>
             <see cref="!:https://dev.twitter.com/docs/misc/cursoring"/>
         </member>
-        <member name="M:CoreTweet.Rest.Friends.EnumerateIDs(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Friends.EnumerateIds(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Enumerates user IDs for every user the specified user is following (otherwise known as their "friends").</para>
             <para>At this time, results are ordered with the most recent following first - however, this ordering is subject to unannounced change and eventual consistency issues. Results are given in groups of 5,000 user IDs and multiple "pages" of results can be navigated through using the next_cursor value in subsequent requests. See Using cursors to navigate collections for more information.</para>
@@ -2834,7 +2871,7 @@
         <member name="T:CoreTweet.Rest.Friendships">
             <summary>GET/POST Friendships</summary>
         </member>
-        <member name="M:CoreTweet.Rest.Friendships.NoRetweetsIDsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Friendships.NoRetweetsIdsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns a collection of user_ids that the currently authenticated user does not want to receive retweets from.</para>
             <para>Use POST friendships/update to set the "no retweets" status for a given user account on behalf of the current user.</para>
@@ -2933,7 +2970,7 @@
             Parameters.
             </param>
         </member>
-        <member name="M:CoreTweet.Rest.Friendships.NoRetweetsIDs(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Friendships.NoRetweetsIds(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns a collection of user_ids that the currently authenticated user does not want to receive retweets from.</para>
             <para>Use POST friendships/update to set the "no retweets" status for a given user account on behalf of the current user.</para>
@@ -3061,7 +3098,7 @@
         <member name="T:CoreTweet.Rest.Geo">
             <summary>GET/POST geo</summary>
         </member>
-        <member name="M:CoreTweet.Rest.Geo.IDAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Geo.IdAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns all the information about a known place.</para>
             <para>Avaliable parameters: </para>
@@ -3127,7 +3164,7 @@
             Parameters.
             </param>
         </member>
-        <member name="M:CoreTweet.Rest.Geo.ID(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Geo.Id(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns all the information about a known place.</para>
             <para>Avaliable parameters: </para>
@@ -3529,7 +3566,7 @@
             Parameters.
             </param>
         </member>
-        <member name="M:CoreTweet.Rest.Members.ThisAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Members.ListAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns the members of the specified list. Private list members will only be shown if the authenticated user owns the specified list.</para>
             <para>Note: Either a list_id or a slug is required. If providing a list_slug, an owner_screen_name or owner_id is also required.</para>
@@ -3600,7 +3637,7 @@
             </param>
         </member>
         <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Members.DeleteAllAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
-        <member name="M:CoreTweet.Rest.Members.This(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+        <member name="M:CoreTweet.Rest.Members.List(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Returns the members of the specified list. Private list members will only be shown if the authenticated user owns the specified list.</para>
             <para>Note: Either a list_id or a slug is required. If providing a list_slug, an owner_screen_name or owner_id is also required.</para>
@@ -3694,7 +3731,25 @@
             </param>
         </member>
         <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Members.DeleteAll(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
-        <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Subscribers.ShowAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
+        <member name="M:CoreTweet.Rest.Subscribers.ShowAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Check if the specified user is a subscriber of the specified list. Returns the user if they are subscriber.</para>
+            <para>Note: Either a list_id or a slug is required. If providing a list_slug, an owner_screen_name or owner_id is also required.</para>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="string owner_screen_name (optional)"/> : The screen name of the user who owns the list being requested by a slug.</para>
+            <para><paramref name="long owner_id (optional)"/> : The user ID of the user who owns the list being requested by a slug.</para>
+            <para><paramref name="long list_id (required)"/> : The numerical id of the list.</para>
+            <para><paramref name="string slug (required)"/> : You can identify a list by its slug instead of its numerical id. If you decide to do so, note that you'll also have to specify the list owner using the owner_id or owner_screen_name parameters.</para>
+            <para><paramref name="long user_id (required)"/> : The ID of the user for whom to return results for. Helpful for disambiguating when a valid user ID is also a valid screen name.</para>
+            <para><paramref name="string screen_name (required)"/> : The screen name of the user for whom to return results for. Helpful for disambiguating when a valid screen name is also a user ID.</para>
+            <para><paramref name="bool include_entities"/> : When set to true, each tweet will include a node called "entities". This node offers a variety of metadata about the tweet in a discreet structure, including: user_mentions, urls, and hashtags. While entities are opt-in on timelines at present, they will be made a default component of output in the future. See Tweet Entities for more details.</para>
+            <para><paramref name="bool skip_status"/> : When set to true, statuses will not be included in the returned user objects.</para>
+            </summary>
+            <returns>The user.</returns>
+            <param name='parameters'>
+            Parameters.
+            </param>
+        </member>
         <member name="M:CoreTweet.Rest.Subscribers.CreateAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Subscribes the authenticated user to the specified list.</para>
@@ -3711,7 +3766,25 @@
             </param>
         </member>
         <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Subscribers.DeleteAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
-        <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Subscribers.Show(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
+        <member name="M:CoreTweet.Rest.Subscribers.Show(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Check if the specified user is a subscriber of the specified list. Returns the user if they are subscriber.</para>
+            <para>Note: Either a list_id or a slug is required. If providing a list_slug, an owner_screen_name or owner_id is also required.</para>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="string owner_screen_name (optional)"/> : The screen name of the user who owns the list being requested by a slug.</para>
+            <para><paramref name="long owner_id (optional)"/> : The user ID of the user who owns the list being requested by a slug.</para>
+            <para><paramref name="long list_id (required)"/> : The numerical id of the list.</para>
+            <para><paramref name="string slug (required)"/> : You can identify a list by its slug instead of its numerical id. If you decide to do so, note that you'll also have to specify the list owner using the owner_id or owner_screen_name parameters.</para>
+            <para><paramref name="long user_id (required)"/> : The ID of the user for whom to return results for. Helpful for disambiguating when a valid user ID is also a valid screen name.</para>
+            <para><paramref name="string screen_name (required)"/> : The screen name of the user for whom to return results for. Helpful for disambiguating when a valid screen name is also a user ID.</para>
+            <para><paramref name="bool include_entities"/> : When set to true, each tweet will include a node called "entities". This node offers a variety of metadata about the tweet in a discreet structure, including: user_mentions, urls, and hashtags. While entities are opt-in on timelines at present, they will be made a default component of output in the future. See Tweet Entities for more details.</para>
+            <para><paramref name="bool skip_status"/> : When set to true, statuses will not be included in the returned user objects.</para>
+            </summary>
+            <returns>The user.</returns>
+            <param name='parameters'>
+            Parameters.
+            </param>
+        </member>
         <member name="M:CoreTweet.Rest.Subscribers.Create(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             <para>Subscribes the authenticated user to the specified list.</para>
