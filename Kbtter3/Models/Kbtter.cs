@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -27,6 +28,8 @@ namespace Kbtter3.Models
 
         public List<Status> Cache { get; set; }
 
+        public KbtterTwitterSettings Settings { get; set; }
+
         public event Action<StatusMessage> OnStatus;
         public event Action<EventMessage> OnEvent;
 
@@ -35,7 +38,18 @@ namespace Kbtter3.Models
 
         public void Initialize(string at, string ats)
         {
-            Token = Tokens.Create("", "", at, ats);
+            Settings = new KbtterTwitterSettings();
+            
+        }
+
+        public void AuthenticateWith(int ci, int ai)
+        {
+            Token = Tokens.Create(
+                Settings.ConsumerTokens[ci].Key,
+                Settings.ConsumerTokens[ci].Secret,
+                Settings.AccessTokens[ai].Token,
+                Settings.AccessTokens[ai].TokenSecret
+                );
             Cache = new List<Status>();
         }
 
@@ -60,18 +74,51 @@ namespace Kbtter3.Models
         void NotifyStatusUpdate(StatusMessage msg)
         {
             LatestStatus = msg;
-            RaisePropertyChanged(() => LatestStatus);
+            RaisePropertyChanged("Status");
         }
 
         void NotifyEventUpdate(EventMessage msg)
         {
             LatestEvent = msg;
-            RaisePropertyChanged(()=>LatestEvent);
+            RaisePropertyChanged(() => "");
         }
 
         public void StopStreaming()
         {
             Stream.Dispose();
         }
+    }
+
+    public class KbtterTwitterSettings
+    {
+        public List<ConsumerToken> ConsumerTokens { get; set; }
+        public List<AccessToken> AccessTokens { get; set; }
+
+        public KbtterTwitterSettings()
+        {
+            ConsumerTokens = new List<ConsumerToken>();
+            AccessTokens = new List<AccessToken>();
+
+            ConsumerTokens.Add(new ConsumerToken
+            {
+                Name = "デフォルト",
+                Key = "5bI3XiTNEMHiamjMV5Acnqkex",
+                Secret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN"
+            });
+        }
+    }
+
+    public class AccessToken
+    {
+        public string Name { get; set; }
+        public string Token { get; set; }
+        public string TokenSecret { get; set; }
+    }
+
+    public class ConsumerToken
+    {
+        public string Name { get; set; }
+        public string Key { get; set; }
+        public string Secret { get; set; }
     }
 }

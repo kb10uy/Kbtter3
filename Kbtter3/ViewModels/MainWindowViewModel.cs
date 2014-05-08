@@ -61,6 +61,7 @@ namespace Kbtter3.ViewModels
 
         public void Initialize()
         {
+            
         }
     }
 }
