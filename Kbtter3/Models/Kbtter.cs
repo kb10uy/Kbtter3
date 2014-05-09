@@ -36,11 +36,33 @@ namespace Kbtter3.Models
         public StatusMessage LatestStatus { get; set; }
         public EventMessage LatestEvent { get; set; }
 
-        public void Initialize(string at, string ats)
+        public OAuth.OAuthSession OAuthSession { get; set; }
+
+        private Kbtter()
+        {
+
+        }
+
+        #region シングルトン
+        static Kbtter _instance;
+        public static Kbtter Instance
+        {
+            get
+            {
+                if (_instance == null) _instance = new Kbtter();
+                return _instance;
+            }
+        }
+        #endregion
+
+        public void Initialize()
         {
             Settings = new KbtterTwitterSettings();
-            
+            OAuthSession = OAuth.Authorize("", "");
+            RaisePropertyChanged("RequestTokens");
         }
+
+
 
         public void AuthenticateWith(int ci, int ai)
         {
