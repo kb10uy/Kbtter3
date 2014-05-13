@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 using CoreTweet;
 using CoreTweet.Core;
@@ -13,6 +14,11 @@ using CoreTweet.Streaming.Reactive;
 using System.Reactive;
 using System.Reactive.Linq;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+
+
 using Livet;
 
 namespace Kbtter3.Models
@@ -22,13 +28,19 @@ namespace Kbtter3.Models
         /*
          * NotificationObjectはプロパティ変更通知の仕組みを実装したオブジェクトです。
          */
+        public readonly string ConsumerTokenFileName = "consumer.json";
+        public readonly string ConsumerDefaultKey = "5bI3XiTNEMHiamjMV5Acnqkex";
+        public readonly string ConsumerDefaultSecret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN";
+
         public Tokens Token { get; set; }
 
         public IDisposable Stream { get; protected set; }
 
         public List<Status> Cache { get; set; }
 
-        public KbtterTwitterSettings Settings { get; set; }
+        public KbtterAccessTokens Settings { get; set; }
+
+        public ConsumerToken ConsumerToken { get; private set; }
 
         public event Action<StatusMessage> OnStatus;
         public event Action<EventMessage> OnEvent;
@@ -57,18 +69,29 @@ namespace Kbtter3.Models
 
         public void Initialize()
         {
-            Settings = new KbtterTwitterSettings();
-            OAuthSession = OAuth.Authorize("", "");
-            RaisePropertyChanged("RequestTokens");
+            Settings = new KbtterAccessTokens();
+            if (!File.Exists(ConsumerTokenFileName))
+            {
+                var ct = new ConsumerToken { Key = ConsumerDefaultKey, Secret = ConsumerDefaultSecret };
+                var json = JsonConvert.SerializeObject(ct);
+                File.WriteAllText(ConsumerTokenFileName, json);
+            }
+            var cjs = File.ReadAllText(ConsumerTokenFileName);
+            ConsumerToken = JsonConvert.DeserializeObject<ConsumerToken>(cjs);
+            OAuthSession = OAuth.Authorize(ConsumerToken.Key, ConsumerToken.Secret);
+            RaisePropertyChanged("AccessTokenRequest");
         }
 
-
+        public Uri GetAuthorizationUri()
+        {
+            return OAuthSession.AuthorizeUri;
+        }
 
         public void AuthenticateWith(int ci, int ai)
         {
             Token = Tokens.Create(
-                Settings.ConsumerTokens[ci].Key,
-                Settings.ConsumerTokens[ci].Secret,
+                ConsumerToken.Key,
+                ConsumerToken.Secret,
                 Settings.AccessTokens[ai].Token,
                 Settings.AccessTokens[ai].TokenSecret
                 );
@@ -111,22 +134,13 @@ namespace Kbtter3.Models
         }
     }
 
-    public class KbtterTwitterSettings
+    public class KbtterAccessTokens
     {
-        public List<ConsumerToken> ConsumerTokens { get; set; }
         public List<AccessToken> AccessTokens { get; set; }
 
-        public KbtterTwitterSettings()
+        public KbtterAccessTokens()
         {
-            ConsumerTokens = new List<ConsumerToken>();
             AccessTokens = new List<AccessToken>();
-
-            ConsumerTokens.Add(new ConsumerToken
-            {
-                Name = "デフォルト",
-                Key = "5bI3XiTNEMHiamjMV5Acnqkex",
-                Secret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN"
-            });
         }
     }
 
@@ -139,7 +153,6 @@ namespace Kbtter3.Models
 
     public class ConsumerToken
     {
-        public string Name { get; set; }
         public string Key { get; set; }
         public string Secret { get; set; }
     }

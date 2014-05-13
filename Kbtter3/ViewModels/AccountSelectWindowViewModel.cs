@@ -15,7 +15,7 @@ using Kbtter3.Models;
 
 namespace Kbtter3.ViewModels
 {
-    public class MainWindowViewModel : ViewModel
+    public class AccountSelectWindowViewModel : ViewModel
     {
         /* コマンド、プロパティの定義にはそれぞれ 
          * 
@@ -59,27 +59,8 @@ namespace Kbtter3.ViewModels
          * 自動的にUIDispatcher上での通知に変換されます。変更通知に際してUIDispatcherを操作する必要はありません。
          */
 
-        Kbtter kbtter;
-        PropertyChangedEventListener listener;
-
         public void Initialize()
         {
-            kbtter = Kbtter.Instance;
-            listener = new PropertyChangedEventListener(kbtter);
-            CompositeDisposable.Add(listener);
-            RegisterHandlers();
-
-            kbtter.Initialize();
-        }
-
-        public void RegisterHandlers()
-        {
-            listener.Add("AccessTokenRequest", OnAccessTokenRequest);
-        }
-
-        public void OnAccessTokenRequest(object sender, PropertyChangedEventArgs e)
-        {
-            RaisePropertyChanged("AccessTokenRequest");
         }
     }
 }

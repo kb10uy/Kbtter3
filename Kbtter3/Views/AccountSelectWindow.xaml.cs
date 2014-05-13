@@ -11,10 +11,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.ComponentModel;
-
-using Livet;
-using Livet.EventListeners.WeakEvents;
 
 namespace Kbtter3.Views
 {
@@ -27,26 +23,13 @@ namespace Kbtter3.Views
      */
 
     /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
+    /// AccountSelectWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class AccountSelectWindow : Window
     {
-        LivetCompositeDisposable composite;
-        PropertyChangedWeakEventListener ctxlistener;
-        public MainWindow()
+        public AccountSelectWindow()
         {
             InitializeComponent();
-            composite = new LivetCompositeDisposable();
-            ctxlistener = new PropertyChangedWeakEventListener((INotifyPropertyChanged)DataContext);
-            
-            ctxlistener.Add("AccessTokenRequest", StartAccountSelect);
-
-            composite.Add(ctxlistener);
-        }
-
-        void StartAccountSelect(object sender, PropertyChangedEventArgs e)
-        {
-            new AccountSelectWindow().ShowDialog();
         }
     }
 }

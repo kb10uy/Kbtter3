@@ -369,6 +369,15 @@
             Cancellation token.
             </param>
         </member>
+        <member name="M:CoreTweet.Core.TokensBase.CreateAuthorizationHeader(CoreTweet.MethodType,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+            <summary>
+            When overridden in a descendant class, creates string for Authorization header.
+            </summary>
+            <param name="type">Type of HTTP request.</param>
+            <param name="url">URL.</param>
+            <param name="parameters">Parameters.</param>
+            <returns>String for Authorization header.</returns>
+        </member>
         <member name="M:CoreTweet.Core.TokensBase.SendRequest(CoreTweet.MethodType,System.String,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
             <summary>
             Sends a request to the specified url with the specified parameters.
@@ -1068,6 +1077,11 @@
             The status.
             </value>
         </member>
+        <member name="P:CoreTweet.StringResponse.Value">
+            <summary>
+            Value of response.
+            </summary>
+        </member>
         <member name="P:CoreTweet.List.Slug">
             <summary>
                 The string that become unique representation by combining an owner_id or owner_screen_name.
@@ -1132,6 +1146,15 @@
             <summary>
             The OAuth2 token, which is usually used for Application-only authentication.
             </summary>
+        </member>
+        <member name="M:CoreTweet.OAuth2Token.CreateAuthorizationHeader(CoreTweet.MethodType,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+            <summary>
+            Creates string for Authorization header including bearer token.
+            </summary>
+            <param name="type">Type of HTTP request.</param>
+            <param name="url">URL.</param>
+            <param name="parameters">Parameters.</param>
+            <returns>String for Authorization header.</returns>
         </member>
         <member name="M:CoreTweet.OAuth2Token.Create(System.String,System.String,System.String)">
             <summary>
@@ -1609,6 +1632,15 @@
             <summary>
             The OAuth tokens.
             </summary>
+        </member>
+        <member name="M:CoreTweet.Tokens.CreateAuthorizationHeader(CoreTweet.MethodType,System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+            <summary>
+            Creates string for Authorization header for OAuth 1.0A.
+            </summary>
+            <param name="type">Type of HTTP request.</param>
+            <param name="url">URL.</param>
+            <param name="parameters">Parameters.</param>
+            <returns>String for Authorization header.</returns>
         </member>
         <member name="M:CoreTweet.Tokens.ToString">
             <summary>
@@ -2114,6 +2146,13 @@
             </summary>
             <returns>The encoded text.</returns>
             <param name="text">Text.</param>
+        </member>
+        <member name="M:CoreTweet.Request.Rfc3986EscapeDataString(System.String)">
+            <summary>
+            Encodes the given string based on RFC3986
+            </summary>
+            <param name="text">string value.</param>
+            <returns>The encodes text.</returns>
         </member>
         <member name="T:CoreTweet.MethodType">
             <summary>

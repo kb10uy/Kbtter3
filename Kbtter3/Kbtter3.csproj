@@ -91,9 +91,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
+    <Compile Include="Views\AccountSelectWindow.xaml.cs">
+      <DependentUpon>AccountSelectWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\StatusPage.xaml.cs">
       <DependentUpon>StatusPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\AccountSelectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\KbtterResource.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
