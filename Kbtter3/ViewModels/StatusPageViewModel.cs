@@ -12,6 +12,7 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using Kbtter3.Models;
+using CoreTweet;
 
 namespace Kbtter3.ViewModels
 {
@@ -59,8 +60,32 @@ namespace Kbtter3.ViewModels
          * 自動的にUIDispatcher上での通知に変換されます。変更通知に際してUIDispatcherを操作する必要はありません。
          */
 
+        Kbtter kbtter = Kbtter.Instance;
+        Status status;
+
         public void Initialize()
         {
+            status = kbtter.ShowingStatuses.Dequeue();
+            Via=status.
         }
+
+
+        #region Via変更通知プロパティ
+        private string _Via;
+
+        public string Via
+        {
+            get
+            { return _Via; }
+            set
+            { 
+                if (_Via == value)
+                    return;
+                _Via = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
     }
 }

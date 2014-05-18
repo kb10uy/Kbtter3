@@ -75,11 +75,17 @@ namespace Kbtter3.ViewModels
         public void RegisterHandlers()
         {
             listener.Add("AccessTokenRequest", OnAccessTokenRequest);
+            listener.Add("Status", OnStatusUpdate);
         }
 
         public void OnAccessTokenRequest(object sender, PropertyChangedEventArgs e)
         {
             RaisePropertyChanged("AccessTokenRequest");
+        }
+
+        public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
+        {
+            RaisePropertyChanged("Status");
         }
     }
 }

@@ -51,15 +51,54 @@
                    TextAlignment="Center" VerticalAlignment="Center">
             Kbtter3 Polystyrene
         </TextBlock>
-        
+
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="40"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ListBox Name="ListBoxAccounts" Margin="4" Grid.Row="0"/>
-            <Button Name="ButtonNewAccount" Margin="4" Grid.Row="1">追加</Button>
+            <ListBox Name="ListBoxAccounts" Margin="4" Grid.Row="0" ItemsSource="{Binding Accounts}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="SelectAccount" 
+                                                 MethodParameter="{Binding ElementName=ListBoxAccounts, Path=SelectedIndex}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ListBox>
+            <Button Name="ButtonNewAccount" Margin="4" Grid.Row="1" Command="{Binding StartNewAccountCommand}">追加</Button>
+
+            <StackPanel Name="StackPanelNewAccount" Grid.Row="2" Background="{DynamicResource TwitterColorPrimary}" Visibility="Collapsed">
+                <TextBlock FontSize="10" TextAlignment="Center">ブラウザで認証してPINコードを入力</TextBlock>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Name="TextBoxPinCode" Text="{Binding Path=EnteredPinCode, UpdateSourceTrigger=PropertyChanged}" Margin="4"/>
+                    <Button Name="ButtonEnterNewAccount" Command="{Binding RegisterNewAccountCommand}" Margin="4" Grid.Column="1">OK</Button>
+                </Grid>
+
+            </StackPanel>
         </Grid>
-        
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" FontSize="20" Foreground="DarkBlue" Margin="4">
+                Kbtterへようこそ。
+            </TextBlock>
+            <TextBlock TextWrapping="Wrap" Grid.Row="1" Margin="4">
+                ログインしたいアカウントを選択して、「ログイン」をクリックしてください。
+                初回起動時や、副垢を追加したい時は、「追加」をクリックしてください。
+            </TextBlock>
+            <Button Name="ButtonLogin" Grid.Row="2" Margin="4" Command="{Binding Path=LoginCommand}" Click="ButtonLogin_Click">ログイン</Button>
+            <Button Name="ButtonExit" Command="{Binding Path=ExitCommand}" Grid.Row="3" Margin="4">終了</Button>
+        </Grid>
+
     </Grid>
 </Window>

@@ -69,6 +69,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Margin="2" Orientation="Horizontal">
                 <TextBlock Name="TextBlockUserName" FontSize="15" FontWeight="Bold">UserName</TextBlock>
@@ -81,7 +82,8 @@
             <TextBlock Name="TextBlockMainText" Margin="4" Grid.Row="1" FontSize="14" TextWrapping="Wrap">
                 MainText
             </TextBlock>
-            <TextBlock Name="TextBlockRetweetedBy" Foreground="Gray" Margin="2" Grid.Row="2">Retweeted by</TextBlock>
+            <TextBlock Name="TextBlockVia" Foreground="Gray" Margin="2" Grid.Row="2">via</TextBlock>
+            <TextBlock Name="TextBlockRetweetedBy" Foreground="Gray" Margin="2" Grid.Row="3">Retweeted by </TextBlock>
         </Grid>
     </Grid>
 </Page>

@@ -28,7 +28,8 @@ namespace Kbtter3.Models
         /*
          * NotificationObjectはプロパティ変更通知の仕組みを実装したオブジェクトです。
          */
-        public readonly string ConsumerTokenFileName = "consumer.json";
+        public readonly string ConsumerTokenFileName = "config/consumer.json";
+        public readonly string AccessTokenFileName = "config/users.json";
         public readonly string ConsumerDefaultKey = "5bI3XiTNEMHiamjMV5Acnqkex";
         public readonly string ConsumerDefaultSecret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN";
 
@@ -38,7 +39,7 @@ namespace Kbtter3.Models
 
         public List<Status> Cache { get; set; }
 
-        public KbtterAccessTokens Settings { get; set; }
+        public List<AccessToken> AccessTokens { get; set; }
 
         public ConsumerToken ConsumerToken { get; private set; }
 
@@ -49,6 +50,8 @@ namespace Kbtter3.Models
         public EventMessage LatestEvent { get; set; }
 
         public OAuth.OAuthSession OAuthSession { get; set; }
+
+        public Queue<Status> ShowingStatuses { get; private set; }
 
         private Kbtter()
         {
@@ -69,35 +72,47 @@ namespace Kbtter3.Models
 
         public void Initialize()
         {
-            Settings = new KbtterAccessTokens();
+            ShowingStatuses = new Queue<Status>();
+
+            AccessTokens = new List<AccessToken>();
             if (!File.Exists(ConsumerTokenFileName))
             {
                 var ct = new ConsumerToken { Key = ConsumerDefaultKey, Secret = ConsumerDefaultSecret };
                 var json = JsonConvert.SerializeObject(ct);
                 File.WriteAllText(ConsumerTokenFileName, json);
             }
+            if (!File.Exists(AccessTokenFileName)) SaveAccessTokens();
+
             var cjs = File.ReadAllText(ConsumerTokenFileName);
             ConsumerToken = JsonConvert.DeserializeObject<ConsumerToken>(cjs);
             OAuthSession = OAuth.Authorize(ConsumerToken.Key, ConsumerToken.Secret);
+
+            var ajs = File.ReadAllText(AccessTokenFileName);
+            AccessTokens = JsonConvert.DeserializeObject<List<AccessToken>>(ajs);
+
             RaisePropertyChanged("AccessTokenRequest");
         }
 
-        public Uri GetAuthorizationUri()
-        {
-            return OAuthSession.AuthorizeUri;
-        }
-
-        public void AuthenticateWith(int ci, int ai)
+        #region 認証
+        public void AuthenticateWith(int ai)
         {
             Token = Tokens.Create(
                 ConsumerToken.Key,
                 ConsumerToken.Secret,
-                Settings.AccessTokens[ai].Token,
-                Settings.AccessTokens[ai].TokenSecret
+                AccessTokens[ai].Token,
+                AccessTokens[ai].TokenSecret
                 );
             Cache = new List<Status>();
         }
 
+        public Tokens AuthorizeToken(string pin)
+        {
+            var t = OAuthSession.GetTokens(pin);
+            return t;
+        }
+        #endregion
+
+        #region streaming
         public void StartStreaming()
         {
             var ob = Token.Streaming.StartObservableStream(StreamingType.User)
@@ -119,6 +134,7 @@ namespace Kbtter3.Models
         void NotifyStatusUpdate(StatusMessage msg)
         {
             LatestStatus = msg;
+            ShowingStatuses.Enqueue(msg.Status);
             RaisePropertyChanged("Status");
         }
 
@@ -132,21 +148,31 @@ namespace Kbtter3.Models
         {
             Stream.Dispose();
         }
-    }
 
-    public class KbtterAccessTokens
-    {
-        public List<AccessToken> AccessTokens { get; set; }
+        #endregion
 
-        public KbtterAccessTokens()
+        #region コンフィグ用メソッド
+
+        public void AddToken(Tokens t)
         {
-            AccessTokens = new List<AccessToken>();
+            AccessTokens.Add(new AccessToken { ScreenName = t.ScreenName, Token = t.AccessToken, TokenSecret = t.AccessTokenSecret });
+            SaveAccessTokens();
         }
+
+        public void SaveAccessTokens()
+        {
+            var json = JsonConvert.SerializeObject(AccessTokens);
+            File.WriteAllText(AccessTokenFileName, json);
+        }
+
+        #endregion
+
+
     }
 
     public class AccessToken
     {
-        public string Name { get; set; }
+        public string ScreenName { get; set; }
         public string Token { get; set; }
         public string TokenSecret { get; set; }
     }

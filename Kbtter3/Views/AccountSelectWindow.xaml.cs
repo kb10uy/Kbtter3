@@ -12,6 +12,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using System.ComponentModel;
+using Livet;
+using Livet.EventListeners.WeakEvents;
+
 namespace Kbtter3.Views
 {
     /* 
@@ -27,9 +31,31 @@ namespace Kbtter3.Views
     /// </summary>
     public partial class AccountSelectWindow : Window
     {
+        LivetCompositeDisposable composite;
+        PropertyChangedWeakEventListener ctxlistener;
+
         public AccountSelectWindow()
         {
             InitializeComponent();
+            composite = new LivetCompositeDisposable();
+            ctxlistener = new PropertyChangedWeakEventListener((INotifyPropertyChanged)DataContext);
+            ctxlistener.Add("StartNewAccount", ExpandNewAccount);
+            ctxlistener.Add("FinishNewAccount", CollapseNewAccount);
+        }
+
+        void ExpandNewAccount(object sender, PropertyChangedEventArgs e)
+        {
+            StackPanelNewAccount.Visibility = Visibility.Visible;
+        }
+
+        void CollapseNewAccount(object sender, PropertyChangedEventArgs e)
+        {
+            StackPanelNewAccount.Visibility = Visibility.Collapsed;
+        }
+
+        private void ButtonLogin_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

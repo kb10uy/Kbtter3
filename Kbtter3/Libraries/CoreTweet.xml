@@ -514,6 +514,11 @@
             Rest/Users.
             </summary>
         </member>
+        <member name="P:CoreTweet.Core.TokensBase.Mutes">
+            <summary>
+            Rest/Mutes.
+            </summary>
+        </member>
         <member name="P:CoreTweet.Core.TokensBase.Streaming">
             <summary>
             Streaming API.
@@ -2000,6 +2005,14 @@
             </summary>
             <value>
             The connections.
+            </value>
+        </member>
+        <member name="P:CoreTweet.Friendship.IsMuting">
+            <summary>
+            Gets whether you are muting the user or not.
+            </summary>
+            <value>
+            The bool value.
             </value>
         </member>
         <member name="P:CoreTweet.Category.Name">
@@ -3840,6 +3853,138 @@
             </param>
         </member>
         <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.Rest.Subscribers.Delete(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])" で無視されました -->
+        <member name="T:CoreTweet.Rest.MutesUsers">
+            <summary>GET/POST mutes/users</summary>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.IdsAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns an array of numeric user ids the authenticating user has muted.</para>
+            <seealso cref="!:https://dev.twitter.com/docs/api/1.1/get/mutes/users/ids"/>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="long cursor (optional)"/> : Causes the list of IDs to be broken into pages of no more than 5000 IDs at a time. The number of IDs returned is not guaranteed to be 5000 as suspended users are filtered out. If no cursor is provided, a value of -1 will be assumed, which is the first "page."</para>
+            </summary>
+            <param name="parameters">Parameters.</param>
+            <returns>IDs.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.ListAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns an array of user objects the authenticating user has muted.</para>
+            <seealso cref="!:https://dev.twitter.com/docs/api/1.1/get/mutes/users/list"/>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="long cursor (optional)"/> : Causes the list of IDs to be broken into pages of no more than 5000 IDs at a time. The number of IDs returned is not guaranteed to be 5000 as suspended users are filtered out after connections are queried. If no cursor is provided, a value of -1 will be assumed, which is the first "page."</para>
+            <para><paramref name="bool include_entities (optional)"/> : The entities node will not be included when set to false.</para>
+            <para><paramref name="bool skip_status (optional)"/> : When set to either true, t or 1 statuses will not be included in the returned user objects.</para>
+            </summary>
+            <param name="parameters">Parameters.</param>
+            <returns>Users.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.CreateAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Mutes the user specified in the ID parameter for the authenticating user.</para>
+            <para>Returns the muted user in the requested format when successful. Returns a string describing the failure condition when unsuccessful.</para>
+            <para>Actions taken in this method are asynchronous and changes will be eventually consistent.</para>
+            <para>Note: Providing either screen_name or user_id is required.</para>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="string screen_name (optional)"/> : The screen name of the potentially muted user. Helpful for disambiguating when a valid screen name is also a user ID.</para>
+            <para><paramref name="long user_id (optional)"/> : The ID of the potentially muted user. Helpful for disambiguating when a valid user ID is also a valid screen name.</para>
+            </summary>
+            <returns>The user.</returns>
+            <param name='parameters'>
+            Parameters.
+            </param>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.DestroyAsync(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Un-mutes the user specified in the ID parameter for the authenticating user.</para>
+            <para>Returns the unmuted user in the requested format when successful. Returns a string describing the failure condition when unsuccessful.</para>
+            <para>Actions taken in this method are asynchronous and changes will be eventually consistent.</para>
+            <para>Note: Providing either screen_name or user_id is required.</para>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="string screen_name (optional)"/> : The screen name of the potentially muted user. Helpful for disambiguating when a valid screen name is also a user ID.</para>
+            <para><paramref name="long user_id (optional)"/> : The ID of the potentially muted user. Helpful for disambiguating when a valid user ID is also a valid screen name.</para>
+            </summary>
+            <returns>The user.</returns>
+            <param name='parameters'>
+            Parameters.
+            </param>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.Ids(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns an array of numeric user ids the authenticating user has muted.</para>
+            <seealso cref="!:https://dev.twitter.com/docs/api/1.1/get/mutes/users/ids"/>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="long cursor (optional)"/> : Causes the list of IDs to be broken into pages of no more than 5000 IDs at a time. The number of IDs returned is not guaranteed to be 5000 as suspended users are filtered out. If no cursor is provided, a value of -1 will be assumed, which is the first "page."</para>
+            </summary>
+            <param name="parameters">Parameters.</param>
+            <returns>IDs.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.EnumerateIds(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Enumerates numeric user ids the authenticating user has muted.</para>
+            <seealso cref="!:https://dev.twitter.com/docs/api/1.1/get/mutes/users/ids"/>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="long cursor (optional)"/> : Causes the list of IDs to be broken into pages of no more than 5000 IDs at a time. The number of IDs returned is not guaranteed to be 5000 as suspended users are filtered out. If no cursor is provided, a value of -1 will be assumed, which is the first "page."</para>
+            </summary>
+            <param name="parameters">Parameters.</param>
+            <returns>IDs.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.List(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Returns an array of user objects the authenticating user has muted.</para>
+            <seealso cref="!:https://dev.twitter.com/docs/api/1.1/get/mutes/users/list"/>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="long cursor (optional)"/> : Causes the list of IDs to be broken into pages of no more than 5000 IDs at a time. The number of IDs returned is not guaranteed to be 5000 as suspended users are filtered out after connections are queried. If no cursor is provided, a value of -1 will be assumed, which is the first "page."</para>
+            <para><paramref name="bool include_entities (optional)"/> : The entities node will not be included when set to false.</para>
+            <para><paramref name="bool skip_status (optional)"/> : When set to either true, t or 1 statuses will not be included in the returned user objects.</para>
+            </summary>
+            <param name="parameters">Parameters.</param>
+            <returns>Users.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.EnumerateList(CoreTweet.EnumerateMode,System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Enumerates user objects the authenticating user has muted.</para>
+            <seealso cref="!:https://dev.twitter.com/docs/api/1.1/get/mutes/users/list"/>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="long cursor (optional)"/> : Causes the list of IDs to be broken into pages of no more than 5000 IDs at a time. The number of IDs returned is not guaranteed to be 5000 as suspended users are filtered out after connections are queried. If no cursor is provided, a value of -1 will be assumed, which is the first "page."</para>
+            <para><paramref name="bool include_entities (optional)"/> : The entities node will not be included when set to false.</para>
+            <para><paramref name="bool skip_status (optional)"/> : When set to either true, t or 1 statuses will not be included in the returned user objects.</para>
+            </summary>
+            <param name="parameters">Parameters.</param>
+            <returns>Users.</returns>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.Create(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Mutes the user specified in the ID parameter for the authenticating user.</para>
+            <para>Returns the muted user in the requested format when successful. Returns a string describing the failure condition when unsuccessful.</para>
+            <para>Actions taken in this method are asynchronous and changes will be eventually consistent.</para>
+            <para>Note: Providing either screen_name or user_id is required.</para>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="string screen_name (optional)"/> : The screen name of the potentially muted user. Helpful for disambiguating when a valid screen name is also a user ID.</para>
+            <para><paramref name="long user_id (optional)"/> : The ID of the potentially muted user. Helpful for disambiguating when a valid user ID is also a valid screen name.</para>
+            </summary>
+            <returns>The user.</returns>
+            <param name='parameters'>
+            Parameters.
+            </param>
+        </member>
+        <member name="M:CoreTweet.Rest.MutesUsers.Destroy(System.Linq.Expressions.Expression{System.Func{System.String,System.Object}}[])">
+            <summary>
+            <para>Un-mutes the user specified in the ID parameter for the authenticating user.</para>
+            <para>Returns the unmuted user in the requested format when successful. Returns a string describing the failure condition when unsuccessful.</para>
+            <para>Actions taken in this method are asynchronous and changes will be eventually consistent.</para>
+            <para>Note: Providing either screen_name or user_id is required.</para>
+            <para>Avaliable parameters: </para>
+            <para><paramref name="string screen_name (optional)"/> : The screen name of the potentially muted user. Helpful for disambiguating when a valid screen name is also a user ID.</para>
+            <para><paramref name="long user_id (optional)"/> : The ID of the potentially muted user. Helpful for disambiguating when a valid user ID is also a valid screen name.</para>
+            </summary>
+            <returns>The user.</returns>
+            <param name='parameters'>
+            Parameters.
+            </param>
+        </member>
+        <member name="T:CoreTweet.Rest.Mutes">
+            <summary>GET/POST mutes</summary>
+        </member>
         <member name="T:CoreTweet.Rest.SavedSearches">
             <summary>
              GET/POST saved_searches

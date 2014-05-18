@@ -31,8 +31,10 @@ namespace Kbtter3.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static readonly string ConfigFileName="config/mainwindow.json";
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -40,6 +42,7 @@ namespace Kbtter3.Views
             ctxlistener = new PropertyChangedWeakEventListener((INotifyPropertyChanged)DataContext);
             
             ctxlistener.Add("AccessTokenRequest", StartAccountSelect);
+            ctxlistener.Add("Status", OnStatusUpdate);
 
             composite.Add(ctxlistener);
         }
@@ -47,6 +50,11 @@ namespace Kbtter3.Views
         void StartAccountSelect(object sender, PropertyChangedEventArgs e)
         {
             new AccountSelectWindow().ShowDialog();
+        }
+
+        public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
+        {
+            ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage() });
         }
     }
 }
