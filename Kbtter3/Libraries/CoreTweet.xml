@@ -1447,14 +1447,14 @@
                 Entities which have been parsed out of the text of the Tweet.
             </summary>
         </member>
-        <member name="P:CoreTweet.Status.IsFavorited">
-            <summary>
-                Nullable. Perspectival. Indicates whether this Tweet has been favorited by the authenticating user.
-            </summary>
-        </member>
         <member name="P:CoreTweet.Status.FavoriteCount">
             <summary>
                 Nullable. Indicates approximately how many times this Tweet has been "favorited" by Twitter users.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Status.IsFavorited">
+            <summary>
+                Nullable. Perspectival. Indicates whether this Tweet has been favorited by the authenticating user.
             </summary>
         </member>
         <member name="P:CoreTweet.Status.InReplyToScreenName">

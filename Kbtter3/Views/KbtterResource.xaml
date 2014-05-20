@@ -9,6 +9,15 @@
     <SolidColorBrush x:Key="TwitterColorLightBlue" Color="#e1e8ed"/>
     <SolidColorBrush x:Key="TwitterColorWhite" Color="#f5f8fa"/>
 
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#7F37B6FF"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#7F7AA5BD"/>
+
+    <SolidColorBrush x:Key="Kbtter3RetweetBackColor" Color="#669FFF72"/>
+    <SolidColorBrush x:Key="Kbtter3ReplyBackColor" Color="#66FFBC5A"/>
+    <SolidColorBrush x:Key="Kbtter3AchievementColor" Color="#66FFF74B"/>
+    <SolidColorBrush x:Key="Kbtter3ErrorColor" Color="#66FF6161"/>
+
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
     <ControlTemplate x:Key="SelectBorderListBoxItem" TargetType="ListBoxItem">
         <Border Name="Border"
@@ -24,6 +33,15 @@
 
             </Trigger>
         </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ErrorTemplate">
+        <Border BorderThickness="2" BorderBrush="{StaticResource Kbtter3ErrorColor}">
+            <Grid>
+                <AdornedElementPlaceholder Panel.ZIndex="-10"/>
+                <TextBlock Foreground="{StaticResource Kbtter3ErrorColor}" Text="{Binding (Validation.Errors)[0].ErrorContent}"/>
+            </Grid>
+        </Border>
     </ControlTemplate>
 
     <Style x:Key="RoundTabItem" TargetType="TabItem">
@@ -102,6 +120,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
 
     <ControlTemplate x:Key="CloseButton" TargetType="Button">
         <Border Name="Main" Margin="4,0,0,0" Width="16" Height="16">

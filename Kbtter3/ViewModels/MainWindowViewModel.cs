@@ -16,7 +16,7 @@ using CoreTweet;
 
 namespace Kbtter3.ViewModels
 {
-    public class MainWindowViewModel : ViewModel
+    public class MainWindowViewModel : ViewModel, IDataErrorInfo
     {
         /* コマンド、プロパティの定義にはそれぞれ 
          * 
@@ -62,9 +62,11 @@ namespace Kbtter3.ViewModels
 
         Kbtter kbtter;
         PropertyChangedEventListener listener;
+        public event StatusUpdateEventHandler Update;
+        Dictionary<string, string> errors = new Dictionary<string, string>();
 
-        public ObservableSynchronizedCollection<Status> Statuses { get; protected set; }
-        public Status SelectedStatus { get; internal set; }
+        //public Queue<StatusViewModel> Statuses { get; protected set; }
+        //public Status SelectedStatus { get; internal set; }
 
         public void Initialize()
         {
@@ -74,7 +76,7 @@ namespace Kbtter3.ViewModels
             RegisterHandlers();
 
             kbtter.Initialize();
-            Statuses = new ObservableSynchronizedCollection<Status>();
+            //Statuses = new ObservableSynchronizedCollection<StatusViewModel>();
         }
 
         public void RegisterHandlers()
@@ -90,14 +92,97 @@ namespace Kbtter3.ViewModels
 
         public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
         {
-            //RaisePropertyChanged("Status");
-            //暫定的に上から突っ込む
-            Status st;
-            if (kbtter.ShowingStatuses.TryDequeue(out st))
-            {
-                Statuses.Insert(0, st);
-            }
+            if (Update != null) Update(this, StatusViewModel.Create(kbtter.ShowingStatuses.Dequeue()));
 
         }
+
+
+        #region UpdateStatusText変更通知プロパティ
+        private string _UpdateStatusText = "";
+
+        public string UpdateStatusText
+        {
+            get
+            { return _UpdateStatusText; }
+            set
+            {
+                if (_UpdateStatusText == value)
+                    return;
+                _UpdateStatusText = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(() => UpdateStatusTextLength);
+
+                errors["UpdateStatusText"] = (value.Length > 140) ? "140文字を超えています" : null;
+            }
+        }
+        #endregion
+
+
+        #region UpdateStatusTextLength変更通知プロパティ
+
+        public int UpdateStatusTextLength
+        {
+            get
+            { return 140 - _UpdateStatusText.Length; }
+        }
+        #endregion
+
+
+
+        #region UpdateStatusCommand
+        private ViewModelCommand _UpdateStatusCommand;
+        bool _tokenus = false;
+
+        public ViewModelCommand UpdateStatusCommand
+        {
+            get
+            {
+                if (_UpdateStatusCommand == null)
+                {
+                    _UpdateStatusCommand = new ViewModelCommand(UpdateStatus, CanUpdateStatus);
+                }
+                return _UpdateStatusCommand;
+            }
+        }
+
+        public bool CanUpdateStatus()
+        {
+            return UpdateStatusText.Length <= 140 && !_tokenus;
+        }
+
+        public async void UpdateStatus()
+        {
+            _tokenus = true;
+            UpdateStatusCommand.RaiseCanExecuteChanged();
+
+            await kbtter.Token.Statuses.UpdateAsync(status => UpdateStatusText);
+
+            _tokenus = false;
+            UpdateStatusCommand.RaiseCanExecuteChanged();
+            UpdateStatusText = "";
+        }
+        #endregion
+
+
+        #region エラー
+        public string Error
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string this[string columnName]
+        {
+            get
+            {
+                if (errors.ContainsKey(columnName))
+                {
+                    return errors[columnName];
+                }
+                return null;
+            }
+        }
+        #endregion
     }
+
+    public delegate void StatusUpdateEventHandler(object sender, StatusViewModel vm);
 }

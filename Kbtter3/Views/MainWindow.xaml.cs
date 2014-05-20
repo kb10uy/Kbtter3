@@ -13,7 +13,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
 
+using Kbtter3.ViewModels;
 using Livet;
+using Livet.EventListeners;
 using Livet.EventListeners.WeakEvents;
 
 namespace Kbtter3.Views
@@ -31,7 +33,7 @@ namespace Kbtter3.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static readonly string ConfigFileName="config/mainwindow.json";
+        public static readonly string ConfigFileName = "config/mainwindow.json";
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;
 
@@ -40,11 +42,18 @@ namespace Kbtter3.Views
             InitializeComponent();
             composite = new LivetCompositeDisposable();
             ctxlistener = new PropertyChangedWeakEventListener((INotifyPropertyChanged)DataContext);
-            
             ctxlistener.Add("AccessTokenRequest", StartAccountSelect);
-            ctxlistener.Add("Status", OnStatusUpdate);
-
             composite.Add(ctxlistener);
+
+            ((MainWindowViewModel)DataContext).Update += MainWindow_Update;
+        }
+
+        void MainWindow_Update(object sender, StatusViewModel vm)
+        {
+            DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
+            {
+                ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(vm) });
+            }));
         }
 
         void StartAccountSelect(object sender, PropertyChangedEventArgs e)
@@ -52,9 +61,5 @@ namespace Kbtter3.Views
             new AccountSelectWindow().ShowDialog();
         }
 
-        public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
-        {
-            ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage() });
-        }
     }
 }

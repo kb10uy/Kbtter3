@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Kbtter3.ViewModels;
+
 namespace Kbtter3.Views
 {
     /* 
@@ -27,9 +29,11 @@ namespace Kbtter3.Views
     /// </summary>
     public partial class StatusPage : Page
     {
-        public StatusPage()
+        public StatusPage(StatusViewModel vm)
         {
             InitializeComponent();
+            DataContext = vm;
+            ImageUserIcon.Source = new BitmapImage(vm.ProfileImageUri);
         }
     }
 }

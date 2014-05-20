@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.ComponentModel;
 
 using Livet;
@@ -61,18 +63,38 @@ namespace Kbtter3.ViewModels
          */
 
         Kbtter kbtter = Kbtter.Instance;
-        Status status;
+        Status status, origin;
+        static Regex reg = new Regex("<a href=\"(?<url>.+)\" rel=\"nofollow\">(?<client>.+)</a>");
+        long rtid;
 
         public static StatusViewModel Create(Status st)
         {
             var ret = new StatusViewModel();
+            ret.origin = st;
+            if (st.RetweetedStatus != null)
+            {
+                ret._RetweetUserName = st.User.Name;
+                st = st.RetweetedStatus;
+                ret._IsRetweet = true;
+            }
+            else
+            {
+                ret._IsRetweet = false;
+                ret._RetweetUserName = "";
+            }
             ret.status = st;
             ret._UserName = st.User.Name;
             ret._ScreenName = st.User.ScreenName;
             ret._Text = st.Text;
-            ret._ProfileImageUrl = st.User.ProfileImageUrlHttps.ToString();
+            ret._ProfileImageUri = st.User.ProfileImageUrlHttps;
             ret._RetweetCount = st.RetweetCount;
-            ret.FavoriteCount = st.FavoriteCount ?? 0;
+            ret._IsFavorited = st.IsFavorited ?? false;
+            ret._IsRetweeted = st.IsRetweeted ?? false;
+            ret._FavoriteCount = st.FavoriteCount ?? 0;
+
+            var vm = reg.Match(st.Source);
+            ret._Via = vm.Groups["client"].Value;
+            if (vm.Groups["url"].Value != "") ret._ViaUri = new Uri(vm.Groups["url"].Value);
 
             return ret;
         }
@@ -80,6 +102,135 @@ namespace Kbtter3.ViewModels
         public void Initialize()
         {
         }
+
+
+        #region IsRetweeted変更通知プロパティ
+        private bool _IsRetweeted;
+
+        public bool IsRetweeted
+        {
+            get
+            { return _IsRetweeted; }
+            set
+            {
+                if (_IsRetweeted == value)
+                    return;
+                if (value)
+                {
+                    rtid = kbtter.Token.Statuses.Retweet(id => origin.Id).Id;
+                }
+                else
+                {
+                    if (rtid == 0)
+                    {
+                        rtid = kbtter.Token.Statuses.Show(include_my_retweet => true).CurrentUserRetweet ?? 0;
+                        kbtter.Token.Statuses.Destroy(id => rtid);
+                    }
+                }
+                _IsRetweeted = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsFavorited変更通知プロパティ
+        private bool _IsFavorited;
+
+        public bool IsFavorited
+        {
+            get
+            { return _IsFavorited; }
+            set
+            {
+                if (_IsFavorited == value)
+                    return;
+                if (value)
+                {
+                    kbtter.Token.Favorites.Create(id => origin.Id);
+                }
+                else
+                {
+                    kbtter.Token.Favorites.Destroy(id => origin.Id);
+                }
+                _IsFavorited = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region RetweetUserName変更通知プロパティ
+        private string _RetweetUserName;
+
+        public string RetweetUserName
+        {
+            get
+            { return _RetweetUserName; }
+            set
+            {
+                if (_RetweetUserName == value)
+                    return;
+                _RetweetUserName = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsRetweet変更通知プロパティ
+        private bool _IsRetweet;
+
+        public bool IsRetweet
+        {
+            get
+            { return _IsRetweet; }
+            set
+            {
+                if (_IsRetweet == value)
+                    return;
+                _IsRetweet = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Via変更通知プロパティ
+        private string _Via;
+
+        public string Via
+        {
+            get
+            { return _Via; }
+            set
+            {
+                if (_Via == value)
+                    return;
+                _Via = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ViaUri変更通知プロパティ
+        private Uri _ViaUri;
+
+        public Uri ViaUri
+        {
+            get
+            { return _ViaUri; }
+            set
+            {
+                if (_ViaUri == value)
+                    return;
+                _ViaUri = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
 
 
         #region UserName変更通知プロパティ
@@ -137,17 +288,17 @@ namespace Kbtter3.ViewModels
 
 
         #region ProfileImageUrl変更通知プロパティ
-        private string _ProfileImageUrl;
+        private Uri _ProfileImageUri;
 
-        public string ProfileImageUrl
+        public Uri ProfileImageUri
         {
             get
-            { return _ProfileImageUrl; }
+            { return _ProfileImageUri; }
             set
             {
-                if (_ProfileImageUrl == value)
+                if (_ProfileImageUri == value)
                     return;
-                _ProfileImageUrl = value;
+                _ProfileImageUri = value;
                 RaisePropertyChanged();
             }
         }

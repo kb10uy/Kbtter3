@@ -96,7 +96,7 @@ namespace Kbtter3.ViewModels
 
 
         #region EnteredPinCode変更通知プロパティ
-        private string _EnteredPinCode = "345";
+        private string _EnteredPinCode = "";
 
         public string EnteredPinCode
         {

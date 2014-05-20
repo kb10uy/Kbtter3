@@ -52,11 +52,16 @@ namespace Kbtter3.Models
 
         public OAuth.OAuthSession OAuthSession { get; set; }
 
-        public ConcurrentQueue<Status> ShowingStatuses { get; private set; }
+        public Queue<Status> ShowingStatuses { get; private set; }
 
         private Kbtter()
         {
 
+        }
+
+        ~Kbtter()
+        {
+            StopStreaming();
         }
 
         #region シングルトン
@@ -73,7 +78,7 @@ namespace Kbtter3.Models
 
         public void Initialize()
         {
-            ShowingStatuses = new ConcurrentQueue<Status>();
+            ShowingStatuses = new Queue<Status>();
 
             AccessTokens = new List<AccessToken>();
             if (!Directory.Exists("config")) Directory.CreateDirectory("config");
@@ -143,7 +148,7 @@ namespace Kbtter3.Models
         void NotifyEventUpdate(EventMessage msg)
         {
             LatestEvent = msg;
-            RaisePropertyChanged(() => "");
+            RaisePropertyChanged("Event");
         }
 
         public void StopStreaming()

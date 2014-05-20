@@ -74,7 +74,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="160"/>
+                    <RowDefinition MinHeight="160"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Name="PanelNewTweetReply"/>
                 <StackPanel Grid.Row="2" Name="PanelNewTweetImages"/>
@@ -82,16 +82,18 @@
                 <TextBox Grid.Row="2" Name="TextBoxNewTweetText" AcceptsReturn="True" 
                              VerticalAlignment="Stretch"
                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                             FontSize="14" Margin="4"/>
+                             FontSize="14" Margin="4"
+                             Text="{Binding UpdateStatusText,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"
+                             Validation.ErrorTemplate="{StaticResource ErrorTemplate}"/>
                 <DockPanel Grid.Column="1" Grid.Row="2">
                     <StackPanel DockPanel.Dock="Top">
                         <StackPanel Orientation="Horizontal" Margin="4">
                             <TextBlock Width="80" TextAlignment="Center" VerticalAlignment="Center">残り</TextBlock>
-                            <TextBlock Name="TextBlockNewTweetRestLetters" FontSize="16" TextAlignment="Right">140</TextBlock>
+                            <TextBlock Name="TextBlockNewTweetRestLetters" FontSize="16" TextAlignment="Right" Text="{Binding UpdateStatusTextLength,UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <Button Name="ButtonNewTweetAddImage" Margin="4">画像を追加</Button>
                     </StackPanel>
-                    <Button Name="ButtonNewTweetSend" Margin="4" DockPanel.Dock="Bottom">つぶやく</Button>
+                    <Button Name="ButtonNewTweetSend" Margin="4" DockPanel.Dock="Bottom" Command="{Binding UpdateStatusCommand}">つぶやく</Button>
                 </DockPanel>
             </Grid>
         </Expander>
