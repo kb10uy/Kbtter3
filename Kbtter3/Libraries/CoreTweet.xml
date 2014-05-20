@@ -1452,6 +1452,11 @@
                 Nullable. Perspectival. Indicates whether this Tweet has been favorited by the authenticating user.
             </summary>
         </member>
+        <member name="P:CoreTweet.Status.FavoriteCount">
+            <summary>
+                Nullable. Indicates approximately how many times this Tweet has been "favorited" by Twitter users.
+            </summary>
+        </member>
         <member name="P:CoreTweet.Status.InReplyToScreenName">
             <summary>
                 Nullable. If the represented Tweet is a reply, this field will contain the screen name of the original Tweet's author.

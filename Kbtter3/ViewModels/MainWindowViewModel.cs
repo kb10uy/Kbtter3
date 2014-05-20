@@ -12,6 +12,7 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using Kbtter3.Models;
+using CoreTweet;
 
 namespace Kbtter3.ViewModels
 {
@@ -62,6 +63,9 @@ namespace Kbtter3.ViewModels
         Kbtter kbtter;
         PropertyChangedEventListener listener;
 
+        public ObservableSynchronizedCollection<Status> Statuses { get; protected set; }
+        public Status SelectedStatus { get; internal set; }
+
         public void Initialize()
         {
             kbtter = Kbtter.Instance;
@@ -70,6 +74,7 @@ namespace Kbtter3.ViewModels
             RegisterHandlers();
 
             kbtter.Initialize();
+            Statuses = new ObservableSynchronizedCollection<Status>();
         }
 
         public void RegisterHandlers()
@@ -85,7 +90,14 @@ namespace Kbtter3.ViewModels
 
         public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
         {
-            RaisePropertyChanged("Status");
+            //RaisePropertyChanged("Status");
+            //暫定的に上から突っ込む
+            Status st;
+            if (kbtter.ShowingStatuses.TryDequeue(out st))
+            {
+                Statuses.Insert(0, st);
+            }
+
         }
     }
 }

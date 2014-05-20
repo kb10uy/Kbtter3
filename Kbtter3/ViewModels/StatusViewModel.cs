@@ -16,7 +16,7 @@ using CoreTweet;
 
 namespace Kbtter3.ViewModels
 {
-    public class StatusPageViewModel : ViewModel
+    public class StatusViewModel : ViewModel
     {
         /* コマンド、プロパティの定義にはそれぞれ 
          * 
@@ -63,25 +63,127 @@ namespace Kbtter3.ViewModels
         Kbtter kbtter = Kbtter.Instance;
         Status status;
 
+        public static StatusViewModel Create(Status st)
+        {
+            var ret = new StatusViewModel();
+            ret.status = st;
+            ret._UserName = st.User.Name;
+            ret._ScreenName = st.User.ScreenName;
+            ret._Text = st.Text;
+            ret._ProfileImageUrl = st.User.ProfileImageUrlHttps.ToString();
+            ret._RetweetCount = st.RetweetCount;
+            ret.FavoriteCount = st.FavoriteCount ?? 0;
+
+            return ret;
+        }
+
         public void Initialize()
         {
-            status = kbtter.ShowingStatuses.Dequeue();
-            Via=status.
         }
 
 
-        #region Via変更通知プロパティ
-        private string _Via;
+        #region UserName変更通知プロパティ
+        private string _UserName;
 
-        public string Via
+        public string UserName
         {
             get
-            { return _Via; }
+            { return _UserName; }
             set
-            { 
-                if (_Via == value)
+            {
+                if (_UserName == value)
                     return;
-                _Via = value;
+                _UserName = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ScreenName変更通知プロパティ
+        private string _ScreenName;
+
+        public string ScreenName
+        {
+            get
+            { return _ScreenName; }
+            set
+            {
+                if (_ScreenName == value)
+                    return;
+                _ScreenName = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region Text変更通知プロパティ
+        private string _Text;
+
+        public string Text
+        {
+            get
+            { return _Text; }
+            set
+            {
+                if (_Text == value)
+                    return;
+                _Text = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ProfileImageUrl変更通知プロパティ
+        private string _ProfileImageUrl;
+
+        public string ProfileImageUrl
+        {
+            get
+            { return _ProfileImageUrl; }
+            set
+            {
+                if (_ProfileImageUrl == value)
+                    return;
+                _ProfileImageUrl = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region FavoriteCount変更通知プロパティ
+        private int _FavoriteCount;
+
+        public int FavoriteCount
+        {
+            get
+            { return _FavoriteCount; }
+            set
+            {
+                if (_FavoriteCount == value)
+                    return;
+                _FavoriteCount = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region RetweetCount変更通知プロパティ
+        private int _RetweetCount;
+
+        public int RetweetCount
+        {
+            get
+            { return _RetweetCount; }
+            set
+            {
+                if (_RetweetCount == value)
+                    return;
+                _RetweetCount = value;
                 RaisePropertyChanged();
             }
         }

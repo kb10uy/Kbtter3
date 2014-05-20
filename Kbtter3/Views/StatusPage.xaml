@@ -12,7 +12,7 @@
         Title="StatusPage" d:DesignHeight="100" d:DesignWidth="400">
 
     <Page.DataContext>
-        <vm:StatusPageViewModel/>
+        <vm:StatusViewModel/>
     </Page.DataContext>
 
     <i:Interaction.Triggers>

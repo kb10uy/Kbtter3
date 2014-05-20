@@ -7,17 +7,17 @@
         xmlns:v="clr-namespace:Kbtter3.Views"
         xmlns:vm="clr-namespace:Kbtter3.ViewModels"
         Title="Kbtter3 Polystyrene" Height="500" Width="525">
-    
+
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
-    
+
     <i:Interaction.Triggers>
-    
-    	<!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
-    	<!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
-    	<!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています --> 
-        
+
+        <!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+        <!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+        <!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています -->
+
         <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
         <i:EventTrigger EventName="ContentRendered">
             <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
@@ -27,8 +27,8 @@
         <i:EventTrigger EventName="Closed">
             <l:DataContextDisposeAction/>
         </i:EventTrigger>
-     
-        
+
+
         <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
 
     </i:Interaction.Triggers>
@@ -36,7 +36,7 @@
     <Window.Resources>
         <ResourceDictionary Source="KbtterResource.xaml"/>
     </Window.Resources>
-    
+
     <Grid Background="{StaticResource TwitterColorWhite}" Name="GridMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -98,7 +98,9 @@
 
         <TabControl Name="TabControlMain" Grid.Row="3" Margin="0,2,0,0" Background="{StaticResource TwitterColorWhite}" Style="{StaticResource RoundTabControl}">
             <TabItem Header="タイムライン" Name="TabTimeline" Style="{StaticResource RoundTabItem}">
-                <ListBox Name="ListBoxTimeline" HorizontalContentAlignment="Stretch" 
+                <ListBox Name="ListBoxTimeline" HorizontalContentAlignment="Stretch"
+                         ItemsSource="{Binding Path=Statuses}"
+                         SelectedItem="{Binding Path=SelectedStatus}"
                          ScrollViewer.CanContentScroll="False"
                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
                          />

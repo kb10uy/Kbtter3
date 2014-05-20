@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -51,7 +52,7 @@ namespace Kbtter3.Models
 
         public OAuth.OAuthSession OAuthSession { get; set; }
 
-        public Queue<Status> ShowingStatuses { get; private set; }
+        public ConcurrentQueue<Status> ShowingStatuses { get; private set; }
 
         private Kbtter()
         {
@@ -72,9 +73,10 @@ namespace Kbtter3.Models
 
         public void Initialize()
         {
-            ShowingStatuses = new Queue<Status>();
+            ShowingStatuses = new ConcurrentQueue<Status>();
 
             AccessTokens = new List<AccessToken>();
+            if (!Directory.Exists("config")) Directory.CreateDirectory("config");
             if (!File.Exists(ConsumerTokenFileName))
             {
                 var ct = new ConsumerToken { Key = ConsumerDefaultKey, Secret = ConsumerDefaultSecret };
