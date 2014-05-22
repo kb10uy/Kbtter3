@@ -160,6 +160,7 @@
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
     <Content Include="Libraries\CoreTweet.dll" />
     <Content Include="Libraries\CoreTweet.Streaming.Reactive.dll" />
+    <Resource Include="Resources\reply.png" />
     <Resource Include="Resources\close.png" />
     <Resource Include="Resources\closeover.png" />
     <Resource Include="Resources\fav.png" />

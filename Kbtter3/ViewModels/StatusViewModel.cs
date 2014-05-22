@@ -20,48 +20,6 @@ namespace Kbtter3.ViewModels
 {
     public class StatusViewModel : ViewModel
     {
-        /* コマンド、プロパティの定義にはそれぞれ 
-         * 
-         *  lvcom   : ViewModelCommand
-         *  lvcomn  : ViewModelCommand(CanExecute無)
-         *  llcom   : ListenerCommand(パラメータ有のコマンド)
-         *  llcomn  : ListenerCommand(パラメータ有のコマンド・CanExecute無)
-         *  lprop   : 変更通知プロパティ(.NET4.5ではlpropn)
-         *  
-         * を使用してください。
-         * 
-         * Modelが十分にリッチであるならコマンドにこだわる必要はありません。
-         * View側のコードビハインドを使用しないMVVMパターンの実装を行う場合でも、ViewModelにメソッドを定義し、
-         * LivetCallMethodActionなどから直接メソッドを呼び出してください。
-         * 
-         * ViewModelのコマンドを呼び出せるLivetのすべてのビヘイビア・トリガー・アクションは
-         * 同様に直接ViewModelのメソッドを呼び出し可能です。
-         */
-
-        /* ViewModelからViewを操作したい場合は、View側のコードビハインド無で処理を行いたい場合は
-         * Messengerプロパティからメッセージ(各種InteractionMessage)を発信する事を検討してください。
-         */
-
-        /* Modelからの変更通知などの各種イベントを受け取る場合は、PropertyChangedEventListenerや
-         * CollectionChangedEventListenerを使うと便利です。各種ListenerはViewModelに定義されている
-         * CompositeDisposableプロパティ(LivetCompositeDisposable型)に格納しておく事でイベント解放を容易に行えます。
-         * 
-         * ReactiveExtensionsなどを併用する場合は、ReactiveExtensionsのCompositeDisposableを
-         * ViewModelのCompositeDisposableプロパティに格納しておくのを推奨します。
-         * 
-         * LivetのWindowテンプレートではViewのウィンドウが閉じる際にDataContextDisposeActionが動作するようになっており、
-         * ViewModelのDisposeが呼ばれCompositeDisposableプロパティに格納されたすべてのIDisposable型のインスタンスが解放されます。
-         * 
-         * ViewModelを使いまわしたい時などは、ViewからDataContextDisposeActionを取り除くか、発動のタイミングをずらす事で対応可能です。
-         */
-
-        /* UIDispatcherを操作する場合は、DispatcherHelperのメソッドを操作してください。
-         * UIDispatcher自体はApp.xaml.csでインスタンスを確保してあります。
-         * 
-         * LivetのViewModelではプロパティ変更通知(RaisePropertyChanged)やDispatcherCollectionを使ったコレクション変更通知は
-         * 自動的にUIDispatcher上での通知に変換されます。変更通知に際してUIDispatcherを操作する必要はありません。
-         */
-
         Kbtter kbtter = Kbtter.Instance;
         Status status, origin;
         static Regex reg = new Regex("<a href=\"(?<url>.+)\" rel=\"nofollow\">(?<client>.+)</a>");
@@ -91,6 +49,8 @@ namespace Kbtter3.ViewModels
             ret._IsFavorited = st.IsFavorited ?? false;
             ret._IsRetweeted = st.IsRetweeted ?? false;
             ret._FavoriteCount = st.FavoriteCount ?? 0;
+            ret.AnalyzeText();
+            ret.TryGetReply();
 
             var vm = reg.Match(st.Source);
             ret._Via = vm.Groups["client"].Value;
@@ -102,6 +62,117 @@ namespace Kbtter3.ViewModels
         public void Initialize()
         {
         }
+
+        private void TryGetReply()
+        {
+            if (status.InReplyToStatusId == null) return;
+            long id = status.InReplyToStatusId ?? 0;
+            var rs = kbtter.Cache.Where(p => p.Id == id).FirstOrDefault();
+            if (rs != null)
+            {
+                _ReplyUserName = rs.User.Name;
+                _ReplyText = rs.Text.Trim('\r', '\n');
+                _IsReply = true;
+            }
+        }
+
+        private void AnalyzeText()
+        {
+            _Text = _Text
+                .Replace("&amp;", "&")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">");
+            TextElements = new List<StatusElement>();
+
+            var el = new List<EntityInfo>();
+            if (status.Entities.Urls != null) el.AddRange(status.Entities.Urls.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Url" }));
+            if (status.Entities.Media != null) el.AddRange(status.Entities.Media.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Media" }));
+            if (status.Entities.UserMentions != null) el.AddRange(status.Entities.UserMentions.Select(p => new EntityInfo { Indices = p.Indices, Text = "@" + p.ScreenName, Infomation = p.ScreenName, Type = "Mention" }));
+            if (status.Entities.HashTags != null) el.AddRange(status.Entities.HashTags.Select(p => new EntityInfo { Indices = p.Indices, Text = "#" + p.Text, Infomation = p.Text, Type = "Hashtag" }));
+            el.Sort((x, y) => x.Indices[0].CompareTo(y.Indices[0]));
+            int n = 0;
+            string s = _Text;
+            foreach (var i in el)
+            {
+                TextElements.Add(new StatusElement { Text = s.Substring(n, i.Indices[0] - n), Type = "None" });
+                TextElements.Add(new StatusElement { Text = i.Text, Infomation = i.Infomation, Type = i.Type });
+                n = i.Indices[1];
+            }
+            if (n < s.Length) TextElements.Add(new StatusElement { Text = s.Substring(n), Type = "None" });
+        }
+
+        public class EntityInfo
+        {
+            public int[] Indices { get; set; }
+            public string Text { get; set; }
+            public string Infomation { get; set; }
+            public string Type { get; set; }
+        }
+
+        public class StatusElement
+        {
+            public string Text { get; set; }
+            public string Infomation { get; set; }
+            public string Type { get; set; }
+        }
+
+        public IList<StatusElement> TextElements { get; private set; }
+
+
+        #region ReplyUserName変更通知プロパティ
+        private string _ReplyUserName = "";
+
+        public string ReplyUserName
+        {
+            get
+            { return _ReplyUserName; }
+            set
+            {
+                if (_ReplyUserName == value)
+                    return;
+                _ReplyUserName = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ReplyText変更通知プロパティ
+        private string _ReplyText = "";
+
+        public string ReplyText
+        {
+            get
+            { return _ReplyText; }
+            set
+            {
+                if (_ReplyText == value)
+                    return;
+                _ReplyText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsReply変更通知プロパティ
+        private bool _IsReply;
+
+        public bool IsReply
+        {
+            get
+            { return _IsReply; }
+            set
+            {
+                if (_IsReply == value)
+                    return;
+                _IsReply = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
 
 
         #region IsRetweeted変更通知プロパティ
@@ -230,7 +301,6 @@ namespace Kbtter3.ViewModels
             }
         }
         #endregion
-
 
 
         #region UserName変更通知プロパティ

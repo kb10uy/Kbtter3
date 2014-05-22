@@ -9,7 +9,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" 
-        Title="StatusPage" d:DesignHeight="100" d:DesignWidth="400">
+        Title="StatusPage" d:DesignHeight="140" d:DesignWidth="400" Loaded="Page_Loaded">
 
     <i:Interaction.Triggers>
 
@@ -34,70 +34,90 @@
     <Page.Resources>
         <ResourceDictionary Source="KbtterResource.xaml"/>
     </Page.Resources>
-
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="48"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Rectangle Name="RectangleRetweetBackground" Grid.ColumnSpan="2" Grid.RowSpan="2" 
-                   Fill="{StaticResource Kbtter3RetweetBackColor}" Panel.ZIndex="-100" 
-                   Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-        <StackPanel Grid.Column="0" Grid.Row="0">
-            <Image Name="ImageUserIcon"
-               Margin="4" Height="36" Width="36"/>
-            <StackPanel Margin="4" HorizontalAlignment="Left">
-                <StackPanel Orientation="Horizontal">
-                    <ToggleButton Name="ButtonFavorite" Margin="2"
-                              Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited}" Height="16" Width="16"/>
-                    <TextBlock Name="TextBlockFavoriteCount" FontSize="9" VerticalAlignment="Center" Text="{Binding FavoriteCount}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <ToggleButton Name="ButtonRetweet" Margin="2"
-                              Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted}" Height="16" Width="16"/>
-                    <TextBlock Name="TextBlockRetweetCount" FontSize="9" VerticalAlignment="Center" Text="{Binding RetweetCount}"/>
-                </StackPanel>
-            </StackPanel>
+        
+        <StackPanel Name="PanelReply" Orientation="Horizontal" 
+                    Background="{StaticResource Kbtter3ReplyBackColor}" Panel.ZIndex="10"
+                    Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Name="TextBlockReplyName" VerticalAlignment="Center" Margin="24,2,0,2" FontWeight="Bold" Text="{Binding ReplyUserName}"/>
+            <TextBlock Name="TextBlockReplyText" VerticalAlignment="Center" Margin="24,2,0,2" Text="{Binding ReplyText}"/>
+
         </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3">
+        <Image Name="ImageReply" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" 
+               Margin="4,16,0,0" Grid.RowSpan="2" Width="16" Height="16"
+               Source="/Kbtter3;component/Resources/reply.png" Panel.ZIndex="2"
+               Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        
+        <Grid Grid.Row="1" Panel.ZIndex="-10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="48"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            
-            <StackPanel Grid.Row="0" Margin="2,0,0,0" Orientation="Horizontal">
-                <TextBlock Name="TextBlockUserName" FontSize="15" FontWeight="Bold" Text="{Binding UserName}"/>
-                <TextBlock Margin="8,0,0,0" TextAlignment="Center" VerticalAlignment="Center" FontStyle="Italic">
-                    @<Hyperlink Name="HyperlinkScreenName" Foreground="Gray">
-                        <TextBlock Text="{Binding ScreenName}"/>
+            <Rectangle Name="RectangleRetweetBackground" Grid.ColumnSpan="2" Grid.RowSpan="2" 
+                   Fill="{StaticResource Kbtter3RetweetBackColor}" Panel.ZIndex="-100" 
+                   Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <StackPanel Grid.Column="0" Grid.Row="0">
+                <Image Name="ImageUserIcon"
+               Margin="4" Height="36" Width="36"/>
+                <StackPanel Margin="4" HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <ToggleButton Name="ButtonFavorite" Margin="2"
+                              Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited,Mode=TwoWay}" Height="16" Width="16"/>
+                        <TextBlock Name="TextBlockFavoriteCount" FontSize="9" VerticalAlignment="Center" Text="{Binding FavoriteCount}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ToggleButton Name="ButtonRetweet" Margin="2"
+                              Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted,Mode=TwoWay}" Height="16" Width="16"/>
+                        <TextBlock Name="TextBlockRetweetCount" FontSize="9" VerticalAlignment="Center" Text="{Binding RetweetCount}"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="2,0,0,0" Orientation="Horizontal">
+                    <TextBlock Name="TextBlockUserName" FontSize="15" FontWeight="Bold" Text="{Binding UserName}"/>
+                    <TextBlock Margin="8,0,0,0" TextAlignment="Center" VerticalAlignment="Center" FontStyle="Italic">
+                    <Hyperlink Name="HyperlinkScreenName" Foreground="DodgerBlue" RequestNavigate="HyperlinkScreenName_RequestNavigate"
+                                MouseEnter="Hyperlink_MouseEnter" MouseLeave="Hyperlink_MouseLeave">
+                        @<TextBlock Text="{Binding ScreenName}"/>
                     </Hyperlink>
                 </TextBlock>
-            </StackPanel>
-            
-            <TextBlock Name="TextBlockMainText" Margin="2,0,0,4" Grid.Row="1" FontSize="14" TextWrapping="Wrap" Text="{Binding Text}"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="2">
-                <TextBlock Foreground="Gray" Margin="0,0,4,0" Grid.Row="2">via</TextBlock>
-                <TextBlock>
-                    <Hyperlink NavigateUri="{Binding ViaUri}" Foreground="Gray">
-                        <TextBlock Name="TextBlockVia" Foreground="Gray" Margin="0,0,0,0" Grid.Row="2" Text="{Binding Via}"/>
+                </StackPanel>
+
+                <TextBlock Name="TextBlockMainText" Margin="2,0,0,4" Grid.Row="1" FontSize="14" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Name="StackPanelBlockVia">
+                    <TextBlock Foreground="Gray" Margin="0,0,4,0" Grid.Row="2">via</TextBlock>
+                    <TextBlock>
+                    <Hyperlink NavigateUri="{Binding ViaUri}" Foreground="DodgerBlue"
+                               MouseEnter="Hyperlink_MouseEnter" MouseLeave="Hyperlink_MouseLeave" RequestNavigate="Hyperlink_RequestNavigate">
+                        <TextBlock  Margin="0,0,0,0" Grid.Row="2" Text="{Binding Via}"/>
                     </Hyperlink>
                 </TextBlock>
-            </StackPanel>
-            
-            <StackPanel Orientation="Horizontal" Grid.Row="3">
-                <TextBlock Foreground="Gray" Margin="0,0,4,0" 
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="3">
+                    <TextBlock Foreground="Gray" Margin="0,0,4,0" 
                            Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}">
                     Retweeted by
-                </TextBlock>
-                <TextBlock Name="TextBlockRetweetedBy" Foreground="Gray" Margin="0,0,0,0" Text="{Binding RetweetUserName}"/>
-            </StackPanel>
+                    </TextBlock>
+                    <TextBlock Name="TextBlockRetweetedBy" Foreground="Gray" Margin="0,0,0,0" Text="{Binding RetweetUserName}"/>
+                </StackPanel>
 
+            </Grid>
         </Grid>
     </Grid>
 </Page>

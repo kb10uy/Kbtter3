@@ -2066,6 +2066,16 @@
             URL of this size.
             </summary>
         </member>
+        <member name="P:CoreTweet.UserEntity.Url">
+            <summary>
+            Entities of <see cref="P:CoreTweet.User.Url"/> field.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.UserEntity.Description">
+            <summary>
+            Entities of <see cref="P:CoreTweet.User.Description"/> field.
+            </summary>
+        </member>
         <member name="T:CoreTweet.Request">
             <summary>
             Sends a request to Twitter and some other web services.

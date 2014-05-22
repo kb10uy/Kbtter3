@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -16,24 +17,113 @@ using Kbtter3.ViewModels;
 
 namespace Kbtter3.Views
 {
-    /* 
-     * ViewModelからの変更通知などの各種イベントを受け取る場合は、PropertyChangedWeakEventListenerや
-     * CollectionChangedWeakEventListenerを使うと便利です。独自イベントの場合はLivetWeakEventListenerが使用できます。
-     * クローズ時などに、LivetCompositeDisposableに格納した各種イベントリスナをDisposeする事でイベントハンドラの開放が容易に行えます。
-     *
-     * WeakEventListenerなので明示的に開放せずともメモリリークは起こしませんが、できる限り明示的に開放するようにしましょう。
-     */
 
     /// <summary>
     /// StatusPage.xaml の相互作用ロジック
     /// </summary>
     public partial class StatusPage : Page
     {
+        Storyboard sb;
+        bool showed = false;
+        IList<StatusViewModel.StatusElement> elm;
+        string stsn;
+
         public StatusPage(StatusViewModel vm)
         {
             InitializeComponent();
             DataContext = vm;
+            elm = vm.TextElements;
+            stsn = vm.ScreenName;
+
             ImageUserIcon.Source = new BitmapImage(vm.ProfileImageUri);
+            if (vm.Via == "") StackPanelBlockVia.Visibility = Visibility.Collapsed;
+            SetMainText();
+        }
+
+        void SetMainText()
+        {
+            foreach (var i in elm)
+            {
+                switch (i.Type)
+                {
+                    case "None":
+                        TextBlockMainText.Inlines.Add(i.Text);
+                        break;
+
+                    case "Url":
+                    case "Media":
+                    case "Mention":
+                    case "Hashtag":
+                        var hl = new Hyperlink();
+                        hl.Inlines.Add(i.Text);
+                        hl.Tag = i;
+                        hl.RequestNavigate += (s, e2) =>
+                        {
+                            var t = ((s as Hyperlink).Tag as StatusViewModel.StatusElement);
+                            RequestHyperlinkAction(t.Type, t.Infomation);
+                            e2.Handled = true;
+                        };
+                        hl.MouseEnter += Hyperlink_MouseEnter;
+                        hl.MouseLeave += Hyperlink_MouseLeave;
+                        hl.Foreground = Brushes.DodgerBlue;
+                        TextBlockMainText.Inlines.Add(hl);
+                        break;
+                    default:
+                        throw new InvalidOperationException("予期しないテキスト要素です");
+                }
+            }
+
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (showed) return;
+            showed = true;
+
+            var cdu = new Duration(TimeSpan.FromMilliseconds(500));
+            //たかさ
+            var dah = new DoubleAnimation { From = 0.0, To = this.ActualHeight, Duration = cdu, EasingFunction = new SineEase() };
+            Storyboard.SetTargetProperty(dah, new PropertyPath("Height"));
+            Storyboard.SetTarget(dah, this);
+            //透明度
+            var dao = new DoubleAnimation { From = 0, To = 1, Duration = cdu };
+            Storyboard.SetTargetProperty(dao, new PropertyPath("Opacity"));
+            Storyboard.SetTarget(dao, this);
+
+            sb = new Storyboard();
+            sb.Children.Add(dah);
+            sb.Children.Add(dao);
+            this.Height = 0;
+            sb.Begin();
+
+        }
+
+        void RequestHyperlinkAction(string type, string info)
+        {
+
+        }
+
+        private void Hyperlink_MouseEnter(object sender, MouseEventArgs e)
+        {
+            (sender as Hyperlink).Foreground = Brushes.Red;
+        }
+
+        private void Hyperlink_MouseLeave(object sender, MouseEventArgs e)
+        {
+            (sender as Hyperlink).Foreground = Brushes.DodgerBlue;
+        }
+
+        //Via用とか
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            RequestHyperlinkAction("Url", e.Uri.ToString());
+            e.Handled = true;
+        }
+
+        private void HyperlinkScreenName_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            RequestHyperlinkAction("Mention", stsn);
+            e.Handled = true;
         }
     }
 }

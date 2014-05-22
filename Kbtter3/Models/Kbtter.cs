@@ -122,7 +122,7 @@ namespace Kbtter3.Models
         #region streaming
         public void StartStreaming()
         {
-            var ob = Token.Streaming.StartObservableStream(StreamingType.User)
+            var ob = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => true, include_followings_activity => true))
                 .Publish();
             ob.OfType<StatusMessage>().Subscribe((p) =>
             {
@@ -141,6 +141,7 @@ namespace Kbtter3.Models
         void NotifyStatusUpdate(StatusMessage msg)
         {
             LatestStatus = msg;
+            Cache.Add(msg.Status);
             ShowingStatuses.Enqueue(msg.Status);
             RaisePropertyChanged("Status");
         }
@@ -153,7 +154,7 @@ namespace Kbtter3.Models
 
         public void StopStreaming()
         {
-            Stream.Dispose();
+            if (Stream != null) Stream.Dispose();
         }
 
         #endregion
