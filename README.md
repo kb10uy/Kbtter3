@@ -51,7 +51,10 @@ LICENSE.txtを参照してください。
  - JSON.NETはMIT Licenseのライブラリです。
  - Livetはzlib/pngのライブラリです。
  - Reactive Extensionsは、Apache License 2.0のライブラリです。
-   
+ - SQLite、System.Data.SQLiteは、Public Domainのライブラリです。
+ - Entity Frameworkは、マイクロソフト ソフトウェア ライセンス条項下のライブラリです。  
+   詳しくは[マイクロソフト ソフトウェア ライセンス条項](http://www.microsoft.com/web/webpi/eula/net_library_eula_jpn.htm)を参照してください。
+
 ###使用ライブラリのライセンス
 
 ####Apache License 2.0

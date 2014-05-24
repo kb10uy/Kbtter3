@@ -54,6 +54,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="36"/>
             </Grid.ColumnDefinitions>
+            <TextBlock Name="TextBlockPR" VerticalAlignment="Center" FontSize="20" FontStyle="Italic" Margin="4,0,0,0">Kbtter3 </TextBlock>
             <Menu Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="Transparent">
                 <MenuItem VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                     <MenuItem.Header>
@@ -74,7 +75,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition MinHeight="160"/>
+                    <RowDefinition MinHeight="100"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Name="PanelNewTweetReply"/>
                 <StackPanel Grid.Row="2" Name="PanelNewTweetImages"/>

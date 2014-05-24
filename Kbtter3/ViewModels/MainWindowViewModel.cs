@@ -111,6 +111,7 @@ namespace Kbtter3.ViewModels
                 _UpdateStatusText = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged(() => UpdateStatusTextLength);
+                UpdateStatusCommand.RaiseCanExecuteChanged();
 
                 errors["UpdateStatusText"] = (value.Length > 140) ? "140文字を超えています" : null;
             }
@@ -147,7 +148,7 @@ namespace Kbtter3.ViewModels
 
         public bool CanUpdateStatus()
         {
-            return UpdateStatusText.Length <= 140 && !_tokenus;
+            return !_tokenus && UpdateStatusText.Length <= 140 && UpdateStatusText.Length != 0;
         }
 
         public async void UpdateStatus()

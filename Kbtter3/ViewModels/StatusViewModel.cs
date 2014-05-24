@@ -46,8 +46,8 @@ namespace Kbtter3.ViewModels
             ret._Text = st.Text;
             ret._ProfileImageUri = st.User.ProfileImageUrlHttps;
             ret._RetweetCount = st.RetweetCount;
-            ret._IsFavorited = st.IsFavorited ?? false;
-            ret._IsRetweeted = st.IsRetweeted ?? false;
+            ret._IsFavorited = (st.IsFavorited ?? false) || Kbtter.Instance.IsFavoritedInCache(st);
+            ret._IsRetweeted = (st.IsRetweeted ?? false) || (ret.origin.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.origin));
             ret._FavoriteCount = st.FavoriteCount ?? 0;
             ret.AnalyzeText();
             ret.TryGetReply();
@@ -71,7 +71,8 @@ namespace Kbtter3.ViewModels
             if (rs != null)
             {
                 _ReplyUserName = rs.User.Name;
-                _ReplyText = rs.Text.Trim('\r', '\n');
+                _ReplyText = rs.Text.Replace("\r", "")
+                                    .Replace("\n", "");
                 _IsReply = true;
             }
         }
@@ -173,8 +174,6 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
-
-
         #region IsRetweeted変更通知プロパティ
         private bool _IsRetweeted;
 
@@ -188,15 +187,15 @@ namespace Kbtter3.ViewModels
                     return;
                 if (value)
                 {
-                    rtid = kbtter.Token.Statuses.Retweet(id => origin.Id).Id;
+                    rtid = kbtter.Token.Statuses.Retweet(id => status.Id).Id;
                 }
                 else
                 {
                     if (rtid == 0)
                     {
-                        rtid = kbtter.Token.Statuses.Show(include_my_retweet => true).CurrentUserRetweet ?? 0;
-                        kbtter.Token.Statuses.Destroy(id => rtid);
+                        rtid = kbtter.Token.Statuses.Show(id => status.Id, include_my_retweet => true).CurrentUserRetweet ?? 0;
                     }
+                    kbtter.Token.Statuses.Destroy(id => rtid);
                 }
                 _IsRetweeted = value;
                 RaisePropertyChanged();
@@ -218,7 +217,15 @@ namespace Kbtter3.ViewModels
                     return;
                 if (value)
                 {
-                    kbtter.Token.Favorites.Create(id => origin.Id);
+                    try
+                    {
+                        kbtter.Token.Favorites.Create(id => origin.Id);
+                    }
+                    catch (TwitterException e)
+                    {
+
+                    }
+
                 }
                 else
                 {

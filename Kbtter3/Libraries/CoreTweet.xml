@@ -643,7 +643,21 @@
                 Proxy information for the request.
             </param>
         </member>
-        <!-- 正しくない形式の XML コメントがメンバー "M:CoreTweet.OAuth.GetTokens(CoreTweet.OAuth.OAuthSession,System.String)" で無視されました -->
+        <member name="M:CoreTweet.OAuth.GetTokens(CoreTweet.OAuth.OAuthSession,System.String)">
+            <summary>
+                Gets the OAuth tokens.
+                Be sure to call GenerateAuthUri(string,string) before call this.
+            </summary>
+            <param name='pin'>
+                Pin code.
+            </param>
+            <param name='session'>
+                OAuth session.
+            </param>
+            <returns>
+                The tokens.
+            </returns>
+        </member>
         <member name="P:CoreTweet.OAuth.OAuthSession.ConsumerKey">
             <summary>
             Gets or sets the consumer key.
@@ -835,84 +849,84 @@
             The age.
             </value>
         </member>
-        <member name="P:CoreTweet.Entity.HashTags">
+        <member name="P:CoreTweet.Entities.HashTags">
             <summary>
                 Represents hashtags which have been parsed out of the Tweet text.
             </summary>
         </member>
-        <member name="P:CoreTweet.Entity.Media">
+        <member name="P:CoreTweet.Entities.Media">
             <summary>
                 Represents media elements uploaded with the Tweet.
             </summary>
         </member>
-        <member name="P:CoreTweet.Entity.Urls">
+        <member name="P:CoreTweet.Entities.Urls">
             <summary>
                 Represents URLs included in the text of a Tweet or within textual fields of a user object.
             </summary>
         </member>
-        <member name="P:CoreTweet.Entity.UserMentions">
+        <member name="P:CoreTweet.Entities.UserMentions">
             <summary>
                 Represents other Twitter users mentioned in the text of the Tweet.
             </summary>
         </member>
-        <member name="P:CoreTweet.HashTag.Text">
+        <member name="P:CoreTweet.Entity.Indices">
+            <summary>
+                An array of integers indicating the offsets within the Tweet text where this entity begins and ends.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.HashTagEntity.Text">
             <summary>
                 Name of the hashtag, minus the leading '#' character.
             </summary>
         </member>
-        <member name="P:CoreTweet.HashTag.Indices">
+        <member name="P:CoreTweet.UrlEntity.DisplayUrl">
             <summary>
-                An array of integers indicating the offsets within the Tweet text where the hashtag begins and ends. The first integer represents the location of the # character in the Tweet text string. The second integer represents the location of the first character after the hashtag. Therefore the difference between the two numbers will be the length of the hashtag name plus one (for the '#' character).
+                Version of the URL to display to clients.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.DisplayUrl">
+        <member name="P:CoreTweet.UrlEntity.ExpandedUrl">
             <summary>
-                URL of the media to display to clients.
+                Expanded version of display_url.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.ExpandedUrl">
+        <member name="P:CoreTweet.UrlEntity.Url">
             <summary>
-                An expanded version of display_url. Links to the media display page.
+                Wrapped URL, corresponding to the value embedded directly into the raw Tweet text, and the values for the indices parameter.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.Id">
+        <member name="P:CoreTweet.MediaEntity.Id">
             <summary>
                 ID of the media expressed as a 64-bit integer.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.Indices">
+        <member name="P:CoreTweet.MediaEntity.Indices">
             <summary>
                 An array of integers indicating the offsets within the Tweet text where the URL begins and ends. The first integer represents the location of the first character of the URL in the Tweet text. The second integer represents the location of the first non-URL character occurring after the URL (or the end of the string if the URL is the last part of the Tweet text).
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.MediaUrl">
+        <member name="P:CoreTweet.MediaEntity.MediaUrl">
             <summary>
                 An http:// URL pointing directly to the uploaded media file.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.MediaUrlHttps">
+        <member name="P:CoreTweet.MediaEntity.MediaUrlHttps">
             <summary>
                 An https:// URL pointing directly to the uploaded media file, for embedding on https pages.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.Sizes">
+        <member name="P:CoreTweet.MediaEntity.Sizes">
             <summary>
                 An object showing available sizes for the media file.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.SourceStatusId">
+        <member name="P:CoreTweet.MediaEntity.SourceStatusId">
             <summary>
                 For Tweets containing media that was originally associated with a different tweet, this ID points to the original Tweet.
             </summary>
         </member>
-        <member name="P:CoreTweet.Media.Type">
+        <member name="P:CoreTweet.MediaEntity.Type">
             <summary>
                 Type of uploaded media.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Media.Url">
-            <summary>
-                Wrapped URL for the media link. This corresponds with the URL embedded directly into the raw Tweet text, and the values for the indices parameter.
             </summary>
         </member>
         <member name="P:CoreTweet.MediaSize.Height">
@@ -950,42 +964,17 @@
                 Information for a thumbnail-sized version of the media.
             </summary>
         </member>
-        <member name="P:CoreTweet.Url.DisplayUrl">
-            <summary>
-                Version of the URL to display to clients.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Url.ExpandedUrl">
-            <summary>
-                Expanded version of display_url.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Url.Indices">
-            <summary>
-                An array of integers representing offsets within the Tweet text where the URL begins and ends. The first integer represents the location of the first character of the URL in the Tweet text. The second integer represents the location of the first non-URL character after the end of the URL.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Url.Uri">
-            <summary>
-                Wrapped URL, corresponding to the value embedded directly into the raw Tweet text, and the values for the indices parameter.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.UserMention.Id">
+        <member name="P:CoreTweet.UserMentionEntity.Id">
             <summary>
                 ID of the mentioned user, as an integer.
             </summary>
         </member>
-        <member name="P:CoreTweet.UserMention.Indices">
-            <summary>
-                An array of integers representing the offsets within the Tweet text where the user reference begins and ends. The first integer represents the location of the '@' character of the user mention. The second integer represents the location of the first non-screenname character following the user mention.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.UserMention.Name">
+        <member name="P:CoreTweet.UserMentionEntity.Name">
             <summary>
                 Display name of the referenced user.
             </summary>
         </member>
-        <member name="P:CoreTweet.UserMention.ScreenName">
+        <member name="P:CoreTweet.UserMentionEntity.ScreenName">
             <summary>
                 Screen name of the referenced user.
             </summary>
@@ -2066,12 +2055,12 @@
             URL of this size.
             </summary>
         </member>
-        <member name="P:CoreTweet.UserEntity.Url">
+        <member name="P:CoreTweet.UserEntities.Url">
             <summary>
             Entities of <see cref="P:CoreTweet.User.Url"/> field.
             </summary>
         </member>
-        <member name="P:CoreTweet.UserEntity.Description">
+        <member name="P:CoreTweet.UserEntities.Description">
             <summary>
             Entities of <see cref="P:CoreTweet.User.Description"/> field.
             </summary>

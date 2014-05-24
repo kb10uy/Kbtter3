@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
+
+using Newtonsoft.Json;
 
 using Kbtter3.ViewModels;
 using Livet;
@@ -36,6 +39,7 @@ namespace Kbtter3.Views
         public static readonly string ConfigFileName = "config/mainwindow.json";
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;
+        MainWindowSetting setting;
 
         public MainWindow()
         {
@@ -46,6 +50,8 @@ namespace Kbtter3.Views
             composite.Add(ctxlistener);
 
             ((MainWindowViewModel)DataContext).Update += MainWindow_Update;
+            if (!File.Exists(ConfigFileName)) File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(new MainWindowSetting()));
+            setting = JsonConvert.DeserializeObject<MainWindowSetting>(File.ReadAllText(ConfigFileName));
         }
 
         void MainWindow_Update(object sender, StatusViewModel vm)
@@ -53,6 +59,7 @@ namespace Kbtter3.Views
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
                 ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(vm) });
+                if (ListBoxTimeline.Items.Count > setting.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.StatusesShowMax);
             }));
         }
 
@@ -61,5 +68,15 @@ namespace Kbtter3.Views
             new AccountSelectWindow().ShowDialog();
         }
 
+    }
+
+    internal class MainWindowSetting
+    {
+        public int StatusesShowMax { get; set; }
+
+        public MainWindowSetting()
+        {
+            StatusesShowMax = 200;
+        }
     }
 }

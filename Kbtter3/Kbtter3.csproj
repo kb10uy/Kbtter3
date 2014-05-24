@@ -36,6 +36,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\kbtter3.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CoreTweet, Version=0.3.0.22462, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -44,6 +47,12 @@
     <Reference Include="CoreTweet.Streaming.Reactive, Version=0.3.0.22465, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libraries\CoreTweet.Streaming.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Livet">
       <SpecificVersion>False</SpecificVersion>
@@ -57,7 +66,20 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Data.SQLite, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.92.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.92.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.92.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.2.4\lib\net45\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -91,6 +113,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Caching\CacheModels.cs" />
     <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
     <Compile Include="Views\AccountSelectWindow.xaml.cs">
       <DependentUpon>AccountSelectWindow.xaml</DependentUpon>
@@ -160,6 +183,14 @@
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
     <Content Include="Libraries\CoreTweet.dll" />
     <Content Include="Libraries\CoreTweet.Streaming.Reactive.dll" />
+    <Resource Include="Resources\kbtter3.ico" />
+    <Resource Include="Resources\kbtter3.png" />
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Resources\reply.png" />
     <Resource Include="Resources\close.png" />
     <Resource Include="Resources\closeover.png" />
