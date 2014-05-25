@@ -12,6 +12,7 @@
     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#7F37B6FF"/>
     <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#7F7AA5BD"/>
 
+    <SolidColorBrush x:Key="Kbtter3StatusBackColor" Color="#66FFFFFF"/>
     <SolidColorBrush x:Key="Kbtter3RetweetBackColor" Color="#669FFF72"/>
     <SolidColorBrush x:Key="Kbtter3ReplyBackColor" Color="#66FFBC5A"/>
     <SolidColorBrush x:Key="Kbtter3AchievementColor" Color="#66FFF74B"/>
@@ -38,8 +39,7 @@
     <ControlTemplate x:Key="ErrorTemplate">
         <Border BorderThickness="2" BorderBrush="{StaticResource Kbtter3ErrorColor}">
             <Grid>
-                <AdornedElementPlaceholder Panel.ZIndex="-10"/>
-                <TextBlock Foreground="{StaticResource Kbtter3ErrorColor}" Text="{Binding (Validation.Errors)[0].ErrorContent}"/>
+                <AdornedElementPlaceholder/>
             </Grid>
         </Border>
     </ControlTemplate>
@@ -175,4 +175,23 @@
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
+
+    <ControlTemplate x:Key="DeleteButton" TargetType="Button">
+        <Border Name="Main">
+            <Border.Background>
+                <ImageBrush ImageSource="/Kbtter3;component/Resources/delete.png" Stretch="None"/>
+            </Border.Background>
+            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Border>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="CancelButton" TargetType="Button">
+        <Border Name="Main">
+            <Border.Background>
+                <ImageBrush ImageSource="/Kbtter3;component/Resources/cancel.png" Stretch="None"/>
+            </Border.Background>
+            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Border>
+    </ControlTemplate>
+    
 </ResourceDictionary>

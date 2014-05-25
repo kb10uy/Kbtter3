@@ -54,7 +54,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="36"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Name="TextBlockPR" VerticalAlignment="Center" FontSize="20" FontStyle="Italic" Margin="4,0,0,0">Kbtter3 </TextBlock>
+            <TextBlock Name="TextBlockPR" VerticalAlignment="Center" FontSize="20" FontStyle="Italic" Margin="4,0,0,0">Kbtter3</TextBlock>
             <Menu Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="Transparent">
                 <MenuItem VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                     <MenuItem.Header>
@@ -75,12 +75,19 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition MinHeight="100"/>
+                    <RowDefinition MinHeight="64"/>
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Name="PanelNewTweetReply"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Name="PanelNewTweetReply" Visibility="{Binding IsReplying, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                    <Button Margin="4,0,0,0" Name="ButtonCancelReply" Width="16" Height="16" 
+                            ToolTip="返信をキャンセル" Command="{Binding CancelReplyCommand}" Template="{StaticResource CancelButton}"/>
+                    <TextBlock Margin="8,0,8,0" FontWeight="Bold">返信 : </TextBlock>
+                    <TextBlock Margin="0,0,4,0" FontWeight="Bold" Text="{Binding ReplyingStatus.User.Name}"/>
+                    <TextBlock Margin="0" Text="{Binding ReplyingStatusText}"/>
+                </StackPanel>
                 <StackPanel Grid.Row="2" Name="PanelNewTweetImages"/>
-
-                <TextBox Grid.Row="2" Name="TextBoxNewTweetText" AcceptsReturn="True" 
+                <TextBlock Grid.Row="2" Visibility="{Binding IsTextNoInput,Converter={StaticResource BooleanToVisibilityConverter}}" 
+                           Text="つぶやく？" Margin="8,8,0,0" Panel.ZIndex="-1"/>
+                <TextBox Grid.Row="2" Name="TextBoxNewTweetText" AcceptsReturn="True" Opacity="0.8" 
                              VerticalAlignment="Stretch"
                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                              FontSize="14" Margin="4"
@@ -88,7 +95,7 @@
                              Validation.ErrorTemplate="{StaticResource ErrorTemplate}"/>
                 <DockPanel Grid.Column="1" Grid.Row="2">
                     <StackPanel DockPanel.Dock="Top">
-                        <StackPanel Orientation="Horizontal" Margin="4">
+                        <StackPanel Orientation="Horizontal" Margin="0">
                             <TextBlock Width="80" TextAlignment="Center" VerticalAlignment="Center">残り</TextBlock>
                             <TextBlock Name="TextBlockNewTweetRestLetters" FontSize="16" TextAlignment="Right" Text="{Binding UpdateStatusTextLength,UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>

@@ -35,10 +35,9 @@ namespace Kbtter3.Models
         /*
          * NotificationObjectはプロパティ変更通知の仕組みを実装したオブジェクトです。
          */
-        public static readonly string ConfigurationFolderName = "config";
-        public readonly string ConsumerTokenFileName = ConfigurationFolderName + "/consumer.json";
-        public readonly string AccessTokenFileName = ConfigurationFolderName + "/users.json";
-        public readonly string SystemDataFileName = ConfigurationFolderName + "/system.json";
+        public readonly string ConsumerTokenFileName = App.ConfigurationFolderName + "/consumer.json";
+        public readonly string AccessTokenFileName = App.ConfigurationFolderName + "/users.json";
+        public readonly string SystemDataFileName = App.ConfigurationFolderName + "/system.json";
 
         public readonly string ConsumerDefaultKey = "5bI3XiTNEMHiamjMV5Acnqkex";
         public readonly string ConsumerDefaultSecret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN";
@@ -80,17 +79,20 @@ namespace Kbtter3.Models
         private SQLiteCommand IsFavoritedCommand { get; set; }
         private SQLiteCommand IsRetweetedCommand { get; set; }
 
+
+        #region コンストラクタ・デストラクタ
         private Kbtter()
         {
 
         }
-
+        
         ~Kbtter()
         {
             StopStreaming();
             SystemData.SaveJson(SystemDataFileName);
             if (CacheDatabaseConnection != null) CacheDatabaseConnection.Dispose();
         }
+        #endregion
 
         #region シングルトン
         static Kbtter _instance;
@@ -109,8 +111,9 @@ namespace Kbtter3.Models
             ShowingStatuses = new Queue<Status>();
 
             AccessTokens = new List<AccessToken>();
-            if (!Directory.Exists(ConfigurationFolderName)) Directory.CreateDirectory(ConfigurationFolderName);
+
             if (!Directory.Exists(CacheDatabaseFolderName)) Directory.CreateDirectory(CacheDatabaseFolderName);
+
             if (!File.Exists(ConsumerTokenFileName))
             {
                 var ct = new ConsumerToken { Key = ConsumerDefaultKey, Secret = ConsumerDefaultSecret };

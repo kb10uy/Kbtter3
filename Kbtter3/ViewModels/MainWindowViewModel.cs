@@ -18,55 +18,11 @@ namespace Kbtter3.ViewModels
 {
     public class MainWindowViewModel : ViewModel, IDataErrorInfo
     {
-        /* コマンド、プロパティの定義にはそれぞれ 
-         * 
-         *  lvcom   : ViewModelCommand
-         *  lvcomn  : ViewModelCommand(CanExecute無)
-         *  llcom   : ListenerCommand(パラメータ有のコマンド)
-         *  llcomn  : ListenerCommand(パラメータ有のコマンド・CanExecute無)
-         *  lprop   : 変更通知プロパティ(.NET4.5ではlpropn)
-         *  
-         * を使用してください。
-         * 
-         * Modelが十分にリッチであるならコマンドにこだわる必要はありません。
-         * View側のコードビハインドを使用しないMVVMパターンの実装を行う場合でも、ViewModelにメソッドを定義し、
-         * LivetCallMethodActionなどから直接メソッドを呼び出してください。
-         * 
-         * ViewModelのコマンドを呼び出せるLivetのすべてのビヘイビア・トリガー・アクションは
-         * 同様に直接ViewModelのメソッドを呼び出し可能です。
-         */
-
-        /* ViewModelからViewを操作したい場合は、View側のコードビハインド無で処理を行いたい場合は
-         * Messengerプロパティからメッセージ(各種InteractionMessage)を発信する事を検討してください。
-         */
-
-        /* Modelからの変更通知などの各種イベントを受け取る場合は、PropertyChangedEventListenerや
-         * CollectionChangedEventListenerを使うと便利です。各種ListenerはViewModelに定義されている
-         * CompositeDisposableプロパティ(LivetCompositeDisposable型)に格納しておく事でイベント解放を容易に行えます。
-         * 
-         * ReactiveExtensionsなどを併用する場合は、ReactiveExtensionsのCompositeDisposableを
-         * ViewModelのCompositeDisposableプロパティに格納しておくのを推奨します。
-         * 
-         * LivetのWindowテンプレートではViewのウィンドウが閉じる際にDataContextDisposeActionが動作するようになっており、
-         * ViewModelのDisposeが呼ばれCompositeDisposableプロパティに格納されたすべてのIDisposable型のインスタンスが解放されます。
-         * 
-         * ViewModelを使いまわしたい時などは、ViewからDataContextDisposeActionを取り除くか、発動のタイミングをずらす事で対応可能です。
-         */
-
-        /* UIDispatcherを操作する場合は、DispatcherHelperのメソッドを操作してください。
-         * UIDispatcher自体はApp.xaml.csでインスタンスを確保してあります。
-         * 
-         * LivetのViewModelではプロパティ変更通知(RaisePropertyChanged)やDispatcherCollectionを使ったコレクション変更通知は
-         * 自動的にUIDispatcher上での通知に変換されます。変更通知に際してUIDispatcherを操作する必要はありません。
-         */
 
         Kbtter kbtter;
         PropertyChangedEventListener listener;
         public event StatusUpdateEventHandler Update;
         Dictionary<string, string> errors = new Dictionary<string, string>();
-
-        //public Queue<StatusViewModel> Statuses { get; protected set; }
-        //public Status SelectedStatus { get; internal set; }
 
         public void Initialize()
         {
@@ -76,7 +32,6 @@ namespace Kbtter3.ViewModels
             RegisterHandlers();
 
             kbtter.Initialize();
-            //Statuses = new ObservableSynchronizedCollection<StatusViewModel>();
         }
 
         public void RegisterHandlers()
@@ -92,9 +47,26 @@ namespace Kbtter3.ViewModels
 
         public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
         {
-            if (Update != null) Update(this, StatusViewModel.Create(kbtter.ShowingStatuses.Dequeue()));
-
+            if (Update != null) Update(this, this.CreateStatusViewModel(kbtter.ShowingStatuses.Dequeue()));
         }
+
+
+        #region IsTextNoInput変更通知プロパティ
+        private bool _IsTextNoInput = true;
+
+        public bool IsTextNoInput
+        {
+            get
+            { return _IsTextNoInput; }
+            set
+            {
+                if (_IsTextNoInput == value)
+                    return;
+                _IsTextNoInput = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
 
         #region UpdateStatusText変更通知プロパティ
@@ -109,8 +81,10 @@ namespace Kbtter3.ViewModels
                 if (_UpdateStatusText == value)
                     return;
                 _UpdateStatusText = value;
+                IsTextNoInput = value == "";
                 RaisePropertyChanged();
                 RaisePropertyChanged(() => UpdateStatusTextLength);
+                RaisePropertyChanged(() => IsTextNoInput);
                 UpdateStatusCommand.RaiseCanExecuteChanged();
 
                 errors["UpdateStatusText"] = (value.Length > 140) ? "140文字を超えています" : null;
@@ -127,7 +101,6 @@ namespace Kbtter3.ViewModels
             { return 140 - _UpdateStatusText.Length; }
         }
         #endregion
-
 
 
         #region UpdateStatusCommand
@@ -156,13 +129,142 @@ namespace Kbtter3.ViewModels
             _tokenus = true;
             UpdateStatusCommand.RaiseCanExecuteChanged();
 
-            await kbtter.Token.Statuses.UpdateAsync(status => UpdateStatusText);
+            Dictionary<string, object> opt = new Dictionary<string, object>();
+            opt["status"] = UpdateStatusText;
+            if (IsReplying) opt["in_reply_to_status_id"] = ReplyingStatus.Id;
+
+            await kbtter.Token.Statuses.UpdateAsync(opt);
 
             _tokenus = false;
             UpdateStatusCommand.RaiseCanExecuteChanged();
             UpdateStatusText = "";
+            IsReplying = false;
+            ReplyingStatus = new Status();
         }
         #endregion
+
+
+        #region IsReplying変更通知プロパティ
+        private bool _IsReplying;
+
+        public bool IsReplying
+        {
+            get
+            { return _IsReplying; }
+            set
+            {
+                if (_IsReplying == value)
+                    return;
+                _IsReplying = value;
+                CancelReplyCommand.RaiseCanExecuteChanged();
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ReplyingStatus変更通知プロパティ
+        private Status _ReplyingStatus = new Status { Text = "" };
+
+        public Status ReplyingStatus
+        {
+            get
+            { return _ReplyingStatus; }
+            set
+            {
+                if (_ReplyingStatus == value)
+                    return;
+                _ReplyingStatus = value;
+                ReplyingStatusText = value.Text;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ReplyingStatusText変更通知プロパティ
+        private string _ReplyingStatusText = "";
+
+        public string ReplyingStatusText
+        {
+            get
+            { return _ReplyingStatusText; }
+            set
+            {
+                if (_ReplyingStatusText == value)
+                    return;
+                _ReplyingStatusText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        public void SetReplyTo(Status rep)
+        {
+            IsReplying = true;
+            ReplyingStatus = rep;
+
+            List<string> ru = ReplyingStatus.Entities.UserMentions.Select(p => p.ScreenName).ToList();
+            if (!ru.Contains(rep.User.ScreenName)) ru.Add(rep.User.ScreenName);
+            var t = new StringBuilder();
+            ru.ForEach(p => t.Append(String.Format("@{0} ", p)));
+
+            UpdateStatusText = t.ToString();
+            RaisePropertyChanged("ReplyStart");
+        }
+
+
+        #region CancelReplyCommand
+        private ViewModelCommand _CancelReplyCommand;
+
+        public ViewModelCommand CancelReplyCommand
+        {
+            get
+            {
+                if (_CancelReplyCommand == null)
+                {
+                    _CancelReplyCommand = new ViewModelCommand(CancelReply, CanCancelReply);
+                }
+                return _CancelReplyCommand;
+            }
+        }
+
+        public bool CanCancelReply()
+        {
+            return IsReplying;
+        }
+
+        public void CancelReply()
+        {
+            IsReplying = false;
+            UpdateStatusText = "";
+        }
+        #endregion
+
+
+
+        #region ToggleNewStatusCommand
+        private ViewModelCommand _ToggleNewStatusCommand;
+
+        public ViewModelCommand ToggleNewStatusCommand
+        {
+            get
+            {
+                if (_ToggleNewStatusCommand == null)
+                {
+                    _ToggleNewStatusCommand = new ViewModelCommand(ToggleNewStatus);
+                }
+                return _ToggleNewStatusCommand;
+            }
+        }
+
+        public void ToggleNewStatus()
+        {
+            RaisePropertyChanged("ToggleNewStatus");
+        }
+        #endregion
+
 
 
         #region エラー

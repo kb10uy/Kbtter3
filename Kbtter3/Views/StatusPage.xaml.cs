@@ -15,6 +15,11 @@ using System.Windows.Shapes;
 
 using Kbtter3.ViewModels;
 
+using Livet;
+using Livet.EventListeners;
+using Livet.EventListeners.WeakEvents;
+using System.ComponentModel;
+
 namespace Kbtter3.Views
 {
 
@@ -23,6 +28,9 @@ namespace Kbtter3.Views
     /// </summary>
     public partial class StatusPage : Page
     {
+        LivetCompositeDisposable composite;
+        PropertyChangedWeakEventListener ctxlistener;
+
         Storyboard sb;
         bool showed = false;
         IList<StatusViewModel.StatusElement> elm;
@@ -38,9 +46,18 @@ namespace Kbtter3.Views
             ImageUserIcon.Source = new BitmapImage(vm.ProfileImageUri);
             if (vm.Via == "") StackPanelBlockVia.Visibility = Visibility.Collapsed;
             SetMainText();
+
+            composite = new LivetCompositeDisposable();
+            ctxlistener = new PropertyChangedWeakEventListener((INotifyPropertyChanged)DataContext);
+            ctxlistener.Add("Delete", DeleteContent);
         }
 
-        void SetMainText()
+        private void DeleteContent(object s, PropertyChangedEventArgs e)
+        {
+            DispatcherHelper.UIDispatcher.InvokeAsync(() => Content = new Label { Content = "このツイートは削除されました" });
+        }
+
+        private void SetMainText()
         {
             foreach (var i in elm)
             {
@@ -98,7 +115,7 @@ namespace Kbtter3.Views
 
         }
 
-        void RequestHyperlinkAction(string type, string info)
+        private void RequestHyperlinkAction(string type, string info)
         {
 
         }
@@ -124,6 +141,11 @@ namespace Kbtter3.Views
         {
             RequestHyperlinkAction("Mention", stsn);
             e.Handled = true;
+        }
+
+        private void Page_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }

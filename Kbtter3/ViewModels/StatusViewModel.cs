@@ -21,52 +21,26 @@ namespace Kbtter3.ViewModels
     public class StatusViewModel : ViewModel
     {
         Kbtter kbtter = Kbtter.Instance;
-        Status status, origin;
-        static Regex reg = new Regex("<a href=\"(?<url>.+)\" rel=\"nofollow\">(?<client>.+)</a>");
+        internal Status origin, status;
+        internal MainWindowViewModel main;
+        internal PropertyChangedEventListener listener;
+
         long rtid;
-
-        public static StatusViewModel Create(Status st)
-        {
-            var ret = new StatusViewModel();
-            ret.origin = st;
-            if (st.RetweetedStatus != null)
-            {
-                ret._RetweetUserName = st.User.Name;
-                st = st.RetweetedStatus;
-                ret._IsRetweet = true;
-            }
-            else
-            {
-                ret._IsRetweet = false;
-                ret._RetweetUserName = "";
-            }
-            ret.status = st;
-            ret._UserName = st.User.Name;
-            ret._ScreenName = st.User.ScreenName;
-            ret._Text = st.Text;
-            ret._ProfileImageUri = st.User.ProfileImageUrlHttps;
-            ret._RetweetCount = st.RetweetCount;
-            ret._IsFavorited = (st.IsFavorited ?? false) || Kbtter.Instance.IsFavoritedInCache(st);
-            ret._IsRetweeted = (st.IsRetweeted ?? false) || (ret.origin.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.origin));
-            ret._FavoriteCount = st.FavoriteCount ?? 0;
-            ret.AnalyzeText();
-            ret.TryGetReply();
-
-            var vm = reg.Match(st.Source);
-            ret._Via = vm.Groups["client"].Value;
-            if (vm.Groups["url"].Value != "") ret._ViaUri = new Uri(vm.Groups["url"].Value);
-
-            return ret;
-        }
 
         public void Initialize()
         {
+
         }
 
-        private void TryGetReply()
+        internal void UpdateTime(object sender, PropertyChangedEventArgs e)
         {
-            if (status.InReplyToStatusId == null) return;
-            long id = status.InReplyToStatusId ?? 0;
+            RaisePropertyChanged("CreatedTimeText");
+        }
+
+        internal void TryGetReply()
+        {
+            if (origin.InReplyToStatusId == null) return;
+            long id = origin.InReplyToStatusId ?? 0;
             var rs = kbtter.Cache.Where(p => p.Id == id).FirstOrDefault();
             if (rs != null)
             {
@@ -77,7 +51,7 @@ namespace Kbtter3.ViewModels
             }
         }
 
-        private void AnalyzeText()
+        internal void AnalyzeText()
         {
             _Text = _Text
                 .Replace("&amp;", "&")
@@ -86,10 +60,10 @@ namespace Kbtter3.ViewModels
             TextElements = new List<StatusElement>();
 
             var el = new List<EntityInfo>();
-            if (status.Entities.Urls != null) el.AddRange(status.Entities.Urls.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Url" }));
-            if (status.Entities.Media != null) el.AddRange(status.Entities.Media.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Media" }));
-            if (status.Entities.UserMentions != null) el.AddRange(status.Entities.UserMentions.Select(p => new EntityInfo { Indices = p.Indices, Text = "@" + p.ScreenName, Infomation = p.ScreenName, Type = "Mention" }));
-            if (status.Entities.HashTags != null) el.AddRange(status.Entities.HashTags.Select(p => new EntityInfo { Indices = p.Indices, Text = "#" + p.Text, Infomation = p.Text, Type = "Hashtag" }));
+            if (origin.Entities.Urls != null) el.AddRange(origin.Entities.Urls.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Url" }));
+            if (origin.Entities.Media != null) el.AddRange(origin.Entities.Media.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Media" }));
+            if (origin.Entities.UserMentions != null) el.AddRange(origin.Entities.UserMentions.Select(p => new EntityInfo { Indices = p.Indices, Text = "@" + p.ScreenName, Infomation = p.ScreenName, Type = "Mention" }));
+            if (origin.Entities.HashTags != null) el.AddRange(origin.Entities.HashTags.Select(p => new EntityInfo { Indices = p.Indices, Text = "#" + p.Text, Infomation = p.Text, Type = "Hashtag" }));
             el.Sort((x, y) => x.Indices[0].CompareTo(y.Indices[0]));
             int n = 0;
             string s = _Text;
@@ -118,6 +92,93 @@ namespace Kbtter3.ViewModels
         }
 
         public IList<StatusElement> TextElements { get; private set; }
+
+
+        #region DeleteStatusCommand
+        private ViewModelCommand _DeleteStatusCommand;
+
+        public ViewModelCommand DeleteStatusCommand
+        {
+            get
+            {
+                if (_DeleteStatusCommand == null)
+                {
+                    _DeleteStatusCommand = new ViewModelCommand(DeleteStatus, CanDeleteStatus);
+                }
+                return _DeleteStatusCommand;
+            }
+        }
+
+        public bool CanDeleteStatus()
+        {
+            return IsMyStatus;
+        }
+
+        public async void DeleteStatus()
+        {
+            await kbtter.Token.Statuses.DestroyAsync(id => status.Id);
+            RaisePropertyChanged("Delete");
+        }
+        #endregion
+
+
+        #region IsMyStatus変更通知プロパティ
+        private bool _IsMyStatus;
+
+        public bool IsMyStatus
+        {
+            get
+            { return _IsMyStatus; }
+            set
+            {
+                if (_IsMyStatus == value)
+                    return;
+                _IsMyStatus = value;
+                RaisePropertyChanged();
+                DeleteStatusCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsOthersStatus変更通知プロパティ
+        private bool _IsOthersStatus;
+
+        public bool IsOthersStatus
+        {
+            get
+            { return _IsOthersStatus; }
+            set
+            {
+                if (_IsOthersStatus == value)
+                    return;
+                _IsOthersStatus = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ReplyToCommand
+        private ViewModelCommand _ReplyToCommand;
+
+        public ViewModelCommand ReplyToCommand
+        {
+            get
+            {
+                if (_ReplyToCommand == null)
+                {
+                    _ReplyToCommand = new ViewModelCommand(ReplyTo);
+                }
+                return _ReplyToCommand;
+            }
+        }
+
+        public void ReplyTo()
+        {
+            main.SetReplyTo(origin);
+        }
+        #endregion
 
 
         #region ReplyUserName変更通知プロパティ
@@ -187,13 +248,21 @@ namespace Kbtter3.ViewModels
                     return;
                 if (value)
                 {
-                    rtid = kbtter.Token.Statuses.Retweet(id => status.Id).Id;
+                    try
+                    {
+                        rtid = kbtter.Token.Statuses.Retweet(id => status.Id).Id;
+                    }
+                    catch (TwitterException e)
+                    {
+
+                    }
+                    
                 }
                 else
                 {
                     if (rtid == 0)
                     {
-                        rtid = kbtter.Token.Statuses.Show(id => status.Id, include_my_retweet => true).CurrentUserRetweet ?? 0;
+                        rtid = kbtter.Token.Statuses.Show(id => origin.Id, include_my_retweet => true).CurrentUserRetweet ?? 0;
                     }
                     kbtter.Token.Statuses.Destroy(id => rtid);
                 }
@@ -219,7 +288,7 @@ namespace Kbtter3.ViewModels
                 {
                     try
                     {
-                        kbtter.Token.Favorites.Create(id => origin.Id);
+                        kbtter.Token.Favorites.Create(id => status.Id);
                     }
                     catch (TwitterException e)
                     {
@@ -229,7 +298,7 @@ namespace Kbtter3.ViewModels
                 }
                 else
                 {
-                    kbtter.Token.Favorites.Destroy(id => origin.Id);
+                    kbtter.Token.Favorites.Destroy(id => status.Id);
                 }
                 _IsFavorited = value;
                 RaisePropertyChanged();
@@ -417,5 +486,91 @@ namespace Kbtter3.ViewModels
         }
         #endregion
 
+
+        #region CreatedTimeText変更通知プロパティ
+        internal DateTime _CreatedTimeText;
+
+        public string CreatedTimeText
+        {
+            get
+            {
+                var ts = (DateTime.Now - _CreatedTimeText);
+                if (ts.Days >= 10)
+                {
+                    return _CreatedTimeText.ToString();
+                }
+                else if (ts.Days >= 1)
+                {
+                    return String.Format("{0}日前", ts.Days);
+                }
+                else if (ts.Hours >= 1)
+                {
+                    return String.Format("{0}時間前", ts.Hours);
+                }
+                else if (ts.Minutes >= 1)
+                {
+                    return String.Format("{0}分前", ts.Minutes);
+                }
+                else if (ts.Seconds >= 10)
+                {
+                    return String.Format("{0}秒前", ts.Seconds);
+                }
+                else
+                {
+                    return "今";
+                }
+            }
+        }
+        #endregion
+
+
+    }
+
+    internal static class StatusViewModelExtension
+    {
+        static Regex reg = new Regex("<a href=\"(?<url>.+)\" rel=\"nofollow\">(?<client>.+)</a>");
+
+        public static StatusViewModel CreateStatusViewModel(this MainWindowViewModel vm, Status st)
+        {
+            var ret = new StatusViewModel();
+            ret.status = st;
+            if (st.RetweetedStatus != null)
+            {
+                ret.RetweetUserName = st.User.Name;
+                st = st.RetweetedStatus;
+                ret.IsRetweet = true;
+            }
+            else
+            {
+                ret.IsRetweet = false;
+                ret.RetweetUserName = "";
+            }
+            ret.origin = st;
+            ret.UserName = st.User.Name;
+            ret.ScreenName = st.User.ScreenName;
+            ret.Text = st.Text;
+            ret.ProfileImageUri = st.User.ProfileImageUrlHttps;
+            ret.RetweetCount = st.RetweetCount;
+            ret.IsFavorited = (st.IsFavorited ?? false) || Kbtter.Instance.IsFavoritedInCache(st);
+            ret.IsRetweeted = (st.IsRetweeted ?? false) || (ret.status.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.status));
+            ret.FavoriteCount = st.FavoriteCount ?? 0;
+            ret.IsMyStatus = (Kbtter.Instance.AuthenticatedUser != null && Kbtter.Instance.AuthenticatedUser.Id == st.User.Id);
+            ret.IsOthersStatus = !ret.IsMyStatus;
+            ret._CreatedTimeText = st.CreatedAt.DateTime.ToLocalTime();
+            ret.AnalyzeText();
+            ret.TryGetReply();
+
+            var m = reg.Match(st.Source);
+            ret.Via = m.Groups["client"].Value;
+            if (m.Groups["url"].Value != "") ret.ViaUri = new Uri(m.Groups["url"].Value);
+
+            ret.main = vm;
+
+            ret.listener = new PropertyChangedEventListener(Kbtter.Instance);
+            ret.listener.Add("Status", ret.UpdateTime);
+            ret.CompositeDisposable.Add(ret.listener);
+
+            return ret;
+        }
     }
 }

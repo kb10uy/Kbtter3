@@ -9,7 +9,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" 
-        Title="StatusPage" d:DesignHeight="140" d:DesignWidth="400" Loaded="Page_Loaded">
+        Title="StatusPage" d:DesignHeight="140" d:DesignWidth="400" Loaded="Page_Loaded"
+        ContextMenuService.ShowOnDisabled="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
     <i:Interaction.Triggers>
 
@@ -34,12 +35,23 @@
     <Page.Resources>
         <ResourceDictionary Source="KbtterResource.xaml"/>
     </Page.Resources>
+
+    <Page.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="削除" IsEnabled="{Binding IsMyStatus}" Command="{Binding DeleteStatusCommand}"/>
+            <MenuItem Header="お気に入り" IsCheckable="True" IsChecked="{Binding IsFavorited,Mode=TwoWay}"/>
+            <MenuItem Header="リツイート" IsCheckable="True" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"/>
+            <Separator/>
+            <MenuItem Header="返信" Command="{Binding ReplyToCommand}"/>
+        </ContextMenu>
+    </Page.ContextMenu>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <StackPanel Name="PanelReply" Orientation="Horizontal" 
                     Background="{StaticResource Kbtter3ReplyBackColor}" Panel.ZIndex="10"
                     Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -51,16 +63,17 @@
                Margin="4,16,0,0" Grid.RowSpan="2" Width="16" Height="16"
                Source="/Kbtter3;component/Resources/reply.png" Panel.ZIndex="2"
                Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-        
-        <Grid Grid.Row="1" Panel.ZIndex="-10">
+
+        <Grid Grid.Row="1" Panel.ZIndex="-10" MouseRightButtonDown="Page_MouseRightButtonDown">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="48"/>
+                <ColumnDefinition Width="52"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+            <Rectangle Panel.ZIndex="-100" Grid.ColumnSpan="2" Grid.RowSpan="2" Fill="{StaticResource Kbtter3StatusBackColor}"/>
             <Rectangle Name="RectangleRetweetBackground" Grid.ColumnSpan="2" Grid.RowSpan="2" 
                    Fill="{StaticResource Kbtter3RetweetBackColor}" Panel.ZIndex="-100" 
                    Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}"/>
@@ -70,14 +83,19 @@
                 <StackPanel Margin="4" HorizontalAlignment="Left">
                     <StackPanel Orientation="Horizontal">
                         <ToggleButton Name="ButtonFavorite" Margin="2"
-                              Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited,Mode=TwoWay}" Height="16" Width="16"/>
+                                      Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited,Mode=TwoWay}"
+                                      Height="16" Width="16"/>
                         <TextBlock Name="TextBlockFavoriteCount" FontSize="9" VerticalAlignment="Center" Text="{Binding FavoriteCount}"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsOthersStatus,Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ToggleButton Name="ButtonRetweet" Margin="2"
-                              Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted,Mode=TwoWay}" Height="16" Width="16"/>
+                                      Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"
+                                      Height="16" Width="16"/>
                         <TextBlock Name="TextBlockRetweetCount" FontSize="9" VerticalAlignment="Center" Text="{Binding RetweetCount}"/>
                     </StackPanel>
+                    <Button Name="ButtonDelete" Margin="2"
+                                  Height="16" Width="16" Visibility="{Binding IsMyStatus,Converter={StaticResource BooleanToVisibilityConverter}}"
+                                  Template="{StaticResource DeleteButton}" Command="{Binding DeleteStatusCommand}"/>
                 </StackPanel>
             </StackPanel>
             <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3">
@@ -99,14 +117,17 @@
                 </StackPanel>
 
                 <TextBlock Name="TextBlockMainText" Margin="2,0,0,4" Grid.Row="1" FontSize="14" TextWrapping="Wrap"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="2" Name="StackPanelBlockVia">
-                    <TextBlock Foreground="Gray" Margin="0,0,4,0" Grid.Row="2">via</TextBlock>
-                    <TextBlock>
-                    <Hyperlink NavigateUri="{Binding ViaUri}" Foreground="DodgerBlue"
-                               MouseEnter="Hyperlink_MouseEnter" MouseLeave="Hyperlink_MouseLeave" RequestNavigate="Hyperlink_RequestNavigate">
-                        <TextBlock  Margin="0,0,0,0" Grid.Row="2" Text="{Binding Via}"/>
-                    </Hyperlink>
-                </TextBlock>
+                <StackPanel Orientation="Horizontal" Grid.Row="2" >
+                    <TextBlock Foreground="Gray" Margin="0,0,16,0" Text="{Binding CreatedTimeText}"/>
+                    <StackPanel Orientation="Horizontal" Name="StackPanelBlockVia">
+                        <TextBlock Foreground="Gray" Margin="0,0,4,0">via</TextBlock>
+                        <TextBlock>
+                            <Hyperlink NavigateUri="{Binding ViaUri}" Foreground="DodgerBlue"
+                                       MouseEnter="Hyperlink_MouseEnter" MouseLeave="Hyperlink_MouseLeave" RequestNavigate="Hyperlink_RequestNavigate">
+                                <TextBlock  Margin="0,0,0,0" Text="{Binding Via}"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Grid.Row="3">

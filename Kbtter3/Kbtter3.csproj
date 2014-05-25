@@ -185,6 +185,8 @@
     <Content Include="Libraries\CoreTweet.Streaming.Reactive.dll" />
     <Resource Include="Resources\kbtter3.ico" />
     <Resource Include="Resources\kbtter3.png" />
+    <Resource Include="Resources\cancel.png" />
+    <Resource Include="Resources\delete.png" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

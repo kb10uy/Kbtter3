@@ -41,20 +41,32 @@ namespace Kbtter3.Views
         PropertyChangedWeakEventListener ctxlistener;
         MainWindowSetting setting;
 
+        MainWindowViewModel vm;
+
         public MainWindow()
         {
             InitializeComponent();
+            vm = DataContext as MainWindowViewModel;
             composite = new LivetCompositeDisposable();
-            ctxlistener = new PropertyChangedWeakEventListener((INotifyPropertyChanged)DataContext);
+            ctxlistener = new PropertyChangedWeakEventListener(vm);
             ctxlistener.Add("AccessTokenRequest", StartAccountSelect);
+            ctxlistener.Add("ReplyStart", ExpandNewTweet);
+            ctxlistener.Add("ToggleNewStatus", ToggleNewTweet);
             composite.Add(ctxlistener);
 
-            ((MainWindowViewModel)DataContext).Update += MainWindow_Update;
+            vm.Update += MainWindow_Update;
             if (!File.Exists(ConfigFileName)) File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(new MainWindowSetting()));
             setting = JsonConvert.DeserializeObject<MainWindowSetting>(File.ReadAllText(ConfigFileName));
+            SetShortcuts();
         }
 
-        void MainWindow_Update(object sender, StatusViewModel vm)
+        private void SetShortcuts()
+        {
+            InputBindings.Add(new KeyBinding(vm.ToggleNewStatusCommand, new KeyGesture(Key.N, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(vm.UpdateStatusCommand, new KeyGesture(Key.Enter, ModifierKeys.Control)));
+        }
+
+        private void MainWindow_Update(object sender, StatusViewModel vm)
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
@@ -63,9 +75,28 @@ namespace Kbtter3.Views
             }));
         }
 
-        void StartAccountSelect(object sender, PropertyChangedEventArgs e)
+        private void StartAccountSelect(object sender, PropertyChangedEventArgs e)
         {
             new AccountSelectWindow().ShowDialog();
+        }
+
+        private void ExpandNewTweet(object sender, PropertyChangedEventArgs e)
+        {
+            ExpanderNewTweet.IsExpanded = true;
+        }
+
+        private void ToggleNewTweet(object sender, PropertyChangedEventArgs e)
+        {
+            ExpanderNewTweet.IsExpanded ^= true;
+            if (ExpanderNewTweet.IsExpanded)
+            {
+                TextBoxNewTweetText.Focus();
+            }
+            else
+            {
+                ListBoxTimeline.Focus();
+            }
+            
         }
 
     }
