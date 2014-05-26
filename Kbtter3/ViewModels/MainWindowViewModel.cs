@@ -58,6 +58,7 @@ namespace Kbtter3.ViewModels
             UserProfileFriends = kbtter.AuthenticatedUser.FriendsCount;
             UserProfileFollowers = kbtter.AuthenticatedUser.FollowersCount;
             UserProfileFavorites = kbtter.AuthenticatedUser.FavouritesCount;
+            RaisePropertyChanged("UserPropfileImageUri");
         }
 
 

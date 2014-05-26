@@ -55,7 +55,7 @@ namespace Kbtter3.Models
 
         public event Action<StatusMessage> OnStatus;
         public event Action<EventMessage> OnEvent;
-        public event Action<IDMessage> OnIdEvent;
+        public event Action<IdMessage> OnIdEvent;
 
         public StatusMessage LatestStatus { get; set; }
         public EventMessage LatestEvent { get; set; }
@@ -363,9 +363,13 @@ namespace Kbtter3.Models
             {
                 if (OnEvent != null) OnEvent(p);
             });
-            ob.OfType<IDMessage>().Subscribe((p) =>
+            ob.OfType<IdMessage>().Subscribe((p) =>
             {
                 if (OnIdEvent != null) OnIdEvent(p);
+            });
+            ob.OfType<DisconnectMessage>().Subscribe(p =>
+            {
+                App.Current.Shutdown();
             });
             Stream = ob.Connect();
 
@@ -391,7 +395,7 @@ namespace Kbtter3.Models
             RaisePropertyChanged("Event");
         }
 
-        private async void NotifyIdEventUpdate(IDMessage msg)
+        private async void NotifyIdEventUpdate(IdMessage msg)
         {
             await CacheIdEvents(msg);
             RaisePropertyChanged("IdEvent");
@@ -404,6 +408,7 @@ namespace Kbtter3.Models
                 if (AuthenticatedUser == null) return;
                 switch (msg.Event)
                 {
+                        
                     case EventCode.Favorite:
                         if (msg.Source.Id == AuthenticatedUser.Id)
                         {
@@ -462,7 +467,7 @@ namespace Kbtter3.Models
             });
         }
 
-        public Task CacheIdEvents(IDMessage msg)
+        public Task CacheIdEvents(IdMessage msg)
         {
             return Task.Run(() =>
             {

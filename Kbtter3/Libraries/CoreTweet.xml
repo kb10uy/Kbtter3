@@ -55,14 +55,14 @@
             Gets or sets a time-out in milliseconds when writing to or reading from a stream.
             </summary>
         </member>
-        <member name="P:CoreTweet.ConnectionOptions.UserAgent">
-            <summary>
-            Gets or sets the value of the User-agent HTTP header.
-            </summary>
-        </member>
         <member name="P:CoreTweet.ConnectionOptions.Proxy">
             <summary>
             Gets or sets proxy information for the request.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.ConnectionOptions.UserAgent">
+            <summary>
+            Gets or sets the value of the User-agent HTTP header.
             </summary>
         </member>
         <member name="P:CoreTweet.ConnectionOptions.BeforeRequestAction">
@@ -579,7 +579,7 @@
             Gets or sets options of connection.
             </summary>
         </member>
-        <member name="M:CoreTweet.Core.InternalUtils.ResolveObject``1(``0,System.Reflection.BindingFlags)">
+        <member name="M:CoreTweet.Core.InternalUtils.ResolveObject``1(``0)">
             <summary>
             Object to Dictionary
             </summary>
@@ -4926,30 +4926,30 @@
             Message that notices limit.
             </summary>
         </member>
-        <member name="T:CoreTweet.Streaming.IDMessage">
+        <member name="T:CoreTweet.Streaming.IdMessage">
             <summary>
             Message contains ids.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.IDMessage.ID">
+        <member name="P:CoreTweet.Streaming.IdMessage.ID">
             <summary>
             ID.
             </summary>
             <value>The I.</value>
         </member>
-        <member name="P:CoreTweet.Streaming.IDMessage.UserID">
+        <member name="P:CoreTweet.Streaming.IdMessage.UserID">
             <summary>
             User's ID.
             </summary>
             <value>The user I.</value>
         </member>
-        <member name="P:CoreTweet.Streaming.IDMessage.UpToStatusID">
+        <member name="P:CoreTweet.Streaming.IdMessage.UpToStatusID">
             <summary>
             Status ID.
             </summary>
             <value>Up to status I.</value>
         </member>
-        <member name="P:CoreTweet.Streaming.IDMessage.WithheldInCountries">
+        <member name="P:CoreTweet.Streaming.IdMessage.WithheldInCountries">
             <summary>
             Withhelds.
             </summary>

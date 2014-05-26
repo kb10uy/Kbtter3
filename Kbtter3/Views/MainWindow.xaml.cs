@@ -52,6 +52,7 @@ namespace Kbtter3.Views
             ctxlistener.Add("AccessTokenRequest", StartAccountSelect);
             ctxlistener.Add("ReplyStart", ExpandNewTweet);
             ctxlistener.Add("ToggleNewStatus", ToggleNewTweet);
+            ctxlistener.Add("UserProfileImageUri", UserProfileImageUri);
             composite.Add(ctxlistener);
 
             vm.Update += MainWindow_Update;
@@ -78,6 +79,11 @@ namespace Kbtter3.Views
         private void StartAccountSelect(object sender, PropertyChangedEventArgs e)
         {
             new AccountSelectWindow().ShowDialog();
+        }
+
+        private void UserProfileImageUri(object sender, PropertyChangedEventArgs e)
+        {
+            ImageUserProfileImage.Source = new BitmapImage(vm.UserProfileImageUri);
         }
 
         private void ExpandNewTweet(object sender, PropertyChangedEventArgs e)
