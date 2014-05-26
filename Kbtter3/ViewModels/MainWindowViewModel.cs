@@ -38,6 +38,7 @@ namespace Kbtter3.ViewModels
         {
             listener.Add("AccessTokenRequest", OnAccessTokenRequest);
             listener.Add("Status", OnStatusUpdate);
+            listener.Add("AuthenticatedUser", OnUserProfileUpdate);
         }
 
         public void OnAccessTokenRequest(object sender, PropertyChangedEventArgs e)
@@ -49,6 +50,105 @@ namespace Kbtter3.ViewModels
         {
             if (Update != null) Update(this, this.CreateStatusViewModel(kbtter.ShowingStatuses.Dequeue()));
         }
+
+        public void OnUserProfileUpdate(object sender, PropertyChangedEventArgs e)
+        {
+            UserProfileImageUri = kbtter.AuthenticatedUser.ProfileImageUrlHttps;
+            UserProfileStatuses = kbtter.AuthenticatedUser.StatusesCount;
+            UserProfileFriends = kbtter.AuthenticatedUser.FriendsCount;
+            UserProfileFollowers = kbtter.AuthenticatedUser.FollowersCount;
+            UserProfileFavorites = kbtter.AuthenticatedUser.FavouritesCount;
+        }
+
+
+        #region UserProfileImageUri変更通知プロパティ
+        private Uri _UserProfileImageUri = new Uri("", UriKind.RelativeOrAbsolute);
+
+        public Uri UserProfileImageUri
+        {
+            get
+            { return _UserProfileImageUri; }
+            set
+            {
+                if (_UserProfileImageUri == value)
+                    return;
+                _UserProfileImageUri = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region UserProfileStatuses変更通知プロパティ
+        private int _UserProfileStatuses;
+
+        public int UserProfileStatuses
+        {
+            get
+            { return _UserProfileStatuses; }
+            set
+            {
+                if (_UserProfileStatuses == value)
+                    return;
+                _UserProfileStatuses = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region UserProfileFriends変更通知プロパティ
+        private int _UserProfileFriends;
+
+        public int UserProfileFriends
+        {
+            get
+            { return _UserProfileFriends; }
+            set
+            {
+                if (_UserProfileFriends == value)
+                    return;
+                _UserProfileFriends = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region UserProfileFollowers変更通知プロパティ
+        private int _UserProfileFollowers;
+
+        public int UserProfileFollowers
+        {
+            get
+            { return _UserProfileFollowers; }
+            set
+            {
+                if (_UserProfileFollowers == value)
+                    return;
+                _UserProfileFollowers = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region UserProfileFavorites変更通知プロパティ
+        private int _UserProfileFavorites;
+
+        public int UserProfileFavorites
+        {
+            get
+            { return _UserProfileFavorites; }
+            set
+            {
+                if (_UserProfileFavorites == value)
+                    return;
+                _UserProfileFavorites = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
 
         #region IsTextNoInput変更通知プロパティ
@@ -243,7 +343,6 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
-
         #region ToggleNewStatusCommand
         private ViewModelCommand _ToggleNewStatusCommand;
 
@@ -264,7 +363,6 @@ namespace Kbtter3.ViewModels
             RaisePropertyChanged("ToggleNewStatus");
         }
         #endregion
-
 
 
         #region エラー

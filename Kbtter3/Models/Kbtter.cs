@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 using CoreTweet;
@@ -54,6 +55,7 @@ namespace Kbtter3.Models
 
         public event Action<StatusMessage> OnStatus;
         public event Action<EventMessage> OnEvent;
+        public event Action<IDMessage> OnIdEvent;
 
         public StatusMessage LatestStatus { get; set; }
         public EventMessage LatestEvent { get; set; }
@@ -65,7 +67,10 @@ namespace Kbtter3.Models
         public User AuthenticatedUser { get; set; }
 
         public static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
-        public static readonly string CacheDatabaseFolderName = "cache";
+        public static readonly string CacheUserImageFileNameSuffix = "-icon.png";
+        public static readonly string CacheUserBackgroundImageFileNameSuffix = "-background.png";
+        public static readonly string CacheUserProfileFileNameSuffix = "-profile.json";
+        public static readonly string CacheFolderName = "cache";
 
         public SQLiteConnection CacheDatabaseConnection { get; set; }
         public DataContext CacheContext { get; set; }
@@ -78,14 +83,14 @@ namespace Kbtter3.Models
         private SQLiteCommand RemoveRetweetCacheCommand { get; set; }
         private SQLiteCommand IsFavoritedCommand { get; set; }
         private SQLiteCommand IsRetweetedCommand { get; set; }
-
+        private SQLiteCommand IsMyRetweetCommand { get; set; }
 
         #region コンストラクタ・デストラクタ
         private Kbtter()
         {
 
         }
-        
+
         ~Kbtter()
         {
             StopStreaming();
@@ -112,7 +117,7 @@ namespace Kbtter3.Models
 
             AccessTokens = new List<AccessToken>();
 
-            if (!Directory.Exists(CacheDatabaseFolderName)) Directory.CreateDirectory(CacheDatabaseFolderName);
+            if (!Directory.Exists(CacheFolderName)) Directory.CreateDirectory(CacheFolderName);
 
             if (!File.Exists(ConsumerTokenFileName))
             {
@@ -132,7 +137,75 @@ namespace Kbtter3.Models
         }
 
 
-        #region SQLiteキャッシュ関係
+        #region キャッシュ関係
+        private async void InitializeUserCache()
+        {
+            if (AuthenticatedUser != null)
+            {
+                var upc = new UserProfileCache
+                {
+                    Name = AuthenticatedUser.Name,
+                    ScreenName = AuthenticatedUser.ScreenName,
+                    Description = AuthenticatedUser.Description,
+                    Location = AuthenticatedUser.Location,
+                    Uri = AuthenticatedUser.Url.ToString(),
+                    Statuses = AuthenticatedUser.StatusesCount,
+                    Friends = AuthenticatedUser.FriendsCount,
+                    Followers = AuthenticatedUser.FollowersCount,
+                    Favorites = AuthenticatedUser.FavouritesCount,
+                };
+                upc.SaveJson(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix);
+                using (var wc = new WebClient())
+                {
+                    await wc.DownloadFileTaskAsync(
+                        AuthenticatedUser.ProfileImageUrlHttps,
+                        CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix);
+                    await wc.DownloadFileTaskAsync(
+                        AuthenticatedUser.ProfileBackgroundImageUrlHttps,
+                        CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix);
+                }
+            }
+            else
+            {
+                if (!File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix)) return;
+                var upc = LoadJson<UserProfileCache>(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix);
+                AuthenticatedUser.Name = upc.Name;
+                AuthenticatedUser.ScreenName = upc.ScreenName;
+                AuthenticatedUser.Description = upc.Description;
+                AuthenticatedUser.Location = upc.Location;
+                AuthenticatedUser.Url = new Uri(upc.Uri);
+                AuthenticatedUser.StatusesCount = upc.Statuses;
+                AuthenticatedUser.FriendsCount = upc.Friends;
+                AuthenticatedUser.FollowersCount = upc.Followers;
+                AuthenticatedUser.FavouritesCount = upc.Favorites;
+                if (File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix))
+                {
+                    AuthenticatedUser.ProfileImageUrlHttps = new Uri(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix, UriKind.Relative);
+                }
+                if (File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix))
+                {
+                    AuthenticatedUser.ProfileImageUrlHttps = new Uri(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix, UriKind.Relative);
+                }
+            }
+        }
+
+        private void InitializeCacheDatabase(int ai)
+        {
+
+            var sb = new SQLiteConnectionStringBuilder()
+            {
+                DataSource = CacheFolderName + "/" + AccessTokens[ai].ScreenName + CacheDatabaseFileNameSuffix,
+                Version = 3,
+                SyncMode = SynchronizationModes.Off,
+                JournalMode = SQLiteJournalModeEnum.Memory
+            };
+            CacheDatabaseConnection = new SQLiteConnection(sb.ToString());
+            CacheDatabaseConnection.Open();
+            CacheContext = new DataContext(CacheDatabaseConnection);
+            CreateTables();
+            CacheUnknown();
+        }
+
         private void CreateTables()
         {
             var c = CacheDatabaseConnection.CreateCommand();
@@ -171,6 +244,10 @@ namespace Kbtter3.Models
             IsRetweetedCommand = CacheDatabaseConnection.CreateCommand();
             IsRetweetedCommand.CommandText = "SELECT * FROM Retweets WHERE ORIGINALID=@OriginalId";
             IsRetweetedCommand.Parameters.Add("OriginalId", DbType.Int64);
+
+            IsMyRetweetCommand = CacheDatabaseConnection.CreateCommand();
+            IsMyRetweetCommand.CommandText = "SELECT * FROM Retweets WHERE ID=@Id";
+            IsMyRetweetCommand.Parameters.Add("Id", DbType.Int64);
         }
 
         private async void CacheUnknown()
@@ -212,6 +289,12 @@ namespace Kbtter3.Models
             AddFavoriteCacheCommand.ExecuteNonQuery();
         }
 
+        public void RemoveRetweetCache(long stid)
+        {
+            RemoveRetweetCacheCommand.Parameters["Id"].Value = stid;
+            AddFavoriteCacheCommand.ExecuteNonQuery();
+        }
+
         public bool IsFavoritedInCache(Status st)
         {
             IsFavoritedCommand.Parameters["Id"].Value = st.Id;
@@ -220,11 +303,20 @@ namespace Kbtter3.Models
                 return dr.Read();
             }
         }
+
         public bool IsRetweetedInCache(Status st)
         {
-
             IsRetweetedCommand.Parameters["OriginalId"].Value = st.RetweetedStatus.Id;
             using (var dr = IsRetweetedCommand.ExecuteReader())
+            {
+                return dr.Read();
+            }
+        }
+
+        public bool IsmyRetweetInCache(long stid)
+        {
+            IsMyRetweetCommand.Parameters["Id"].Value = stid;
+            using (var dr = IsMyRetweetCommand.ExecuteReader())
             {
                 return dr.Read();
             }
@@ -244,19 +336,12 @@ namespace Kbtter3.Models
             Cache = new List<Status>();
             AuthenticatedUser = await Token.Account.VerifyCredentialsAsync(include_entities => true);
 
-            var sb = new SQLiteConnectionStringBuilder()
-            {
-                DataSource = CacheDatabaseFolderName + "/" + AccessTokens[ai].ScreenName + CacheDatabaseFileNameSuffix,
-                Version = 3,
-                SyncMode = SynchronizationModes.Off,
-                JournalMode = SQLiteJournalModeEnum.Memory
-            };
-            CacheDatabaseConnection = new SQLiteConnection(sb.ToString());
-            CacheDatabaseConnection.Open();
-            CacheContext = new DataContext(CacheDatabaseConnection);
-            CreateTables();
-            CacheUnknown();
+            InitializeUserCache();
+            RaisePropertyChanged(() => AuthenticatedUser);
+            InitializeCacheDatabase(ai);
+
         }
+
 
         public Tokens AuthorizeToken(string pin)
         {
@@ -265,7 +350,7 @@ namespace Kbtter3.Models
         }
         #endregion
 
-        #region streaming
+        #region Streaming
         public void StartStreaming()
         {
             var ob = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
@@ -278,11 +363,15 @@ namespace Kbtter3.Models
             {
                 if (OnEvent != null) OnEvent(p);
             });
+            ob.OfType<IDMessage>().Subscribe((p) =>
+            {
+                if (OnIdEvent != null) OnIdEvent(p);
+            });
             Stream = ob.Connect();
 
             OnStatus += NotifyStatusUpdate;
             OnEvent += NotifyEventUpdate;
-
+            OnIdEvent += NotifyIdEventUpdate;
 
         }
 
@@ -302,6 +391,12 @@ namespace Kbtter3.Models
             RaisePropertyChanged("Event");
         }
 
+        private async void NotifyIdEventUpdate(IDMessage msg)
+        {
+            await CacheIdEvents(msg);
+            RaisePropertyChanged("IdEvent");
+        }
+
         private Task CacheEvents(EventMessage msg)
         {
             return Task.Run(() =>
@@ -310,16 +405,33 @@ namespace Kbtter3.Models
                 switch (msg.Event)
                 {
                     case EventCode.Favorite:
-                        if (msg.Source.Id != AuthenticatedUser.Id) return;
-                        AddFavoriteCache(msg.TargetStatus);
-                        CacheContext.SubmitChanges();
+                        if (msg.Source.Id == AuthenticatedUser.Id)
+                        {
+                            AddFavoriteCache(msg.TargetStatus);
+                            CacheContext.SubmitChanges();
+                            AuthenticatedUser.FavouritesCount++;
+                            RaisePropertyChanged(() => AuthenticatedUser);
+                            break;
+                        }
+                        else
+                        {
+
+                        }
                         break;
                     case EventCode.Unfavorite:
-                        if (msg.Source != AuthenticatedUser) return;
-                        RemoveFavoriteCache(msg.TargetStatus);
-                        CacheContext.SubmitChanges();
-                        break;
+                        if (msg.Source.Id == AuthenticatedUser.Id)
+                        {
+                            RemoveFavoriteCache(msg.TargetStatus);
+                            CacheContext.SubmitChanges();
+                            AuthenticatedUser.FavouritesCount--;
+                            RaisePropertyChanged(() => AuthenticatedUser);
+                            break;
+                        }
+                        else
+                        {
 
+                        }
+                        break;
                 }
             });
         }
@@ -328,23 +440,45 @@ namespace Kbtter3.Models
         {
             return Task.Run(() =>
             {
-                Cache.Add(msg.Status);
+                if (AuthenticatedUser == null) return;
+                var mst = msg.Status;
                 switch (msg.Type)
                 {
                     case MessageType.Create:
-                        var cst = msg.Status;
-                        if (cst.RetweetedStatus != null && cst.User.Id == AuthenticatedUser.Id)
+                        Cache.Add(msg.Status);
+                        if (msg.Status.User.Id == AuthenticatedUser.Id)
                         {
-                            AddRetweetCache(cst);
-                            CacheContext.SubmitChanges();
+                            AuthenticatedUser.StatusesCount++;
+                            RaisePropertyChanged(() => AuthenticatedUser);
+                            if (mst.RetweetedStatus != null)
+                            {
+                                AddRetweetCache(mst);
+                                CacheContext.SubmitChanges();
+                            }
                         }
                         break;
+
+                }
+            });
+        }
+
+        public Task CacheIdEvents(IDMessage msg)
+        {
+            return Task.Run(() =>
+            {
+                if (AuthenticatedUser == null) return;
+                switch (msg.Type)
+                {
                     case MessageType.Delete:
-                        var dst = msg.Status;
-                        if (dst.RetweetedStatus != null && dst.User.Id == AuthenticatedUser.Id)
+                        if (msg.UserID == AuthenticatedUser.Id)
                         {
-                            RemoveRetweetCache(dst);
-                            CacheContext.SubmitChanges();
+                            AuthenticatedUser.StatusesCount--;
+                            RaisePropertyChanged(() => AuthenticatedUser);
+                            if (IsmyRetweetInCache(msg.UpToStatusID ?? 0))
+                            {
+                                RemoveRetweetCache(msg.UpToStatusID ?? 0);
+                                CacheContext.SubmitChanges();
+                            }
                         }
                         break;
                 }
@@ -389,6 +523,8 @@ namespace Kbtter3.Models
         #endregion
     }
 
+    #region json保存用クラスとか
+
     public static class Kbtter3Extension
     {
         public static void SaveJson<T>(this T obj, string filename)
@@ -421,4 +557,19 @@ namespace Kbtter3.Models
             LastRetweetedStatusId = 0;
         }
     }
+
+    public class UserProfileCache
+    {
+        public string Name { get; set; }
+        public string ScreenName { get; set; }
+        public string Description { get; set; }
+        public string Location { get; set; }
+        public string Uri { get; set; }
+        public int Statuses { get; set; }
+        public int Friends { get; set; }
+        public int Followers { get; set; }
+        public int Favorites { get; set; }
+    }
+
+    #endregion
 }

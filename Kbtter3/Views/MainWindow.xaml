@@ -49,13 +49,38 @@
             <RowDefinition Height="24"/>
         </Grid.RowDefinitions>
 
-        <Grid Background="{StaticResource TwitterColorPrimary}">
+        <Grid Background="{StaticResource TwitterColorPrimary}" Height="40">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="36"/>
+                <ColumnDefinition Width="40"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Name="TextBlockPR" VerticalAlignment="Center" FontSize="20" FontStyle="Italic" Margin="4,0,0,0">Kbtter3</TextBlock>
-            <Menu Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="Transparent">
+            <Image Width="32" Height="32" Grid.Column="0" Margin="4,4,0,4" HorizontalAlignment="Left">
+                <Image.Source>
+                    <BitmapImage UriSource="{Binding UserProfileImageUri}"/>
+                </Image.Source>
+            </Image>
+            <StackPanel Grid.Column="1" Margin="8,0,8,0">
+                <TextBlock Text="{Binding UserProfileStatuses}" FontSize="16"/>
+                <TextBlock FontSize="10">ツイート</TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Margin="8,0,8,0">
+                <TextBlock Text="{Binding UserProfileFavorites}" FontSize="16"/>
+                <TextBlock FontSize="10">お気に入り</TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Column="3" Margin="8,0,8,0">
+                <TextBlock Text="{Binding UserProfileFriends}" FontSize="16"/>
+                <TextBlock FontSize="10">フォロー</TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Column="4" Margin="8,0,8,0">
+                <TextBlock Text="{Binding UserProfileFollowers}" FontSize="16"/>
+                <TextBlock FontSize="10">フォロワー</TextBlock>
+            </StackPanel>
+            <Menu Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="Transparent">
                 <MenuItem VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                     <MenuItem.Header>
                         <TextBlock FontFamily="Marlett" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">6</TextBlock>
@@ -80,7 +105,7 @@
                 <StackPanel Orientation="Horizontal" Grid.Row="0" Name="PanelNewTweetReply" Visibility="{Binding IsReplying, Converter={StaticResource BooleanToVisibilityConverter}}" >
                     <Button Margin="4,0,0,0" Name="ButtonCancelReply" Width="16" Height="16" 
                             ToolTip="返信をキャンセル" Command="{Binding CancelReplyCommand}" Template="{StaticResource CancelButton}"/>
-                    <TextBlock Margin="8,0,8,0" FontWeight="Bold">返信 : </TextBlock>
+                    <TextBlock Margin="8,0,8,0" FontWeight="Bold">返信 :</TextBlock>
                     <TextBlock Margin="0,0,4,0" FontWeight="Bold" Text="{Binding ReplyingStatus.User.Name}"/>
                     <TextBlock Margin="0" Text="{Binding ReplyingStatusText}"/>
                 </StackPanel>

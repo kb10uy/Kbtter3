@@ -217,13 +217,63 @@
             Writes the object to the json.
             </summary>
             <param name='jw'>
-            The instance of JsonReader.
+            The instance of JsonWriter.
             </param>
             <param name='value'>
             The object you want to serialize.
             </param>
             <param name='_'>
             Unused.
+            </param>
+        </member>
+        <member name="T:CoreTweet.Core.ContributorsConverter">
+            <summary>
+            The Contributors converter for the JsonSerializer.
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Core.ContributorsConverter.CanConvert(System.Type)">
+            <summary>
+            Determines whether this instance can convert the specified type.
+            </summary>
+            <returns>
+            <c>true</c> if this instance can convert the specified type; otherwise, <c>false</c>.
+            </returns>
+            <param name='type'>
+            If set to <c>true</c> type.
+            </param>
+        </member>
+        <member name="M:CoreTweet.Core.ContributorsConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Reads and parses the json.
+            </summary>
+            <param name="reader">
+            The instance of JsonReader.
+            </param>
+            <param name="objectType">
+            Type of the object.
+            </param>
+            <param name="existingValue">
+            The existing value of object being read.
+            </param>
+            <param name="serializer">
+            The calling serializer.
+            </param>
+            <returns>
+            The json.
+            </returns>
+        </member>
+        <member name="M:CoreTweet.Core.ContributorsConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Writes the object to the json.
+            </summary>
+            <param name="writer">
+            The instance of JsonWriter.
+            </param>
+            <param name="value">
+            The object you want to serialize.
+            </param>
+            <param name="serializer">
+            The calling serializer.
             </param>
         </member>
         <member name="T:CoreTweet.Core.CoreBase">
@@ -874,9 +924,9 @@
                 An array of integers indicating the offsets within the Tweet text where this entity begins and ends.
             </summary>
         </member>
-        <member name="P:CoreTweet.HashTagEntity.Text">
+        <member name="P:CoreTweet.SymbolEntity.Text">
             <summary>
-                Name of the hashtag, minus the leading '#' character.
+                Name of the hashtag, minus the leading '#' or '$' character.
             </summary>
         </member>
         <member name="P:CoreTweet.UrlEntity.DisplayUrl">
