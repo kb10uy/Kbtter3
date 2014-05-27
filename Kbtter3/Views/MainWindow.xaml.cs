@@ -55,10 +55,20 @@ namespace Kbtter3.Views
             ctxlistener.Add("UserProfileImageUri", UserProfileImageUri);
             composite.Add(ctxlistener);
 
-            vm.Update += MainWindow_Update;
+            vm.StatusUpdate += MainWindow_Update;
+            vm.EventUpdate += vm_EventUpdate;
             if (!File.Exists(ConfigFileName)) File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(new MainWindowSetting()));
             setting = JsonConvert.DeserializeObject<MainWindowSetting>(File.ReadAllText(ConfigFileName));
             SetShortcuts();
+        }
+
+        void vm_EventUpdate(object sender, NotificationViewModel vm)
+        {
+            DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
+            {
+                ListBoxNotify.Items.Insert(0, new Frame { Content = new NotificationPage(vm) });
+                if (ListBoxTimeline.Items.Count > setting.NotificationsShowMax) ListBoxNotify.Items.RemoveAt(setting.NotificationsShowMax);
+            }));
         }
 
         private void SetShortcuts()
@@ -102,18 +112,18 @@ namespace Kbtter3.Views
             {
                 ListBoxTimeline.Focus();
             }
-            
         }
-
     }
 
     internal class MainWindowSetting
     {
         public int StatusesShowMax { get; set; }
+        public int NotificationsShowMax { get; set; }
 
         public MainWindowSetting()
         {
             StatusesShowMax = 200;
+            NotificationsShowMax = 200;
         }
     }
 }

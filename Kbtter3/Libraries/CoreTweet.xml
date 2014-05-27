@@ -4909,6 +4909,17 @@
             </summary>
             <value>The status.</value>
         </member>
+        <member name="T:CoreTweet.Streaming.DirectMessageMessage">
+            <summary>
+            Direct message message
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Streaming.DirectMessageMessage.DirectMessage">
+            <summary>
+            The direct message.
+            </summary>
+            <value>The direct message.</value>
+        </member>
         <member name="T:CoreTweet.Streaming.FriendsMessage">
             <summary>
             Message contains ids of friends.
@@ -4931,19 +4942,19 @@
             Message contains ids.
             </summary>
         </member>
-        <member name="P:CoreTweet.Streaming.IdMessage.ID">
+        <member name="P:CoreTweet.Streaming.IdMessage.Id">
             <summary>
             ID.
             </summary>
             <value>The I.</value>
         </member>
-        <member name="P:CoreTweet.Streaming.IdMessage.UserID">
+        <member name="P:CoreTweet.Streaming.IdMessage.UserId">
             <summary>
             User's ID.
             </summary>
             <value>The user I.</value>
         </member>
-        <member name="P:CoreTweet.Streaming.IdMessage.UpToStatusID">
+        <member name="P:CoreTweet.Streaming.IdMessage.UpToStatusId">
             <summary>
             Status ID.
             </summary>
@@ -5001,7 +5012,7 @@
             </summary>
             <value>The percent full.</value>
         </member>
-        <member name="P:CoreTweet.Streaming.WarningMessage.UserID">
+        <member name="P:CoreTweet.Streaming.WarningMessage.UserId">
             <summary>
             Target user ID.
             </summary>

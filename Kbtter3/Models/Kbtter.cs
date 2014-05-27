@@ -334,12 +334,11 @@ namespace Kbtter3.Models
                 AccessTokens[ai].TokenSecret
                 );
             Cache = new List<Status>();
-            AuthenticatedUser = await Token.Account.VerifyCredentialsAsync(include_entities => true);
-
-            InitializeUserCache();
-            RaisePropertyChanged(() => AuthenticatedUser);
             InitializeCacheDatabase(ai);
 
+            AuthenticatedUser = await Token.Account.VerifyCredentialsAsync(include_entities => true);
+            InitializeUserCache();
+            RaisePropertyChanged(() => AuthenticatedUser);
         }
 
 
@@ -474,14 +473,14 @@ namespace Kbtter3.Models
                 if (AuthenticatedUser == null) return;
                 switch (msg.Type)
                 {
-                    case MessageType.Delete:
-                        if (msg.UserID == AuthenticatedUser.Id)
+                    case MessageType.DeleteStatus:
+                        if (msg.UserId == AuthenticatedUser.Id)
                         {
                             AuthenticatedUser.StatusesCount--;
                             RaisePropertyChanged(() => AuthenticatedUser);
-                            if (IsmyRetweetInCache(msg.UpToStatusID ?? 0))
+                            if (IsmyRetweetInCache(msg.UpToStatusId ?? 0))
                             {
-                                RemoveRetweetCache(msg.UpToStatusID ?? 0);
+                                RemoveRetweetCache(msg.UpToStatusId ?? 0);
                                 CacheContext.SubmitChanges();
                             }
                         }

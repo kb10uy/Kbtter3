@@ -13,6 +13,7 @@ using Livet.Messaging.Windows;
 
 using Kbtter3.Models;
 using CoreTweet;
+using CoreTweet.Streaming;
 
 namespace Kbtter3.ViewModels
 {
@@ -21,7 +22,8 @@ namespace Kbtter3.ViewModels
 
         Kbtter kbtter;
         PropertyChangedEventListener listener;
-        public event StatusUpdateEventHandler Update;
+        public event StatusUpdateEventHandler StatusUpdate;
+        public event EventUpdateEventHandler EventUpdate;
         Dictionary<string, string> errors = new Dictionary<string, string>();
 
         public void Initialize()
@@ -38,6 +40,7 @@ namespace Kbtter3.ViewModels
         {
             listener.Add("AccessTokenRequest", OnAccessTokenRequest);
             listener.Add("Status", OnStatusUpdate);
+            listener.Add("Event", OnEvent);
             listener.Add("AuthenticatedUser", OnUserProfileUpdate);
         }
 
@@ -48,7 +51,14 @@ namespace Kbtter3.ViewModels
 
         public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
         {
-            if (Update != null) Update(this, this.CreateStatusViewModel(kbtter.ShowingStatuses.Dequeue()));
+            if (StatusUpdate != null) StatusUpdate(this, this.CreateStatusViewModel(kbtter.ShowingStatuses.Dequeue()));
+        }
+
+        public void OnEvent(object sender, PropertyChangedEventArgs e)
+        {
+            if (kbtter.LatestEvent.Target.Id != kbtter.AuthenticatedUser.Id) return;
+            var vm = new NotificationViewModel(kbtter.LatestEvent);
+            if (EventUpdate != null) EventUpdate(this, vm);
         }
 
         public void OnUserProfileUpdate(object sender, PropertyChangedEventArgs e)
@@ -387,4 +397,6 @@ namespace Kbtter3.ViewModels
     }
 
     public delegate void StatusUpdateEventHandler(object sender, StatusViewModel vm);
+    public delegate void EventUpdateEventHandler(object sender, NotificationViewModel vm);
+
 }
