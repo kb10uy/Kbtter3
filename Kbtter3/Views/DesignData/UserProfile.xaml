@@ -1,0 +1,3 @@
+﻿<vm:UserProfilePageViewModel
+    xmlns:vm="clr-namespace:Kbtter3.ViewModels"
+    />

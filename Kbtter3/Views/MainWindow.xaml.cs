@@ -23,14 +23,6 @@ using Livet.EventListeners.WeakEvents;
 
 namespace Kbtter3.Views
 {
-    /* 
-     * ViewModelからの変更通知などの各種イベントを受け取る場合は、PropertyChangedWeakEventListenerや
-     * CollectionChangedWeakEventListenerを使うと便利です。独自イベントの場合はLivetWeakEventListenerが使用できます。
-     * クローズ時などに、LivetCompositeDisposableに格納した各種イベントリスナをDisposeする事でイベントハンドラの開放が容易に行えます。
-     *
-     * WeakEventListenerなので明示的に開放せずともメモリリークは起こしませんが、できる限り明示的に開放するようにしましょう。
-     */
-
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
@@ -42,6 +34,7 @@ namespace Kbtter3.Views
         MainWindowSetting setting;
 
         MainWindowViewModel vm;
+        int urs = 0, urn = 0;
 
         public MainWindow()
         {
@@ -66,6 +59,12 @@ namespace Kbtter3.Views
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
+                if (TabControlMain.SelectedIndex != 1 && setting.NotifyNewNotification)
+                {
+                    EmphasisTextBlock(TextBlockNotification);
+                    urn++;
+                    TextBlockUnreadNotifications.Text = String.Format(" {0}", urn);
+                }
                 ListBoxNotify.Items.Insert(0, new Frame { Content = new NotificationPage(vm) });
                 if (ListBoxTimeline.Items.Count > setting.NotificationsShowMax) ListBoxNotify.Items.RemoveAt(setting.NotificationsShowMax);
             }));
@@ -81,6 +80,12 @@ namespace Kbtter3.Views
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
+                if (TabControlMain.SelectedIndex != 0 && setting.NotifyNewStatus)
+                {
+                    EmphasisTextBlock(TextBlockTimeline);
+                    urs++;
+                    TextBlockUnreadStatuses.Text = String.Format(" {0}", urs);
+                }
                 ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(vm) });
                 if (ListBoxTimeline.Items.Count > setting.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.StatusesShowMax);
             }));
@@ -96,6 +101,7 @@ namespace Kbtter3.Views
             ImageUserProfileImage.Source = new BitmapImage(vm.UserProfileImageUri);
         }
 
+        #region ショートカット
         private void ExpandNewTweet(object sender, PropertyChangedEventArgs e)
         {
             ExpanderNewTweet.IsExpanded = true;
@@ -113,17 +119,53 @@ namespace Kbtter3.Views
                 ListBoxTimeline.Focus();
             }
         }
+        #endregion
+
+        private void TabControlMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (TabControlMain.SelectedIndex)
+            {
+                case 0:
+                    urs = 0;
+                    TextBlockUnreadStatuses.Text = "";
+                    DisemphasisTextBlock(TextBlockTimeline);
+                    break;
+                case 1:
+                    urn = 0;
+                    TextBlockUnreadNotifications.Text = "";
+                    DisemphasisTextBlock(TextBlockNotification);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void EmphasisTextBlock(TextBlock tb)
+        {
+            tb.Foreground = Brushes.Red;
+            tb.FontWeight = FontWeights.Bold;
+        }
+
+        private void DisemphasisTextBlock(TextBlock tb)
+        {
+            tb.Foreground = Brushes.Black;
+            tb.FontWeight = FontWeights.Normal;
+        }
     }
 
     internal class MainWindowSetting
     {
         public int StatusesShowMax { get; set; }
         public int NotificationsShowMax { get; set; }
+        public bool NotifyNewStatus { get; set; }
+        public bool NotifyNewNotification { get; set; }
 
         public MainWindowSetting()
         {
             StatusesShowMax = 200;
             NotificationsShowMax = 200;
+            NotifyNewStatus = false;
+            NotifyNewNotification = true;
         }
     }
 }

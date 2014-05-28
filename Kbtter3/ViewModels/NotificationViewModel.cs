@@ -19,6 +19,11 @@ namespace Kbtter3.ViewModels
 {
     public class NotificationViewModel : ViewModel
     {
+        public NotificationViewModel()
+        {
+
+        }
+
         public NotificationViewModel(EventMessage msg)
         {
             NotificationTime = msg.CreatedAt.LocalDateTime.ToShortTimeString();

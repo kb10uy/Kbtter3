@@ -6,6 +6,7 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:Kbtter3.Views"
         xmlns:vm="clr-namespace:Kbtter3.ViewModels"
+        xmlns:vc="clr-namespace:Kbtter3.Views.Control"
         Title="Kbtter3 Polystyrene" Height="500" Width="525">
 
     <Window.DataContext>
@@ -128,8 +129,15 @@
             </Grid>
         </Expander>
 
-        <TabControl Name="TabControlMain" Grid.Row="3" Margin="0,2,0,0" Background="{StaticResource TwitterColorWhite}" Style="{StaticResource RoundTabControl}">
-            <TabItem Header="タイムライン" Name="TabTimeline" Style="{StaticResource RoundTabItem}">
+        <TabControl Name="TabControlMain" Grid.Row="3" Margin="0,2,0,0" 
+                    Background="{StaticResource TwitterColorWhite}" Style="{StaticResource RoundTabControl}"
+                    SelectionChanged="TabControlMain_SelectionChanged">
+            <TabItem Name="TabTimeline" Style="{StaticResource RoundTabItem}">
+                <TabItem.Header>
+                    <TextBlock Name="TextBlockTimeline">
+                        タイムライン<TextBlock Name="TextBlockUnreadStatuses"/>
+                    </TextBlock>
+                </TabItem.Header>
                 <ListBox Name="ListBoxTimeline" HorizontalContentAlignment="Stretch"
                          ItemsSource="{Binding Path=Statuses}"
                          SelectedItem="{Binding Path=SelectedStatus}"
@@ -137,7 +145,12 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
                          />
             </TabItem>
-            <TabItem Header="通知" Name="TabNotify" Style="{StaticResource RoundTabItem}">
+            <TabItem Name="TabNotify" Style="{StaticResource RoundTabItem}">
+                <TabItem.Header>
+                    <TextBlock Name="TextBlockNotification">
+                        通知<TextBlock Name="TextBlockUnreadNotifications"/>
+                    </TextBlock>
+                </TabItem.Header>
                 <ListBox Name="ListBoxNotify" HorizontalContentAlignment="Stretch" 
                          ScrollViewer.CanContentScroll="False"
                          ScrollViewer.HorizontalScrollBarVisibility="Auto"/>

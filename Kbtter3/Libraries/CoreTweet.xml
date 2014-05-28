@@ -539,6 +539,16 @@
             Rest/Lists.
             </summary>
         </member>
+        <member name="P:CoreTweet.Core.TokensBase.Media">
+            <summary>
+            Rest/Media.
+            </summary>
+        </member>
+        <member name="P:CoreTweet.Core.TokensBase.Mutes">
+            <summary>
+            Rest/Mutes.
+            </summary>
+        </member>
         <member name="P:CoreTweet.Core.TokensBase.Search">
             <summary>
             Rest/Search.
@@ -562,11 +572,6 @@
         <member name="P:CoreTweet.Core.TokensBase.Users">
             <summary>
             Rest/Users.
-            </summary>
-        </member>
-        <member name="P:CoreTweet.Core.TokensBase.Mutes">
-            <summary>
-            Rest/Mutes.
             </summary>
         </member>
         <member name="P:CoreTweet.Core.TokensBase.Streaming">
@@ -4613,6 +4618,11 @@
             <param name='parameters'>
             Parameters.
             </param>
+        </member>
+        <member name="T:CoreTweet.Rest.Media">
+            <summary>
+            POST media
+            </summary>
         </member>
         <member name="T:CoreTweet.Rest.Users">
             <summary>GET/POST users</summary>

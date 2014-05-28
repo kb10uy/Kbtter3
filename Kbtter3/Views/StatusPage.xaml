@@ -35,7 +35,7 @@
     <Page.Resources>
         <ResourceDictionary Source="KbtterResource.xaml"/>
     </Page.Resources>
-    
+
     <Page.ContextMenu>
         <ContextMenu>
             <MenuItem Header="削除" IsEnabled="{Binding IsMyStatus}" Command="{Binding DeleteStatusCommand}"/>
@@ -85,13 +85,13 @@
                         <ToggleButton Name="ButtonFavorite" Margin="2"
                                       Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited,Mode=TwoWay}"
                                       Height="16" Width="16"/>
-                        <TextBlock Name="TextBlockFavoriteCount" FontSize="9" VerticalAlignment="Center" Text="{Binding FavoriteCount}"/>
+                        <TextBlock Name="TextBlockFavoriteCount" FontSize="9" VerticalAlignment="Center" Text="{Binding FavoriteCount,Converter={StaticResource Int32ToShortenNumberStringConverter}}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding IsOthersStatus,Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ToggleButton Name="ButtonRetweet" Margin="2"
                                       Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"
                                       Height="16" Width="16"/>
-                        <TextBlock Name="TextBlockRetweetCount" FontSize="9" VerticalAlignment="Center" Text="{Binding RetweetCount}"/>
+                        <TextBlock Name="TextBlockRetweetCount" FontSize="9" VerticalAlignment="Center" Text="{Binding RetweetCount,Converter={StaticResource Int32ToShortenNumberStringConverter}}"/>
                     </StackPanel>
                     <Button Name="ButtonDelete" Margin="2"
                                   Height="16" Width="16" Visibility="{Binding IsMyStatus,Converter={StaticResource BooleanToVisibilityConverter}}"

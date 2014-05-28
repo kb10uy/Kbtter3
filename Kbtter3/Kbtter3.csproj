@@ -116,8 +116,12 @@
     <Compile Include="Models\Caching\CacheModels.cs" />
     <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
+    <Compile Include="ViewModels\UserProfilePageViewModel.cs" />
     <Compile Include="Views\AccountSelectWindow.xaml.cs">
       <DependentUpon>AccountSelectWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Control\ClosableRoundTabItem.xaml.cs">
+      <DependentUpon>ClosableRoundTabItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters.cs" />
     <Compile Include="Views\NotificationPage.xaml.cs">
@@ -125,6 +129,9 @@
     </Compile>
     <Compile Include="Views\StatusPage.xaml.cs">
       <DependentUpon>StatusPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserProfilePage.xaml.cs">
+      <DependentUpon>UserProfilePage.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\AccountSelectWindow.xaml">
       <SubType>Designer</SubType>
@@ -134,6 +141,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </DesignData>
+    <Page Include="Views\Control\ClosableRoundTabItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DesignData\UserProfile.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\DesignData\Notification.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -162,6 +177,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\StatusPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserProfilePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

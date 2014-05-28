@@ -413,7 +413,8 @@ namespace Kbtter3.Models
                         {
                             AddFavoriteCache(msg.TargetStatus);
                             CacheContext.SubmitChanges();
-                            AuthenticatedUser.FavouritesCount++;
+                            AuthenticatedUser = msg.Source;
+                            //AuthenticatedUser.FavouritesCount++;
                             RaisePropertyChanged(() => AuthenticatedUser);
                             break;
                         }
@@ -427,7 +428,8 @@ namespace Kbtter3.Models
                         {
                             RemoveFavoriteCache(msg.TargetStatus);
                             CacheContext.SubmitChanges();
-                            AuthenticatedUser.FavouritesCount--;
+                            AuthenticatedUser = msg.Source;
+                            //AuthenticatedUser.FavouritesCount--;
                             RaisePropertyChanged(() => AuthenticatedUser);
                             break;
                         }
@@ -452,7 +454,8 @@ namespace Kbtter3.Models
                         Cache.Add(msg.Status);
                         if (msg.Status.User.Id == AuthenticatedUser.Id)
                         {
-                            AuthenticatedUser.StatusesCount++;
+                            AuthenticatedUser = msg.Status.User;
+                            //AuthenticatedUser.StatusesCount++;
                             RaisePropertyChanged(() => AuthenticatedUser);
                             if (mst.RetweetedStatus != null)
                             {

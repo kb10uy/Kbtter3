@@ -452,9 +452,9 @@ namespace Kbtter3.ViewModels
 
 
         #region FavoriteCount変更通知プロパティ
-        private int _FavoriteCount;
+        private long _FavoriteCount;
 
-        public int FavoriteCount
+        public long FavoriteCount
         {
             get
             { return _FavoriteCount; }
@@ -470,9 +470,9 @@ namespace Kbtter3.ViewModels
 
 
         #region RetweetCount変更通知プロパティ
-        private int _RetweetCount;
+        private long _RetweetCount;
 
-        public int RetweetCount
+        public long RetweetCount
         {
             get
             { return _RetweetCount; }
@@ -524,6 +524,25 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
+        #region IsReplyToMe変更通知プロパティ
+        private bool _IsReplyToMe;
+
+        public bool IsReplyToMe
+        {
+            get
+            { return _IsReplyToMe; }
+            set
+            { 
+                if (_IsReplyToMe == value)
+                    return;
+                _IsReplyToMe = value;
+                RaisePropertyChanged("IsReplyToMe");
+            }
+        }
+        #endregion
+
+
+
     }
 
     internal static class StatusViewModelExtension
@@ -557,6 +576,7 @@ namespace Kbtter3.ViewModels
             ret.IsMyStatus = (Kbtter.Instance.AuthenticatedUser != null && Kbtter.Instance.AuthenticatedUser.Id == st.User.Id);
             ret.IsOthersStatus = !ret.IsMyStatus;
             ret._CreatedTimeText = st.CreatedAt.DateTime.ToLocalTime();
+            ret.IsReplyToMe = st.Entities.UserMentions.Any(p => p.ScreenName == Kbtter.Instance.AuthenticatedUser.ScreenName);
             ret.AnalyzeText();
             ret.TryGetReply();
 

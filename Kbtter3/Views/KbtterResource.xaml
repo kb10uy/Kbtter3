@@ -8,7 +8,7 @@
         xmlns:vm="clr-namespace:Kbtter3.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
-    
+
     <SolidColorBrush x:Key="TwitterColorPrimary" Color="#55acee"/>
     <SolidColorBrush x:Key="TwitterColorSecondary" Color="#292f33"/>
     <SolidColorBrush x:Key="TwitterColorDarkGray" Color="#66757f"/>
@@ -28,9 +28,10 @@
     <SolidColorBrush x:Key="Kbtter3ReplyBackColor" Color="#66FFBC5A"/>
     <SolidColorBrush x:Key="Kbtter3AchievementColor" Color="#66FFF74B"/>
     <SolidColorBrush x:Key="Kbtter3ErrorColor" Color="#66FF6161"/>
-    
+
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     <v:UriToBitmapImageConverter x:Key="UriToBitmapImageConverter"/>
+    <v:Int32ToShortenNumberStringConverter x:Key="Int32ToShortenNumberStringConverter"/>
 
     <ControlTemplate x:Key="SelectBorderListBoxItem" TargetType="ListBoxItem">
         <Border Name="Border"
@@ -85,7 +86,7 @@
                         </Trigger>
                         <Trigger Property="IsSelected" Value="False">
                             <Setter Property="Panel.ZIndex" Value="-128"/>
-                            <Setter TargetName="Border" Property="Margin" Value="-2,0,0,1"/>
+                            <Setter TargetName="Border" Property="Margin" Value="-2,4,0,1"/>
                             <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,1"/>
                             <Setter TargetName="Border" Property="Background" Value="Gainsboro"/>
                         </Trigger>
@@ -97,7 +98,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-
 
     <Style x:Key="RoundTabControl" TargetType="TabControl">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -135,7 +135,7 @@
 
 
     <ControlTemplate x:Key="CloseButton" TargetType="Button">
-        <Border Name="Main" Margin="4,0,0,0" Width="16" Height="16">
+        <Border Name="Main" Margin="0,0,0,0" Width="16" Height="16">
             <Border.Background>
                 <ImageBrush ImageSource="/Kbtter3;component/Resources/close.png" Stretch="None"/>
             </Border.Background>
@@ -196,7 +196,7 @@
             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Border>
     </ControlTemplate>
-    
+
     <ControlTemplate x:Key="CancelButton" TargetType="Button">
         <Border Name="Main">
             <Border.Background>
@@ -205,5 +205,5 @@
             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Border>
     </ControlTemplate>
-    
+
 </ResourceDictionary>
