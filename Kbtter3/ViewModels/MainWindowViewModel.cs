@@ -71,6 +71,16 @@ namespace Kbtter3.ViewModels
             RaisePropertyChanged("UserPropfileImageUri");
         }
 
+        public UserProfilePageViewModel GetUserProfile(string sn)
+        {
+            var t = kbtter.Cache.LastOrDefault(p => p.User.ScreenName == sn);
+            if (t == null)
+            {
+                return null;
+            }
+            return new UserProfilePageViewModel(t.User);
+        }
+
 
         #region UserProfileImageUri変更通知プロパティ
         private Uri _UserProfileImageUri = new Uri("", UriKind.RelativeOrAbsolute);

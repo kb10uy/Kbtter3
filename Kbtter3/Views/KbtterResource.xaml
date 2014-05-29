@@ -32,6 +32,8 @@
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     <v:UriToBitmapImageConverter x:Key="UriToBitmapImageConverter"/>
     <v:Int32ToShortenNumberStringConverter x:Key="Int32ToShortenNumberStringConverter"/>
+    <v:DoubleTwitterBannerHeightConverter x:Key="BannerHeightConverter"/>
+    <v:DoubleTwitterUserImageHeightConverter x:Key="UserImageHeightConverter"/>
 
     <ControlTemplate x:Key="SelectBorderListBoxItem" TargetType="ListBoxItem">
         <Border Name="Border"

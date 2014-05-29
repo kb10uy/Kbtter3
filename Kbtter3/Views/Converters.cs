@@ -29,6 +29,34 @@ namespace Kbtter3.Views
         }
     }
 
+    public sealed class DoubleTwitterBannerHeightConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return ((double)value) / 3.0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class DoubleTwitterUserImageHeightConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return ((double)value) / 6.0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed class Int32ToShortenNumberStringConverter : IValueConverter
     {
         //エクサまで対応

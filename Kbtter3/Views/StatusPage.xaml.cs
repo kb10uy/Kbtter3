@@ -35,9 +35,11 @@ namespace Kbtter3.Views
         bool showed = false;
         IList<StatusViewModel.StatusElement> elm;
         string stsn;
+        MainWindow mainw;
 
-        public StatusPage(StatusViewModel vm)
+        public StatusPage(MainWindow m,StatusViewModel vm)
         {
+            mainw = m;
             InitializeComponent();
             DataContext = vm;
             elm = vm.TextElements;
@@ -74,7 +76,7 @@ namespace Kbtter3.Views
                         var hl = new Hyperlink();
                         hl.Inlines.Add(i.Text);
                         hl.Tag = i;
-                        hl.RequestNavigate += (s, e2) =>
+                        hl.MouseLeftButtonDown += (s, e2) =>
                         {
                             var t = ((s as Hyperlink).Tag as StatusViewModel.StatusElement);
                             RequestHyperlinkAction(t.Type, t.Infomation);
@@ -117,7 +119,7 @@ namespace Kbtter3.Views
 
         private void RequestHyperlinkAction(string type, string info)
         {
-
+            mainw.RequestAction(type, info);
         }
 
         private void Hyperlink_MouseEnter(object sender, MouseEventArgs e)
@@ -137,15 +139,12 @@ namespace Kbtter3.Views
             e.Handled = true;
         }
 
-        private void HyperlinkScreenName_RequestNavigate(object sender, RequestNavigateEventArgs e)
+
+        private void HyperlinkScreenName_Click(object sender, RoutedEventArgs e)
         {
             RequestHyperlinkAction("Mention", stsn);
             e.Handled = true;
         }
 
-        private void Page_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-
-        }
     }
 }

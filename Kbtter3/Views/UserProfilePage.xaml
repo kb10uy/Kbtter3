@@ -10,33 +10,90 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         d:DataContext="{d:DesignData /Views/DesignData/UserProfile.xaml}"
-        Title="UserProfilePage" d:DesignHeight="200" d:DesignWidth="500">
-    
-    <Page.DataContext>
-        <vm:UserProfilePageViewModel/>
-    </Page.DataContext>
-    
-     <i:Interaction.Triggers>
-     
-     	<!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
-    	<!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
-    	<!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています --> 
-        
-        <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
-        <i:EventTrigger EventName="ContentRendered">
-            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
-        </i:EventTrigger>
-
-        <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
-        <i:EventTrigger EventName="Closed">
-            <l:DataContextDisposeAction/>
-        </i:EventTrigger>
-
-        <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+        Title="UserProfilePage" d:DesignHeight="600" d:DesignWidth="500"
+        Loaded="Page_Loaded">
+    <i:Interaction.Triggers>
 
     </i:Interaction.Triggers>
-    
-    <Grid>
-        
-    </Grid>
+
+    <Page.Resources>
+        <ResourceDictionary Source="KbtterResource.xaml"/>
+    </Page.Resources>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid ScrollViewer.CanContentScroll="False">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Name="GridProfileImage" Height="{Binding ElementName=GridProfileImage,Path=ActualWidth, Converter={StaticResource BannerHeightConverter},UpdateSourceTrigger=PropertyChanged}">
+                <Grid.Background>
+                    <ImageBrush ImageSource="{Binding BannerImageUri}"/>
+                </Grid.Background>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{Binding ElementName=GridProfileImage,Path=ActualWidth, Converter={StaticResource UserImageHeightConverter},UpdateSourceTrigger=PropertyChanged}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="{Binding ElementName=GridProfileImage,Path=ActualWidth, Converter={StaticResource UserImageHeightConverter},UpdateSourceTrigger=PropertyChanged}"/>
+                    <RowDefinition Height="3*"/>
+                </Grid.RowDefinitions>
+
+                <Border BorderThickness="4" BorderBrush="White" Grid.Column="1" Grid.Row="1" CornerRadius="2">
+                    <Image Source="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
+                </Border>
+            </Grid>
+            <StackPanel Background="{StaticResource TwitterColorWhite}" Grid.Row="1">
+                <TextBlock Margin="4" FontSize="28" TextAlignment="Center" Foreground="{Binding TextColor}" Text="{Binding Name}"/>
+                <TextBlock Margin="4" FontSize="16" TextAlignment="Center" Text="{Binding ScreenName}"/>
+            </StackPanel>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.RowSpan="4">
+                    <TextBlock TextWrapping="Wrap" Margin="4" FontSize="14" Text="{Binding Description}"/>
+                    <StackPanel Orientation="Horizontal" Margin="4">
+                        <TextBlock FontSize="14" Margin="0,0,4,0" FontWeight="Bold">場所</TextBlock>
+                        <TextBlock FontSize="14" Margin="0,0,4,0" Text="{Binding Location}" FontStyle="Italic"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4">
+                        <TextBlock FontSize="14" Margin="0,0,4,0" FontWeight="Bold">URL</TextBlock>
+                        <TextBlock>
+                            <Hyperlink NavigateUri="{Binding Url}" RequestNavigate="Hyperlink_RequestNavigate">
+                                <TextBlock Text="{Binding Url}"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="4">
+                    <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Statuses}"/>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">ツイート</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Margin="4">
+                    <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Favorites}"/>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">お気に入り</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Margin="4">
+                    <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Friends}"/>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">フォロー</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="4">
+                    <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Followers}"/>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">フォロワー</TextBlock>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
 </Page>

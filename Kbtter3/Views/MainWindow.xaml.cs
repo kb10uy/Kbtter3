@@ -17,6 +17,8 @@ using System.ComponentModel;
 using Newtonsoft.Json;
 
 using Kbtter3.ViewModels;
+using Kbtter3.Views.Control;
+
 using Livet;
 using Livet.EventListeners;
 using Livet.EventListeners.WeakEvents;
@@ -86,7 +88,7 @@ namespace Kbtter3.Views
                     urs++;
                     TextBlockUnreadStatuses.Text = String.Format(" {0}", urs);
                 }
-                ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(vm) });
+                ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(this, vm) });
                 if (ListBoxTimeline.Items.Count > setting.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.StatusesShowMax);
             }));
         }
@@ -121,6 +123,7 @@ namespace Kbtter3.Views
         }
         #endregion
 
+        #region UIロジック
         private void TabControlMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (TabControlMain.SelectedIndex)
@@ -151,6 +154,61 @@ namespace Kbtter3.Views
             tb.Foreground = Brushes.Black;
             tb.FontWeight = FontWeights.Normal;
         }
+
+        public void AddTab(UIElement header, UIElement elm)
+        {
+            DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
+            {
+                var tp = new ClosableRoundTabItem();
+                tp.Header = header;
+                tp.Content = elm;
+                tp.Closed += (s, e) =>
+                {
+                    TabControlMain.Items.Remove(s);
+                };
+                TabControlMain.Items.Add(tp);
+            }));
+        }
+
+        public void AddTab(string header, UIElement elm)
+        {
+            DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
+            {
+                var tp = new ClosableRoundTabItem();
+                tp.Header = header;
+                tp.Content = elm;
+                tp.Closed += (s, e) =>
+                {
+                    TabControlMain.Items.Remove(s);
+                };
+                TabControlMain.Items.Add(tp);
+            }));
+        }
+
+        #endregion
+
+        public void RequestAction(string type, string info)
+        {
+            switch (type)
+            {
+                case "Url":
+                    break;
+                case "Media":
+                    break;
+                case "Mention":
+                    var upvm = vm.GetUserProfile(info);
+                    //ここは取得するようにしたほうがいいかなーとか
+                    if (upvm == null) return;
+                    AddTab(String.Format("{0}さんの情報", info), new Frame { Content = new UserProfilePage(this, upvm) });
+                    break;
+                case "Hashtag":
+                    break;
+                default:
+                    throw new InvalidOperationException(String.Format("不明なリクエストです:{0}", type));
+            }
+        }
+
+
     }
 
     internal class MainWindowSetting

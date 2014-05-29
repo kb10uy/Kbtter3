@@ -64,7 +64,7 @@
                Source="/Kbtter3;component/Resources/reply.png" Panel.ZIndex="2"
                Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-        <Grid Grid.Row="1" Panel.ZIndex="-10" MouseRightButtonDown="Page_MouseRightButtonDown">
+        <Grid Grid.Row="1" Panel.ZIndex="-10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="52"/>
                 <ColumnDefinition Width="*"/>
@@ -109,8 +109,8 @@
                 <StackPanel Grid.Row="0" Margin="2,0,0,0" Orientation="Horizontal">
                     <TextBlock Name="TextBlockUserName" FontSize="15" FontWeight="Bold" Text="{Binding UserName}"/>
                     <TextBlock Margin="8,0,0,0" TextAlignment="Center" VerticalAlignment="Center" FontStyle="Italic">
-                    <Hyperlink Name="HyperlinkScreenName" Foreground="DodgerBlue" RequestNavigate="HyperlinkScreenName_RequestNavigate"
-                                MouseEnter="Hyperlink_MouseEnter" MouseLeave="Hyperlink_MouseLeave">
+                    <Hyperlink Name="HyperlinkScreenName" Foreground="DodgerBlue" 
+                               MouseEnter="Hyperlink_MouseEnter" MouseLeave="Hyperlink_MouseLeave" Click="HyperlinkScreenName_Click">
                         @<TextBlock Text="{Binding ScreenName}"/>
                     </Hyperlink>
                 </TextBlock>

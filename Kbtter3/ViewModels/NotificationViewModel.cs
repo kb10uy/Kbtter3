@@ -112,7 +112,7 @@ namespace Kbtter3.ViewModels
 
 
         #region UserImageUri変更通知プロパティ
-        private Uri _UserImageUri = new Uri("Resources/cancel.png", UriKind.Relative);
+        private Uri _UserImageUri = new Uri("/Resources/cancel.png", UriKind.Relative);
 
         public Uri UserImageUri
         {
@@ -148,7 +148,7 @@ namespace Kbtter3.ViewModels
 
 
         #region IconUri変更通知プロパティ
-        private Uri _IconUri = new Uri("Resources/cancel.png", UriKind.Relative);
+        private Uri _IconUri = new Uri("/Resources/cancel.png", UriKind.Relative);
 
         public Uri IconUri
         {
