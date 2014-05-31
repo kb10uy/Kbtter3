@@ -17,7 +17,7 @@ using CoreTweet.Streaming;
 
 namespace Kbtter3.ViewModels
 {
-    public class NotificationViewModel : ViewModel
+    internal class NotificationViewModel : ViewModel
     {
         public NotificationViewModel()
         {

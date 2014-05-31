@@ -33,19 +33,16 @@ namespace Kbtter3.Models
 {
     public class Kbtter : NotificationObject
     {
-        /*
-         * NotificationObjectはプロパティ変更通知の仕組みを実装したオブジェクトです。
-         */
-        public readonly string ConsumerTokenFileName = App.ConfigurationFolderName + "/consumer.json";
-        public readonly string AccessTokenFileName = App.ConfigurationFolderName + "/users.json";
-        public readonly string SystemDataFileName = App.ConfigurationFolderName + "/system.json";
+        internal readonly string ConsumerTokenFileName = App.ConfigurationFolderName + "/consumer.json";
+        internal readonly string AccessTokenFileName = App.ConfigurationFolderName + "/users.json";
+        internal readonly string SystemDataFileName = App.ConfigurationFolderName + "/system.json";
 
-        public readonly string ConsumerDefaultKey = "5bI3XiTNEMHiamjMV5Acnqkex";
-        public readonly string ConsumerDefaultSecret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN";
+        internal readonly string ConsumerDefaultKey = "5bI3XiTNEMHiamjMV5Acnqkex";
+        internal readonly string ConsumerDefaultSecret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN";
 
         public Tokens Token { get; set; }
 
-        public IDisposable Stream { get; protected set; }
+        internal IDisposable Stream { get; set; }
 
         public List<Status> Cache { get; set; }
 
@@ -57,25 +54,25 @@ namespace Kbtter3.Models
         public event Action<EventMessage> OnEvent;
         public event Action<IdMessage> OnIdEvent;
 
-        public StatusMessage LatestStatus { get; set; }
-        public EventMessage LatestEvent { get; set; }
+        internal StatusMessage LatestStatus { get; set; }
+        internal EventMessage LatestEvent { get; set; }
 
-        public OAuth.OAuthSession OAuthSession { get; set; }
+        internal OAuth.OAuthSession OAuthSession { get; set; }
 
-        public Queue<Status> ShowingStatuses { get; private set; }
+        internal Queue<Status> ShowingStatuses { get; private set; }
 
         public User AuthenticatedUser { get; set; }
 
-        public static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
-        public static readonly string CacheUserImageFileNameSuffix = "-icon.png";
-        public static readonly string CacheUserBackgroundImageFileNameSuffix = "-background.png";
-        public static readonly string CacheUserProfileFileNameSuffix = "-profile.json";
-        public static readonly string CacheFolderName = "cache";
+        internal static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
+        internal static readonly string CacheUserImageFileNameSuffix = "-icon.png";
+        internal static readonly string CacheUserBackgroundImageFileNameSuffix = "-background.png";
+        internal static readonly string CacheUserProfileFileNameSuffix = "-profile.json";
+        internal static readonly string CacheFolderName = "cache";
 
-        public SQLiteConnection CacheDatabaseConnection { get; set; }
-        public DataContext CacheContext { get; set; }
+        private SQLiteConnection CacheDatabaseConnection { get; set; }
+        internal DataContext CacheContext { get; set; }
 
-        public Kbtter3SystemData SystemData { get; set; }
+        internal Kbtter3SystemData SystemData { get; set; }
 
         private SQLiteCommand AddFavoriteCacheCommand { get; set; }
         private SQLiteCommand AddRetweetCacheCommand { get; set; }
@@ -111,7 +108,7 @@ namespace Kbtter3.Models
         }
         #endregion
 
-        public void Initialize()
+        internal void Initialize()
         {
             ShowingStatuses = new Queue<Status>();
 
@@ -407,7 +404,7 @@ namespace Kbtter3.Models
                 if (AuthenticatedUser == null) return;
                 switch (msg.Event)
                 {
-                        
+
                     case EventCode.Favorite:
                         if (msg.Source.Id == AuthenticatedUser.Id)
                         {
@@ -532,7 +529,7 @@ namespace Kbtter3.Models
 
     #region json保存用クラスとか
 
-    public static class Kbtter3Extension
+    internal static class Kbtter3Extension
     {
         public static void SaveJson<T>(this T obj, string filename)
         {
@@ -540,6 +537,10 @@ namespace Kbtter3.Models
         }
     }
 
+    /// <summary>
+    /// TwitterにOAuthでログインする際に必要なAccessTokenを
+    /// 定義します。
+    /// </summary>
     public class AccessToken
     {
         public string ScreenName { get; set; }
@@ -547,13 +548,18 @@ namespace Kbtter3.Models
         public string TokenSecret { get; set; }
     }
 
+    /// <summary>
+    /// TwitterにOAuthでログインする際に必要なConsumerKey/Secretの組を
+    /// 定義します。
+    /// </summary>
     public class ConsumerToken
     {
         public string Key { get; set; }
         public string Secret { get; set; }
     }
 
-    public class Kbtter3SystemData
+
+    internal class Kbtter3SystemData
     {
         public long LastFavoritedStatusId { get; set; }
         public long LastRetweetedStatusId { get; set; }
@@ -565,6 +571,9 @@ namespace Kbtter3.Models
         }
     }
 
+    /// <summary>
+    /// ユーザー情報のキャッシュを定義します。
+    /// </summary>
     public class UserProfileCache
     {
         public string Name { get; set; }

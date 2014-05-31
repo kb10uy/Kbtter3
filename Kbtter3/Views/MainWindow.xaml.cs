@@ -28,13 +28,14 @@ namespace Kbtter3.Views
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    internal partial class MainWindow : Window
     {
         public static readonly string ConfigFileName = "config/mainwindow.json";
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;
         MainWindowSetting setting;
 
+        internal event MainWindowEventHandler WindowEvent;
         MainWindowViewModel vm;
         int urs = 0, urn = 0;
 
@@ -47,7 +48,6 @@ namespace Kbtter3.Views
             ctxlistener.Add("AccessTokenRequest", StartAccountSelect);
             ctxlistener.Add("ReplyStart", ExpandNewTweet);
             ctxlistener.Add("ToggleNewStatus", ToggleNewTweet);
-            ctxlistener.Add("UserProfileImageUri", UserProfileImageUri);
             composite.Add(ctxlistener);
 
             vm.StatusUpdate += MainWindow_Update;
@@ -55,8 +55,20 @@ namespace Kbtter3.Views
             if (!File.Exists(ConfigFileName)) File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(new MainWindowSetting()));
             setting = JsonConvert.DeserializeObject<MainWindowSetting>(File.ReadAllText(ConfigFileName));
             SetShortcuts();
+            WindowEvent += MainWindow_WindowEvent;
         }
 
+        void MainWindow_WindowEvent(string target, string type, object msg)
+        {
+
+        }
+
+        private void StartAccountSelect(object sender, PropertyChangedEventArgs e)
+        {
+            new AccountSelectWindow().ShowDialog();
+        }
+
+        #region Status・Event受信
         void vm_EventUpdate(object sender, NotificationViewModel vm)
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
@@ -70,12 +82,6 @@ namespace Kbtter3.Views
                 ListBoxNotify.Items.Insert(0, new Frame { Content = new NotificationPage(vm) });
                 if (ListBoxTimeline.Items.Count > setting.NotificationsShowMax) ListBoxNotify.Items.RemoveAt(setting.NotificationsShowMax);
             }));
-        }
-
-        private void SetShortcuts()
-        {
-            InputBindings.Add(new KeyBinding(vm.ToggleNewStatusCommand, new KeyGesture(Key.N, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(vm.UpdateStatusCommand, new KeyGesture(Key.Enter, ModifierKeys.Control)));
         }
 
         private void MainWindow_Update(object sender, StatusViewModel vm)
@@ -92,18 +98,16 @@ namespace Kbtter3.Views
                 if (ListBoxTimeline.Items.Count > setting.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.StatusesShowMax);
             }));
         }
+        #endregion
 
-        private void StartAccountSelect(object sender, PropertyChangedEventArgs e)
-        {
-            new AccountSelectWindow().ShowDialog();
-        }
-
-        private void UserProfileImageUri(object sender, PropertyChangedEventArgs e)
-        {
-            ImageUserProfileImage.Source = new BitmapImage(vm.UserProfileImageUri);
-        }
 
         #region ショートカット
+        private void SetShortcuts()
+        {
+            InputBindings.Add(new KeyBinding(vm.ToggleNewStatusCommand, new KeyGesture(Key.N, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(vm.UpdateStatusCommand, new KeyGesture(Key.Enter, ModifierKeys.Control)));
+        }
+
         private void ExpandNewTweet(object sender, PropertyChangedEventArgs e)
         {
             ExpanderNewTweet.IsExpanded = true;
@@ -122,6 +126,7 @@ namespace Kbtter3.Views
             }
         }
         #endregion
+
 
         #region UIロジック
         private void TabControlMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -185,8 +190,15 @@ namespace Kbtter3.Views
             }));
         }
 
+        private void MenuAllowTextWrapping_Click(object sender, RoutedEventArgs e)
+        {
+            //ListBoxTimeline.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, MenuAllowTextWrapping.IsChecked ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto);
+            //RaiseWindowEvent(WindowEventTargetStatusPage, MenuAllowTextWrapping.IsChecked.ToString());
+        }
         #endregion
 
+
+        #region View間連携
         public void RequestAction(string type, string info)
         {
             switch (type)
@@ -208,8 +220,32 @@ namespace Kbtter3.Views
             }
         }
 
+        public static readonly string WindowEventTargetStatusPage = "StatusPage";
+
+        public void RaiseWindowEvent(string target, string type, string typeval)
+        {
+            WindowEvent(target, type + "-" + typeval, null);
+        }
+
+        public void RaiseWindowEvent(string target, string type, object obj)
+        {
+            WindowEvent(target, type, obj);
+        }
+
+        public void RaiseWindowEvent(string target, string type, string typeval, object obj)
+        {
+            WindowEvent(target, type + "-" + typeval, obj);
+        }
+
+        public void RaiseWindowEvent(string type, string typeval)
+        {
+            WindowEvent("Global", type + "-" + typeval, null);
+        }
+        #endregion
 
     }
+
+    internal delegate void MainWindowEventHandler(string target, string type, object obj);
 
     internal class MainWindowSetting
     {

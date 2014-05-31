@@ -1,4 +1,5 @@
 ﻿<Page x:Class="Kbtter3.Views.UserProfilePage"
+      x:ClassModifier="internal"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
@@ -20,20 +21,27 @@
         <ResourceDictionary Source="KbtterResource.xaml"/>
     </Page.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+    <Page.ContextMenu>
+        <ContextMenu>
+            <MenuItem Name="MenuItemAllowSimpleView" Header="バナーを表示しない" IsCheckable="True"/>
+        </ContextMenu>
+    </Page.ContextMenu>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
         <Grid ScrollViewer.CanContentScroll="False">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="80"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Name="GridProfileImage" Height="{Binding ElementName=GridProfileImage,Path=ActualWidth, Converter={StaticResource BannerHeightConverter},UpdateSourceTrigger=PropertyChanged}">
+            <Grid Name="GridProfileImage" Height="{Binding ElementName=GridProfileImage,Path=ActualWidth, Converter={StaticResource BannerHeightConverter},UpdateSourceTrigger=Default}"
+                  Visibility="{Binding ElementName=BorderSimpleUserImage,Path=Visibility, Converter={StaticResource InvertedVisibilityConverter}}">
                 <Grid.Background>
-                    <ImageBrush ImageSource="{Binding BannerImageUri}"/>
+                    <ImageBrush ImageSource="{Binding BannerImageUri}" Stretch="UniformToFill"/>
                 </Grid.Background>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{Binding ElementName=GridProfileImage,Path=ActualWidth, Converter={StaticResource UserImageHeightConverter},UpdateSourceTrigger=PropertyChanged}"/>
+                    <ColumnDefinition Width="{Binding ElementName=GridProfileImage,Path=ActualWidth, Converter={StaticResource UserImageHeightConverter},UpdateSourceTrigger=Default}"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -46,10 +54,21 @@
                     <Image Source="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
                 </Border>
             </Grid>
-            <StackPanel Background="{StaticResource TwitterColorWhite}" Grid.Row="1">
-                <TextBlock Margin="4" FontSize="28" TextAlignment="Center" Foreground="{Binding TextColor}" Text="{Binding Name}"/>
-                <TextBlock Margin="4" FontSize="16" TextAlignment="Center" Text="{Binding ScreenName}"/>
-            </StackPanel>
+            <Grid Name="GridUserName" Background="{StaticResource TwitterColorWhite}" Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Name="BorderSimpleUserImage" BorderThickness="4" BorderBrush="White" Grid.Column="0" CornerRadius="2"
+                        Margin="0,0,16,0" Width="{Binding ElementName=GridUserName,Path=ActualHeight}"
+                        Visibility="{Binding ElementName=MenuItemAllowSimpleView,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Image Source="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
+                </Border>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Margin="4" FontSize="28" TextAlignment="Center" Foreground="{Binding TextColor}" Text="{Binding Name}"/>
+                    <TextBlock Margin="4" FontSize="16" TextAlignment="Center" Text="{Binding ScreenName}"/>
+                </StackPanel>
+            </Grid>
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -79,19 +98,27 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="4">
                     <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Statuses}"/>
-                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">ツイート</TextBlock>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        ツイート
+                    </TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Margin="4">
-                    <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Favorites}"/>
-                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">お気に入り</TextBlock>
+                    <TextBlock Name="TextBlockStatuses" FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Favorites}"/>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        お気に入り
+                    </TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Margin="4">
                     <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Friends}"/>
-                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">フォロー</TextBlock>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        フォロー
+                    </TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="4">
                     <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Followers}"/>
-                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">フォロワー</TextBlock>
+                    <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        フォロワー
+                    </TextBlock>
                 </StackPanel>
             </Grid>
         </Grid>

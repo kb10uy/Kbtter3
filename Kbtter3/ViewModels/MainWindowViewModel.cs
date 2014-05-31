@@ -17,7 +17,7 @@ using CoreTweet.Streaming;
 
 namespace Kbtter3.ViewModels
 {
-    public class MainWindowViewModel : ViewModel, IDataErrorInfo
+    internal class MainWindowViewModel : ViewModel, IDataErrorInfo
     {
 
         Kbtter kbtter;
@@ -406,7 +406,7 @@ namespace Kbtter3.ViewModels
         #endregion
     }
 
-    public delegate void StatusUpdateEventHandler(object sender, StatusViewModel vm);
-    public delegate void EventUpdateEventHandler(object sender, NotificationViewModel vm);
+    internal delegate void StatusUpdateEventHandler(object sender, StatusViewModel vm);
+    internal delegate void EventUpdateEventHandler(object sender, NotificationViewModel vm);
 
 }

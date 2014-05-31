@@ -26,10 +26,11 @@ namespace Kbtter3.Views
     /// <summary>
     /// UserProfilePage.xaml の相互作用ロジック
     /// </summary>
-    public partial class UserProfilePage : Page
+    internal partial class UserProfilePage : Page
     {
         MainWindow mainw;
         UserProfilePageViewModel vm;
+
         public UserProfilePage(MainWindow mw, UserProfilePageViewModel vm)
         {
             mainw = mw;

@@ -26,7 +26,7 @@ namespace Kbtter3.Views
     /// <summary>
     /// StatusPage.xaml の相互作用ロジック
     /// </summary>
-    public partial class NotificationPage : Page
+    internal partial class NotificationPage : Page
     {
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;

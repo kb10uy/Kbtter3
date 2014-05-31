@@ -26,7 +26,7 @@ namespace Kbtter3.Views
     /// <summary>
     /// StatusPage.xaml の相互作用ロジック
     /// </summary>
-    public partial class StatusPage : Page
+    internal partial class StatusPage : Page
     {
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;
@@ -37,21 +37,31 @@ namespace Kbtter3.Views
         string stsn;
         MainWindow mainw;
 
-        public StatusPage(MainWindow m,StatusViewModel vm)
+        public StatusPage(MainWindow m, StatusViewModel vm)
         {
             mainw = m;
             InitializeComponent();
             DataContext = vm;
             elm = vm.TextElements;
             stsn = vm.ScreenName;
+            mainw.WindowEvent += mainw_WindowEvent;
 
-            ImageUserIcon.Source = new BitmapImage(vm.ProfileImageUri);
             if (vm.Via == "") StackPanelBlockVia.Visibility = Visibility.Collapsed;
             SetMainText();
 
             composite = new LivetCompositeDisposable();
             ctxlistener = new PropertyChangedWeakEventListener((INotifyPropertyChanged)DataContext);
             ctxlistener.Add("Delete", DeleteContent);
+        }
+
+        ~StatusPage()
+        {
+            mainw.WindowEvent -= mainw_WindowEvent;
+        }
+
+        void mainw_WindowEvent(string target, string type, object obj)
+        {
+            if (target != "StatusPage" && target != "Global") return;
         }
 
         private void DeleteContent(object s, PropertyChangedEventArgs e)

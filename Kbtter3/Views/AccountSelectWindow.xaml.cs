@@ -29,7 +29,7 @@ namespace Kbtter3.Views
     /// <summary>
     /// AccountSelectWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class AccountSelectWindow : Window
+    internal partial class AccountSelectWindow : Window
     {
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;

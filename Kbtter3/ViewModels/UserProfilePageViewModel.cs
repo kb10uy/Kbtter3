@@ -16,7 +16,7 @@ using CoreTweet;
 
 namespace Kbtter3.ViewModels
 {
-    public class UserProfilePageViewModel : ViewModel
+    internal class UserProfilePageViewModel : ViewModel
     {
         User user;
         public UserProfilePageViewModel()

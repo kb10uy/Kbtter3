@@ -18,7 +18,7 @@ using CoreTweet;
 
 namespace Kbtter3.ViewModels
 {
-    public class StatusViewModel : ViewModel
+    internal class StatusViewModel : ViewModel
     {
         Kbtter kbtter = Kbtter.Instance;
         internal Status origin, status;
@@ -29,7 +29,13 @@ namespace Kbtter3.ViewModels
 
         public void Initialize()
         {
+            listener = new PropertyChangedEventListener(kbtter);
+            CompositeDisposable.Add(listener);
+        }
 
+        public StatusViewModel()
+        {
+            Console.WriteLine();
         }
 
         internal void UpdateTime(object sender, PropertyChangedEventArgs e)
@@ -252,11 +258,11 @@ namespace Kbtter3.ViewModels
                     {
                         rtid = kbtter.Token.Statuses.Retweet(id => status.Id).Id;
                     }
-                    catch (TwitterException e)
+                    catch /*(TwitterException e)*/
                     {
 
                     }
-                    
+
                 }
                 else
                 {
@@ -290,7 +296,7 @@ namespace Kbtter3.ViewModels
                     {
                         kbtter.Token.Favorites.Create(id => status.Id);
                     }
-                    catch (TwitterException e)
+                    catch /*(TwitterException e)*/
                     {
 
                     }
@@ -380,7 +386,7 @@ namespace Kbtter3.ViewModels
 
 
         #region UserName変更通知プロパティ
-        private string _UserName;
+        private string _UserName="UserName";
 
         public string UserName
         {
@@ -398,7 +404,7 @@ namespace Kbtter3.ViewModels
 
 
         #region ScreenName変更通知プロパティ
-        private string _ScreenName;
+        private string _ScreenName="screen_name";
 
         public string ScreenName
         {
@@ -416,7 +422,7 @@ namespace Kbtter3.ViewModels
 
 
         #region Text変更通知プロパティ
-        private string _Text;
+        private string _Text="Text";
 
         public string Text
         {
@@ -433,18 +439,18 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
-        #region ProfileImageUrl変更通知プロパティ
-        private Uri _ProfileImageUri;
+        #region UserProfileImageUri変更通知プロパティ
+        private Uri _UserProfileImageUri = new Uri("/Resources/cancel.png", UriKind.Relative);
 
-        public Uri ProfileImageUri
+        public Uri UserProfileImageUri
         {
             get
-            { return _ProfileImageUri; }
+            { return _UserProfileImageUri; }
             set
             {
-                if (_ProfileImageUri == value)
+                if (_UserProfileImageUri == value)
                     return;
-                _ProfileImageUri = value;
+                _UserProfileImageUri = value;
                 RaisePropertyChanged();
             }
         }
@@ -532,7 +538,7 @@ namespace Kbtter3.ViewModels
             get
             { return _IsReplyToMe; }
             set
-            { 
+            {
                 if (_IsReplyToMe == value)
                     return;
                 _IsReplyToMe = value;
@@ -568,7 +574,7 @@ namespace Kbtter3.ViewModels
             ret.UserName = st.User.Name;
             ret.ScreenName = st.User.ScreenName;
             ret.Text = st.Text;
-            ret.ProfileImageUri = st.User.ProfileImageUrlHttps;
+            ret.UserProfileImageUri = st.User.ProfileImageUrlHttps;
             ret.RetweetCount = st.RetweetCount;
             ret.IsFavorited = (st.IsFavorited ?? false) || Kbtter.Instance.IsFavoritedInCache(st);
             ret.IsRetweeted = (st.IsRetweeted ?? false) || (ret.status.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.status));

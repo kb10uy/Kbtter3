@@ -15,6 +15,9 @@ namespace Kbtter3
     /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// コンフィグファイルが保存されているフォルダの名前を取得します。
+        /// </summary>
         public static readonly string ConfigurationFolderName = "config";
 
         private void Application_Startup(object sender, StartupEventArgs e)

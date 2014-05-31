@@ -17,7 +17,7 @@ using Kbtter3.Models;
 
 namespace Kbtter3.ViewModels
 {
-    public class AccountSelectWindowViewModel : ViewModel
+    internal class AccountSelectWindowViewModel : ViewModel
     {
         /* コマンド、プロパティの定義にはそれぞれ 
          * 

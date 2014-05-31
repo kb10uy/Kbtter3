@@ -34,6 +34,7 @@
     <v:Int32ToShortenNumberStringConverter x:Key="Int32ToShortenNumberStringConverter"/>
     <v:DoubleTwitterBannerHeightConverter x:Key="BannerHeightConverter"/>
     <v:DoubleTwitterUserImageHeightConverter x:Key="UserImageHeightConverter"/>
+    <v:InvertedVisibilityConverter x:Key="InvertedVisibilityConverter"/>
 
     <ControlTemplate x:Key="SelectBorderListBoxItem" TargetType="ListBoxItem">
         <Border Name="Border"
@@ -137,7 +138,7 @@
 
 
     <ControlTemplate x:Key="CloseButton" TargetType="Button">
-        <Border Name="Main" Margin="0,0,0,0" Width="16" Height="16">
+        <Border Name="Main" Margin="0,0,0,0" Width="16" Height="16" SnapsToDevicePixels="True">
             <Border.Background>
                 <ImageBrush ImageSource="/Kbtter3;component/Resources/close.png" Stretch="None"/>
             </Border.Background>
@@ -155,7 +156,7 @@
 
     <!--ここから各xaml依存-->
     <ControlTemplate x:Key="FavoriteToggleButton" TargetType="ToggleButton">
-        <Border Name="Main">
+        <Border Name="Main" SnapsToDevicePixels="True">
             <Border.Background>
                 <ImageBrush ImageSource="/Kbtter3;component/Resources/favno.png" Stretch="None"/>
             </Border.Background>
@@ -173,7 +174,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="RetweetToggleButton" TargetType="ToggleButton">
-        <Border Name="Main">
+        <Border Name="Main" SnapsToDevicePixels="True">
             <Border.Background>
                 <ImageBrush ImageSource="/Kbtter3;component/Resources/rtno.png" Stretch="None"/>
             </Border.Background>
@@ -191,7 +192,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="DeleteButton" TargetType="Button">
-        <Border Name="Main">
+        <Border Name="Main" SnapsToDevicePixels="True">
             <Border.Background>
                 <ImageBrush ImageSource="/Kbtter3;component/Resources/delete.png" Stretch="None"/>
             </Border.Background>
@@ -200,7 +201,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="CancelButton" TargetType="Button">
-        <Border Name="Main">
+        <Border Name="Main" SnapsToDevicePixels="True">
             <Border.Background>
                 <ImageBrush ImageSource="/Kbtter3;component/Resources/cancel.png" Stretch="None"/>
             </Border.Background>

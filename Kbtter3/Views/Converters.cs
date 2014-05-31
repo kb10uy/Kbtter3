@@ -16,10 +16,11 @@ using System.ComponentModel;
 
 namespace Kbtter3.Views
 {
-    public sealed class UriToBitmapImageConverter : IValueConverter
+    internal sealed class UriToBitmapImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            if (value == null) return new BitmapImage();
             return new BitmapImage(value as Uri);
         }
 
@@ -29,7 +30,31 @@ namespace Kbtter3.Views
         }
     }
 
-    public sealed class DoubleTwitterBannerHeightConverter : IValueConverter
+    internal sealed class InvertedVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            var v = (Visibility)value;
+            switch (v)
+            {
+                case Visibility.Collapsed:
+                    return Visibility.Visible;
+                case Visibility.Hidden:
+                    return Visibility.Visible;
+                case Visibility.Visible:
+                    return Visibility.Collapsed;
+                default:
+                    return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    internal sealed class DoubleTwitterBannerHeightConverter : IValueConverter
     {
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -39,11 +64,11 @@ namespace Kbtter3.Views
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return ((double)value) * 3.0;
         }
     }
 
-    public sealed class DoubleTwitterUserImageHeightConverter : IValueConverter
+    internal sealed class DoubleTwitterUserImageHeightConverter : IValueConverter
     {
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -57,7 +82,7 @@ namespace Kbtter3.Views
         }
     }
 
-    public sealed class Int32ToShortenNumberStringConverter : IValueConverter
+    internal sealed class Int32ToShortenNumberStringConverter : IValueConverter
     {
         //エクサまで対応
 

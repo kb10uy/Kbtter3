@@ -20,7 +20,7 @@ namespace Kbtter3.Views.Control
     /// <summary>
     /// ClosableRoundTabItem.xaml の相互作用ロジック
     /// </summary>
-    public partial class ClosableRoundTabItem : TabItem
+    internal partial class ClosableRoundTabItem : TabItem
     {
         public ClosableRoundTabItem()
         {
