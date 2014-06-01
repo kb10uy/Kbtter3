@@ -138,6 +138,7 @@
     <Compile Include="Models\Plugin\Kbtter3PluginProvider.cs" />
     <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
+    <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="ViewModels\UserProfilePageViewModel.cs" />
     <Compile Include="Views\AccountSelectWindow.xaml.cs">
       <DependentUpon>AccountSelectWindow.xaml</DependentUpon>

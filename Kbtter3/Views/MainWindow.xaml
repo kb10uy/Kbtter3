@@ -86,9 +86,10 @@
                         <TextBlock FontFamily="Marlett" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">6</TextBlock>
                     </MenuItem.Header>
                     <!--<MenuItem Name="MenuAllowTextWrapping" Header="ツイートの内容を右端で折り返す" IsCheckable="True" Click="MenuAllowTextWrapping_Click"/>-->
+                    <MenuItem Name="MenuCSharpBeam" Header="C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww" Command="{Binding FireCSharpBeamCommand}"/>
                     <Separator/>
-                    <MenuItem Name="MenuSetting" Header="設定" Command="{Binding ApplicationExitCommand}"/>
-                    <MenuItem Name="MenuExit" Header="終了"/>
+                    <MenuItem Name="MenuSetting" Header="設定"/>
+                    <MenuItem Name="MenuExit" Header="終了" Command="{Binding ApplicationExitCommand}"/>
                 </MenuItem>
             </Menu>
         </Grid>

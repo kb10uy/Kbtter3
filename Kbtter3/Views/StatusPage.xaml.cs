@@ -86,7 +86,7 @@ namespace Kbtter3.Views
                         var hl = new Hyperlink();
                         hl.Inlines.Add(i.Text);
                         hl.Tag = i;
-                        hl.MouseLeftButtonDown += (s, e2) =>
+                        hl.Click += (s, e2) =>
                         {
                             var t = ((s as Hyperlink).Tag as StatusViewModel.StatusElement);
                             RequestHyperlinkAction(t.Type, t.Infomation);

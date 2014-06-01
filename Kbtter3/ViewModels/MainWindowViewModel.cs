@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 using Livet;
 using Livet.Commands;
@@ -71,14 +73,14 @@ namespace Kbtter3.ViewModels
             RaisePropertyChanged("UserPropfileImageUri");
         }
 
-        public UserProfilePageViewModel GetUserProfile(string sn)
+        public async Task<UserProfilePageViewModel> GetUserProfile(string sn)
         {
-            var t = kbtter.Cache.LastOrDefault(p => p.User.ScreenName == sn);
+            var t = await kbtter.GetUser(sn);
             if (t == null)
             {
                 return null;
             }
-            return new UserProfilePageViewModel(t.User);
+            return new UserProfilePageViewModel(t);
         }
 
 
@@ -404,6 +406,33 @@ namespace Kbtter3.ViewModels
         public void ApplicationExit()
         {
             App.Current.Shutdown();
+        }
+        #endregion
+
+
+        #region FireCSharpBeamCommand
+        private ViewModelCommand _FireCSharpBeamCommand;
+
+        public ViewModelCommand FireCSharpBeamCommand
+        {
+            get
+            {
+                if (_FireCSharpBeamCommand == null)
+                {
+                    _FireCSharpBeamCommand = new ViewModelCommand(FireCSharpBeam, CanFireCSharpBeam);
+                }
+                return _FireCSharpBeamCommand;
+            }
+        }
+
+        public bool CanFireCSharpBeam()
+        {
+            return true;
+        }
+
+        public void FireCSharpBeam()
+        {
+            kbtter.FireCSharpBeam();
         }
         #endregion
 

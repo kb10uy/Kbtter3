@@ -62,17 +62,22 @@ namespace Kbtter3.ViewModels
          */
 
         Kbtter kbtter = Kbtter.Instance;
+        List<int> UnloginableIndex;
 
         public AccountSelectWindowViewModel()
         {
+            UnloginableIndex = new List<int>();
             Accounts = new ObservableCollection<string>();
         }
 
         public void Initialize()
         {
-            foreach (var i in kbtter.AccessTokens)
+            var ch = kbtter.Setting.Consumer.GetHash();
+            var c = 0;
+            foreach (var i in kbtter.Setting.AccessTokens)
             {
-                Accounts.Add(String.Format("@{0}", i.ScreenName));
+                Accounts.Add(String.Format("@{0} ログイン{1}可能", i.ScreenName, ch == i.ConsumerVerifyHash ? "" : "不"));
+                if (i.ConsumerVerifyHash != ch) UnloginableIndex.Add(c);
             }
         }
 
@@ -141,7 +146,7 @@ namespace Kbtter3.ViewModels
             if (t != null)
             {
                 kbtter.AddToken(t);
-                Accounts.Add(String.Format("@{0}", t.ScreenName));
+                Accounts.Add(String.Format("@{0} ログイン可能", t.ScreenName));
             }
             RaisePropertyChanged("FinishNewAccount");
             StartNewAccountCommand.RaiseCanExecuteChanged();
@@ -198,7 +203,7 @@ namespace Kbtter3.ViewModels
 
         public bool CanLogin()
         {
-            return selac != -1;
+            return selac != -1 && !UnloginableIndex.Contains(selac);
         }
 
         public void Login()

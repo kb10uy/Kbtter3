@@ -37,12 +37,6 @@ namespace Kbtter3.Models
     /// </summary>
     public sealed class Kbtter : NotificationObject
     {
-        internal readonly string ConsumerTokenFileName = App.ConfigurationFolderName + "/consumer.json";
-        internal readonly string AccessTokenFileName = App.ConfigurationFolderName + "/users.json";
-        internal readonly string SystemDataFileName = App.ConfigurationFolderName + "/system.json";
-
-        internal readonly string ConsumerDefaultKey = "5bI3XiTNEMHiamjMV5Acnqkex";
-        internal readonly string ConsumerDefaultSecret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN";
 
         /// <summary>
         /// CoreTweet Token
@@ -56,15 +50,12 @@ namespace Kbtter3.Models
         /// </summary>
         public List<Status> Cache { get; set; }
 
-        /// <summary>
-        /// ログイン可能なAccessToken
-        /// </summary>
-        public List<AccessToken> AccessTokens { get; set; }
+        public IDictionary<string, User> UserCache { get; set; }
 
         /// <summary>
-        /// 現在Kbtter3が使用しているConsumerToken
+        /// 現在の設定
         /// </summary>
-        public ConsumerToken ConsumerToken { get; private set; }
+        internal Kbtter3Setting Setting { get; set; }
 
         /// <summary>
         /// ツイート受信時のイベント
@@ -129,7 +120,7 @@ namespace Kbtter3.Models
         ~Kbtter()
         {
             StopStreaming();
-            SystemData.SaveJson(SystemDataFileName);
+            Setting.SaveJson(App.ConfigurationFileName);
             if (CacheDatabaseConnection != null) CacheDatabaseConnection.Dispose();
         }
         #endregion
@@ -150,99 +141,90 @@ namespace Kbtter3.Models
         }
         #endregion
 
-        internal void Initialize()
+        internal async void Initialize()
         {
             ShowingStatuses = new Queue<Status>();
-
-            AccessTokens = new List<AccessToken>();
+            Setting = new Kbtter3Setting();
 
             if (!Directory.Exists(CacheFolderName)) Directory.CreateDirectory(CacheFolderName);
-
-            if (!File.Exists(ConsumerTokenFileName))
-            {
-                var ct = new ConsumerToken { Key = ConsumerDefaultKey, Secret = ConsumerDefaultSecret };
-                var json = JsonConvert.SerializeObject(ct);
-                File.WriteAllText(ConsumerTokenFileName, json);
-            }
-            AccessTokens = LoadJson<List<AccessToken>>(AccessTokenFileName);
-
-            var cjs = File.ReadAllText(ConsumerTokenFileName);
-            ConsumerToken = JsonConvert.DeserializeObject<ConsumerToken>(cjs);
-            OAuthSession = OAuth.Authorize(ConsumerToken.Key, ConsumerToken.Secret);
-
-            SystemData = LoadJson<Kbtter3SystemData>(SystemDataFileName);
-
+            Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName, Setting);
+            OAuthSession = await OAuth.AuthorizeAsync(Setting.Consumer.Key, Setting.Consumer.Secret);
             RaisePropertyChanged("AccessTokenRequest");
         }
 
 
         #region キャッシュ関係
-        private async void InitializeUserCache()
+        private Task InitializeUserCache()
         {
-            if (AuthenticatedUser != null)
+            return Task.Run(async () =>
             {
-                var upc = new UserProfileCache
+                if (AuthenticatedUser != null)
                 {
-                    Name = AuthenticatedUser.Name,
-                    ScreenName = AuthenticatedUser.ScreenName,
-                    Description = AuthenticatedUser.Description,
-                    Location = AuthenticatedUser.Location,
-                    Uri = AuthenticatedUser.Url.ToString(),
-                    Statuses = AuthenticatedUser.StatusesCount,
-                    Friends = AuthenticatedUser.FriendsCount,
-                    Followers = AuthenticatedUser.FollowersCount,
-                    Favorites = AuthenticatedUser.FavouritesCount,
-                };
-                upc.SaveJson(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix);
-                using (var wc = new WebClient())
-                {
-                    await wc.DownloadFileTaskAsync(
-                        AuthenticatedUser.ProfileImageUrlHttps,
-                        CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix);
-                    await wc.DownloadFileTaskAsync(
-                        AuthenticatedUser.ProfileBackgroundImageUrlHttps,
-                        CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix);
+                    var upc = new UserProfileCache
+                    {
+                        Name = AuthenticatedUser.Name,
+                        ScreenName = AuthenticatedUser.ScreenName,
+                        Description = AuthenticatedUser.Description,
+                        Location = AuthenticatedUser.Location,
+                        Uri = AuthenticatedUser.Url.ToString(),
+                        Statuses = AuthenticatedUser.StatusesCount,
+                        Friends = AuthenticatedUser.FriendsCount,
+                        Followers = AuthenticatedUser.FollowersCount,
+                        Favorites = AuthenticatedUser.FavouritesCount,
+                    };
+                    upc.SaveJson(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix);
+                    using (var wc = new WebClient())
+                    {
+                        await wc.DownloadFileTaskAsync(
+                            AuthenticatedUser.ProfileImageUrlHttps,
+                            CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix);
+                        await wc.DownloadFileTaskAsync(
+                            AuthenticatedUser.ProfileBackgroundImageUrlHttps,
+                            CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix);
+                    }
                 }
-            }
-            else
-            {
-                if (!File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix)) return;
-                var upc = LoadJson<UserProfileCache>(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix);
-                AuthenticatedUser.Name = upc.Name;
-                AuthenticatedUser.ScreenName = upc.ScreenName;
-                AuthenticatedUser.Description = upc.Description;
-                AuthenticatedUser.Location = upc.Location;
-                AuthenticatedUser.Url = new Uri(upc.Uri);
-                AuthenticatedUser.StatusesCount = upc.Statuses;
-                AuthenticatedUser.FriendsCount = upc.Friends;
-                AuthenticatedUser.FollowersCount = upc.Followers;
-                AuthenticatedUser.FavouritesCount = upc.Favorites;
-                if (File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix))
+                else
                 {
-                    AuthenticatedUser.ProfileImageUrlHttps = new Uri(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix, UriKind.Relative);
+                    if (!File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix)) return;
+                    var upc = Kbtter3Extension.LoadJson<UserProfileCache>(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserProfileFileNameSuffix);
+                    AuthenticatedUser.Name = upc.Name;
+                    AuthenticatedUser.ScreenName = upc.ScreenName;
+                    AuthenticatedUser.Description = upc.Description;
+                    AuthenticatedUser.Location = upc.Location;
+                    AuthenticatedUser.Url = new Uri(upc.Uri);
+                    AuthenticatedUser.StatusesCount = upc.Statuses;
+                    AuthenticatedUser.FriendsCount = upc.Friends;
+                    AuthenticatedUser.FollowersCount = upc.Followers;
+                    AuthenticatedUser.FavouritesCount = upc.Favorites;
+                    if (File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix))
+                    {
+                        AuthenticatedUser.ProfileImageUrlHttps = new Uri(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserImageFileNameSuffix, UriKind.Relative);
+                    }
+                    if (File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix))
+                    {
+                        AuthenticatedUser.ProfileImageUrlHttps = new Uri(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix, UriKind.Relative);
+                    }
                 }
-                if (File.Exists(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix))
-                {
-                    AuthenticatedUser.ProfileImageUrlHttps = new Uri(CacheFolderName + "/" + AuthenticatedUser.ScreenName + CacheUserBackgroundImageFileNameSuffix, UriKind.Relative);
-                }
-            }
+            });
         }
 
-        private void InitializeCacheDatabase(int ai)
+        private Task InitializeCacheDatabase(int ai)
         {
-
-            var sb = new SQLiteConnectionStringBuilder()
+            return Task.Run(() =>
             {
-                DataSource = CacheFolderName + "/" + AccessTokens[ai].ScreenName + CacheDatabaseFileNameSuffix,
-                Version = 3,
-                SyncMode = SynchronizationModes.Off,
-                JournalMode = SQLiteJournalModeEnum.Memory
-            };
-            CacheDatabaseConnection = new SQLiteConnection(sb.ToString());
-            CacheDatabaseConnection.Open();
-            CacheContext = new DataContext(CacheDatabaseConnection);
-            CreateTables();
-            CacheUnknown();
+                var sb = new SQLiteConnectionStringBuilder()
+                {
+                    DataSource = CacheFolderName + "/" + Setting.AccessTokens[ai].ScreenName + CacheDatabaseFileNameSuffix,
+                    Version = 3,
+                    SyncMode = SynchronizationModes.Off,
+                    JournalMode = SQLiteJournalModeEnum.Memory
+                };
+                CacheDatabaseConnection = new SQLiteConnection(sb.ToString());
+                CacheDatabaseConnection.Open();
+                CacheContext = new DataContext(CacheDatabaseConnection);
+                CreateTables();
+                CacheUnknown();
+            });
         }
 
         private void CreateTables()
@@ -396,6 +378,33 @@ namespace Kbtter3.Models
             }
         }
 
+        /// <summary>
+        /// C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww
+        /// </summary>
+        public async void FireCSharpBeam()
+        {
+            if (Token == null) return;
+            await Token.Statuses.UpdateAsync(status => String.Format("C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww({0}回目) #Kbtter3", Setting.System.CSharpBeamCount));
+            Setting.System.CSharpBeamCount++;
+            Setting.SaveJson(App.ConfigurationFileName);
+        }
+
+        /// <summary>
+        /// ユーザーを取得してみる
+        /// </summary>
+        /// <param name="sn">SN</param>
+        /// <returns>User</returns>
+        public Task<User> GetUser(string sn)
+        {
+            return Task<User>.Run(async() =>
+            {
+                if (UserCache.ContainsKey(sn)) return UserCache[sn];
+                var us = await Token.Users.ShowAsync(screen_name => sn);
+                UserCache[sn] = us;
+                return us;
+            });
+        }
+
         #endregion
 
         #region 認証
@@ -406,17 +415,19 @@ namespace Kbtter3.Models
         public async void AuthenticateWith(int ai)
         {
             Token = Tokens.Create(
-                ConsumerToken.Key,
-                ConsumerToken.Secret,
-                AccessTokens[ai].Token,
-                AccessTokens[ai].TokenSecret
+                Setting.Consumer.Key,
+                Setting.Consumer.Secret,
+                Setting.AccessTokens[ai].Token,
+                Setting.AccessTokens[ai].TokenSecret
                 );
             Cache = new List<Status>();
-            InitializeCacheDatabase(ai);
-
+            UserCache = new Dictionary<string, User>();
             AuthenticatedUser = await Token.Account.VerifyCredentialsAsync(include_entities => true);
-            InitializeUserCache();
+            await InitializeCacheDatabase(ai);
+            await InitializeUserCache();
+            UserCache[AuthenticatedUser.ScreenName] = AuthenticatedUser;
             RaisePropertyChanged(() => AuthenticatedUser);
+
         }
 
         /// <summary>
@@ -506,6 +517,8 @@ namespace Kbtter3.Models
         {
             return Task.Run(() =>
             {
+                UserCache[msg.Source.ScreenName] = msg.Source;
+                UserCache[msg.Target.ScreenName] = msg.Target;
                 if (AuthenticatedUser == null) return;
                 switch (msg.Event)
                 {
@@ -548,8 +561,10 @@ namespace Kbtter3.Models
         {
             return Task.Run(() =>
             {
+
                 if (AuthenticatedUser == null) return;
                 var mst = msg.Status;
+                UserCache[mst.User.ScreenName] = mst.User;
                 switch (msg.Type)
                 {
                     case MessageType.Create:
@@ -620,95 +635,26 @@ namespace Kbtter3.Models
         /// <param name="t">Tokens</param>
         public void AddToken(Tokens t)
         {
-            AccessTokens.Add(new AccessToken { ScreenName = t.ScreenName, Token = t.AccessToken, TokenSecret = t.AccessTokenSecret });
-            AccessTokens.SaveJson(AccessTokenFileName);
-        }
-
-
-        private T LoadJson<T>(string filename)
-            where T : new()
-        {
-            if (!File.Exists(filename))
+            Setting.AccessTokens.Add(new AccessToken
             {
-                var o = new T();
-                File.WriteAllText(filename, JsonConvert.SerializeObject(o));
-            }
-            return JsonConvert.DeserializeObject<T>(File.ReadAllText(filename));
+                ScreenName = t.ScreenName,
+                Token = t.AccessToken,
+                TokenSecret = t.AccessTokenSecret,
+                ConsumerVerifyHash = Setting.Consumer.GetHash()
+            });
+            Setting.SaveJson(App.ConfigurationFileName);
         }
 
-        private T LoadJson<T>(string filename, T def)
-        {
-            if (!File.Exists(filename))
-            {
-                File.WriteAllText(filename, JsonConvert.SerializeObject(def));
-            }
-            return JsonConvert.DeserializeObject<T>(File.ReadAllText(filename));
-        }
+
+
 
         #endregion
     }
 
     #region json保存用クラスとか
 
-    internal static class Kbtter3Extension
-    {
-        public static void SaveJson<T>(this T obj, string filename)
-        {
-            File.WriteAllText(filename, JsonConvert.SerializeObject(obj));
-        }
-    }
-
-    /// <summary>
-    /// TwitterにOAuthでログインする際に必要なAccessTokenを
-    /// 定義します。
-    /// </summary>
-    public class AccessToken
-    {
-        /// <summary>
-        /// スクリーンネーム
-        /// </summary>
-        public string ScreenName { get; set; }
-
-        /// <summary>
-        /// Access Token
-        /// </summary>
-        public string Token { get; set; }
-
-        /// <summary>
-        /// Access Token Secret
-        /// </summary>
-        public string TokenSecret { get; set; }
-    }
-
-    /// <summary>
-    /// TwitterにOAuthでログインする際に必要なConsumerKey/Secretの組を
-    /// 定義します。
-    /// </summary>
-    public class ConsumerToken
-    {
-        /// <summary>
-        /// Consumer Key
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Consumer Secret
-        /// </summary>
-        public string Secret { get; set; }
-    }
 
 
-    internal class Kbtter3SystemData
-    {
-        public long LastFavoritedStatusId { get; set; }
-        public long LastRetweetedStatusId { get; set; }
-
-        public Kbtter3SystemData()
-        {
-            LastFavoritedStatusId = 0;
-            LastRetweetedStatusId = 0;
-        }
-    }
 
     /// <summary>
     /// ユーザー情報のキャッシュを定義します。

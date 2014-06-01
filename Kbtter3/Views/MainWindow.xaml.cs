@@ -33,7 +33,7 @@ namespace Kbtter3.Views
         public static readonly string ConfigFileName = "config/mainwindow.json";
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;
-        MainWindowSetting setting;
+        Kbtter3Setting setting;
 
         internal event MainWindowEventHandler WindowEvent;
         MainWindowViewModel vm;
@@ -52,8 +52,7 @@ namespace Kbtter3.Views
 
             vm.StatusUpdate += MainWindow_Update;
             vm.EventUpdate += vm_EventUpdate;
-            if (!File.Exists(ConfigFileName)) File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(new MainWindowSetting()));
-            setting = JsonConvert.DeserializeObject<MainWindowSetting>(File.ReadAllText(ConfigFileName));
+            setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
             SetShortcuts();
             WindowEvent += MainWindow_WindowEvent;
         }
@@ -73,14 +72,14 @@ namespace Kbtter3.Views
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
-                if (TabControlMain.SelectedIndex != 1 && setting.NotifyNewNotification)
+                if (TabControlMain.SelectedIndex != 1 && setting.MainWindow.NotifyNewNotification)
                 {
                     EmphasisTextBlock(TextBlockNotification);
                     urn++;
                     TextBlockUnreadNotifications.Text = String.Format(" {0}", urn);
                 }
                 ListBoxNotify.Items.Insert(0, new Frame { Content = new NotificationPage(vm) });
-                if (ListBoxTimeline.Items.Count > setting.NotificationsShowMax) ListBoxNotify.Items.RemoveAt(setting.NotificationsShowMax);
+                if (ListBoxTimeline.Items.Count > setting.MainWindow.NotificationsShowMax) ListBoxNotify.Items.RemoveAt(setting.MainWindow.NotificationsShowMax);
             }));
         }
 
@@ -88,14 +87,14 @@ namespace Kbtter3.Views
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
-                if (TabControlMain.SelectedIndex != 0 && setting.NotifyNewStatus)
+                if (TabControlMain.SelectedIndex != 0 && setting.MainWindow.NotifyNewStatus)
                 {
                     EmphasisTextBlock(TextBlockTimeline);
                     urs++;
                     TextBlockUnreadStatuses.Text = String.Format(" {0}", urs);
                 }
                 ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(this, vm) });
-                if (ListBoxTimeline.Items.Count > setting.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.StatusesShowMax);
+                if (ListBoxTimeline.Items.Count > setting.MainWindow.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.MainWindow.StatusesShowMax);
             }));
         }
         #endregion
@@ -199,7 +198,7 @@ namespace Kbtter3.Views
 
 
         #region View間連携
-        public void RequestAction(string type, string info)
+        public async void RequestAction(string type, string info)
         {
             switch (type)
             {
@@ -208,7 +207,7 @@ namespace Kbtter3.Views
                 case "Media":
                     break;
                 case "Mention":
-                    var upvm = vm.GetUserProfile(info);
+                    var upvm = await vm.GetUserProfile(info);
                     //ここは取得するようにしたほうがいいかなーとか
                     if (upvm == null) return;
                     AddTab(String.Format("{0}さんの情報", info), new Frame { Content = new UserProfilePage(this, upvm) });
@@ -247,19 +246,4 @@ namespace Kbtter3.Views
 
     internal delegate void MainWindowEventHandler(string target, string type, object obj);
 
-    internal class MainWindowSetting
-    {
-        public int StatusesShowMax { get; set; }
-        public int NotificationsShowMax { get; set; }
-        public bool NotifyNewStatus { get; set; }
-        public bool NotifyNewNotification { get; set; }
-
-        public MainWindowSetting()
-        {
-            StatusesShowMax = 200;
-            NotificationsShowMax = 200;
-            NotifyNewStatus = false;
-            NotifyNewNotification = true;
-        }
-    }
 }
