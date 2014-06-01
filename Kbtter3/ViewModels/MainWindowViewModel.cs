@@ -386,6 +386,28 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
+        #region ApplicationExitCommand
+        private ViewModelCommand _ApplicationExitCommand;
+
+        public ViewModelCommand ApplicationExitCommand
+        {
+            get
+            {
+                if (_ApplicationExitCommand == null)
+                {
+                    _ApplicationExitCommand = new ViewModelCommand(ApplicationExit);
+                }
+                return _ApplicationExitCommand;
+            }
+        }
+
+        public void ApplicationExit()
+        {
+            App.Current.Shutdown();
+        }
+        #endregion
+
+
         #region エラー
         public string Error
         {

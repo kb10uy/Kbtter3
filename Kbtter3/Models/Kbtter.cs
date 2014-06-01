@@ -31,7 +31,11 @@ using Livet;
 
 namespace Kbtter3.Models
 {
-    public class Kbtter : NotificationObject
+    /// <summary>
+    /// Kbtter3 Polystyreneのモデル層を定義します。
+    /// このクラスは継承できません。
+    /// </summary>
+    public sealed class Kbtter : NotificationObject
     {
         internal readonly string ConsumerTokenFileName = App.ConfigurationFolderName + "/consumer.json";
         internal readonly string AccessTokenFileName = App.ConfigurationFolderName + "/users.json";
@@ -40,18 +44,46 @@ namespace Kbtter3.Models
         internal readonly string ConsumerDefaultKey = "5bI3XiTNEMHiamjMV5Acnqkex";
         internal readonly string ConsumerDefaultSecret = "ni2jGjwKTLcdpp1x6nr3yFo9bRrSWRdZfYbzEAZLhKz4uDDErN";
 
+        /// <summary>
+        /// CoreTweet Token
+        /// </summary>
         public Tokens Token { get; set; }
 
         internal IDisposable Stream { get; set; }
 
+        /// <summary>
+        /// 起動時以降のツイートのキャッシュ
+        /// </summary>
         public List<Status> Cache { get; set; }
 
+        /// <summary>
+        /// ログイン可能なAccessToken
+        /// </summary>
         public List<AccessToken> AccessTokens { get; set; }
 
+        /// <summary>
+        /// 現在Kbtter3が使用しているConsumerToken
+        /// </summary>
         public ConsumerToken ConsumerToken { get; private set; }
 
+        /// <summary>
+        /// ツイート受信時のイベント
+        /// </summary>
         public event Action<StatusMessage> OnStatus;
+
+        /// <summary>
+        /// イベント受信時のイベント
+        /// </summary>
         public event Action<EventMessage> OnEvent;
+
+        /// <summary>
+        /// ダイレクトメッセージ受信時のイベント
+        /// </summary>
+        public event Action<DirectMessageMessage> OnDirectMessage;
+
+        /// <summary>
+        /// IdEvent受信時のイベント
+        /// </summary>
         public event Action<IdMessage> OnIdEvent;
 
         internal StatusMessage LatestStatus { get; set; }
@@ -61,6 +93,9 @@ namespace Kbtter3.Models
 
         internal Queue<Status> ShowingStatuses { get; private set; }
 
+        /// <summary>
+        /// 現在認証しているユーザー
+        /// </summary>
         public User AuthenticatedUser { get; set; }
 
         internal static readonly string CacheDatabaseFileNameSuffix = "-cache.db";
@@ -88,6 +123,9 @@ namespace Kbtter3.Models
 
         }
 
+        /// <summary>
+        /// なし
+        /// </summary>
         ~Kbtter()
         {
             StopStreaming();
@@ -98,6 +136,10 @@ namespace Kbtter3.Models
 
         #region シングルトン
         static Kbtter _instance;
+
+        /// <summary>
+        /// Kbtterの唯一のインスタンスを取得します。
+        /// </summary>
         public static Kbtter Instance
         {
             get
@@ -257,6 +299,10 @@ namespace Kbtter3.Models
             CacheContext.SubmitChanges();
         }
 
+        /// <summary>
+        /// ツイートをお気に入りのキャッシュに追加します。
+        /// </summary>
+        /// <param name="st">ツイート</param>
         public void AddFavoriteCache(Status st)
         {
             AddFavoriteCacheCommand.Parameters["Id"].Value = st.Id;
@@ -265,6 +311,10 @@ namespace Kbtter3.Models
             AddFavoriteCacheCommand.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// ツイートをリツイートのキャッシュに追加します。
+        /// </summary>
+        /// <param name="st">ツイート。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
         public void AddRetweetCache(Status st)
         {
             AddRetweetCacheCommand.Parameters["Id"].Value = st.Id;
@@ -274,24 +324,41 @@ namespace Kbtter3.Models
             AddRetweetCacheCommand.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// ツイートをお気に入りのキャッシュから削除します。
+        /// </summary>
+        /// <param name="st">ツイート</param>
         public void RemoveFavoriteCache(Status st)
         {
             RemoveFavoriteCacheCommand.Parameters["Id"].Value = st.Id;
             AddFavoriteCacheCommand.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// ツイートをリツイートのキャッシュから削除します。
+        /// </summary>
+        /// <param name="st">ツイート。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
         public void RemoveRetweetCache(Status st)
         {
             RemoveRetweetCacheCommand.Parameters["Id"].Value = st.Id;
             AddFavoriteCacheCommand.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// ツイートをリツイートのキャッシュに追加します。
+        /// </summary>
+        /// <param name="stid">リツイートのID。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
         public void RemoveRetweetCache(long stid)
         {
             RemoveRetweetCacheCommand.Parameters["Id"].Value = stid;
             AddFavoriteCacheCommand.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// 指定したツイートがお気に入りとしてキャッシュされているか検証します。
+        /// </summary>
+        /// <param name="st">ツイート</param>
+        /// <returns>存在した場合はtrue</returns>
         public bool IsFavoritedInCache(Status st)
         {
             IsFavoritedCommand.Parameters["Id"].Value = st.Id;
@@ -301,6 +368,11 @@ namespace Kbtter3.Models
             }
         }
 
+        /// <summary>
+        /// 指定したリツイートの元ツイートを現在のキャッシュのユーザーがリツイートしているか検証します。
+        /// </summary>
+        /// <param name="st">ツイート。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
+        /// <returns>存在した場合はtrue</returns>
         public bool IsRetweetedInCache(Status st)
         {
             IsRetweetedCommand.Parameters["OriginalId"].Value = st.RetweetedStatus.Id;
@@ -310,7 +382,12 @@ namespace Kbtter3.Models
             }
         }
 
-        public bool IsmyRetweetInCache(long stid)
+        /// <summary>
+        /// 指定したリツイートが自分のものか検証します。
+        /// </summary>
+        /// <param name="stid">リツイートのID。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
+        /// <returns>存在した場合はtrue</returns>
+        public bool IsMyRetweetInCache(long stid)
         {
             IsMyRetweetCommand.Parameters["Id"].Value = stid;
             using (var dr = IsMyRetweetCommand.ExecuteReader())
@@ -322,6 +399,10 @@ namespace Kbtter3.Models
         #endregion
 
         #region 認証
+        /// <summary>
+        /// 指定番号のAccessTokenを用いてログインします。
+        /// </summary>
+        /// <param name="ai">AccessTokenのインデックス</param>
         public async void AuthenticateWith(int ai)
         {
             Token = Tokens.Create(
@@ -338,15 +419,29 @@ namespace Kbtter3.Models
             RaisePropertyChanged(() => AuthenticatedUser);
         }
 
-
+        /// <summary>
+        /// PINコードを用いて認証します。
+        /// </summary>
+        /// <param name="pin">PINコード</param>
+        /// <returns>成功した場合はTokens</returns>
         public Tokens AuthorizeToken(string pin)
         {
-            var t = OAuthSession.GetTokens(pin);
-            return t;
+            try
+            {
+                var t = OAuthSession.GetTokens(pin);
+                return t;
+            }
+            catch
+            {
+                return null;
+            }
         }
         #endregion
 
         #region Streaming
+        /// <summary>
+        /// Streamingを開始します。
+        /// </summary>
         public void StartStreaming()
         {
             var ob = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
@@ -363,6 +458,10 @@ namespace Kbtter3.Models
             {
                 if (OnIdEvent != null) OnIdEvent(p);
             });
+            ob.OfType<DirectMessageMessage>().Subscribe((p) =>
+            {
+                if (OnDirectMessage != null) OnDirectMessage(p);
+            });
             ob.OfType<DisconnectMessage>().Subscribe(p =>
             {
                 App.Current.Shutdown();
@@ -372,7 +471,7 @@ namespace Kbtter3.Models
             OnStatus += NotifyStatusUpdate;
             OnEvent += NotifyEventUpdate;
             OnIdEvent += NotifyIdEventUpdate;
-
+            OnDirectMessage += NotifyDirectMessageUpdate;
         }
 
         private async void NotifyStatusUpdate(StatusMessage msg)
@@ -395,6 +494,12 @@ namespace Kbtter3.Models
         {
             await CacheIdEvents(msg);
             RaisePropertyChanged("IdEvent");
+        }
+
+        private async void NotifyDirectMessageUpdate(DirectMessageMessage msg)
+        {
+            await CacheDirectMessage(msg);
+            RaisePropertyChanged("DirectMessage");
         }
 
         private Task CacheEvents(EventMessage msg)
@@ -466,7 +571,15 @@ namespace Kbtter3.Models
             });
         }
 
-        public Task CacheIdEvents(IdMessage msg)
+        private Task CacheDirectMessage(DirectMessageMessage msg)
+        {
+            return Task.Run(() =>
+            {
+
+            });
+        }
+
+        private Task CacheIdEvents(IdMessage msg)
         {
             return Task.Run(() =>
             {
@@ -478,7 +591,7 @@ namespace Kbtter3.Models
                         {
                             AuthenticatedUser.StatusesCount--;
                             RaisePropertyChanged(() => AuthenticatedUser);
-                            if (IsmyRetweetInCache(msg.UpToStatusId ?? 0))
+                            if (IsMyRetweetInCache(msg.UpToStatusId ?? 0))
                             {
                                 RemoveRetweetCache(msg.UpToStatusId ?? 0);
                                 CacheContext.SubmitChanges();
@@ -489,6 +602,9 @@ namespace Kbtter3.Models
             });
         }
 
+        /// <summary>
+        /// Streamingを停止します。
+        /// </summary>
         public void StopStreaming()
         {
             if (Stream != null) Stream.Dispose();
@@ -498,13 +614,18 @@ namespace Kbtter3.Models
 
         #region コンフィグ用メソッド
 
+        /// <summary>
+        /// 指定したTokensを使用して、AccessTokenを作成し、追加します。
+        /// </summary>
+        /// <param name="t">Tokens</param>
         public void AddToken(Tokens t)
         {
             AccessTokens.Add(new AccessToken { ScreenName = t.ScreenName, Token = t.AccessToken, TokenSecret = t.AccessTokenSecret });
             AccessTokens.SaveJson(AccessTokenFileName);
         }
 
-        public T LoadJson<T>(string filename)
+
+        private T LoadJson<T>(string filename)
             where T : new()
         {
             if (!File.Exists(filename))
@@ -515,7 +636,7 @@ namespace Kbtter3.Models
             return JsonConvert.DeserializeObject<T>(File.ReadAllText(filename));
         }
 
-        public T LoadJson<T>(string filename, T def)
+        private T LoadJson<T>(string filename, T def)
         {
             if (!File.Exists(filename))
             {
@@ -543,8 +664,19 @@ namespace Kbtter3.Models
     /// </summary>
     public class AccessToken
     {
+        /// <summary>
+        /// スクリーンネーム
+        /// </summary>
         public string ScreenName { get; set; }
+
+        /// <summary>
+        /// Access Token
+        /// </summary>
         public string Token { get; set; }
+
+        /// <summary>
+        /// Access Token Secret
+        /// </summary>
         public string TokenSecret { get; set; }
     }
 
@@ -554,7 +686,14 @@ namespace Kbtter3.Models
     /// </summary>
     public class ConsumerToken
     {
+        /// <summary>
+        /// Consumer Key
+        /// </summary>
         public string Key { get; set; }
+
+        /// <summary>
+        /// Consumer Secret
+        /// </summary>
         public string Secret { get; set; }
     }
 
@@ -576,14 +715,49 @@ namespace Kbtter3.Models
     /// </summary>
     public class UserProfileCache
     {
+        /// <summary>
+        /// ユーザー名
+        /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// スクリーンネーム
+        /// </summary>
         public string ScreenName { get; set; }
+
+        /// <summary>
+        /// 説明文
+        /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// 場所
+        /// </summary>
         public string Location { get; set; }
+
+        /// <summary>
+        /// URL
+        /// </summary>
         public string Uri { get; set; }
+
+        /// <summary>
+        /// ツイート数
+        /// </summary>
         public int Statuses { get; set; }
+
+        /// <summary>
+        /// フォロー数
+        /// </summary>
         public int Friends { get; set; }
+
+        /// <summary>
+        /// フォロワー数
+        /// </summary>
         public int Followers { get; set; }
+
+        /// <summary>
+        /// お気に入り数
+        /// </summary>
         public int Favorites { get; set; }
     }
 

@@ -9,8 +9,9 @@ using System.Data.Linq.Mapping;
 
 namespace Kbtter3.Models.Caching
 {
+
     [Table(Name = "Favorites")]
-    public class FavoriteCache : IEqualityComparer<FavoriteCache>
+    internal class FavoriteCache : IEqualityComparer<FavoriteCache>
     {
         [Column(Name = "ID")]
         public long Id { get; set; }
@@ -34,7 +35,7 @@ namespace Kbtter3.Models.Caching
     }
 
     [Table(Name = "Retweets")]
-    public class RetweetCache : IEqualityComparer<RetweetCache>
+    internal class RetweetCache : IEqualityComparer<RetweetCache>
     {
         [Column(Name = "ID")]
         public long Id { get; set; }
@@ -61,7 +62,7 @@ namespace Kbtter3.Models.Caching
     }
 
     [Table(Name = "Bookmarks")]
-    public class BookmarkCache : IEqualityComparer<BookmarkCache>
+    internal class BookmarkCache : IEqualityComparer<BookmarkCache>
     {
         [Column(Name = "ID")]
         public long Id { get; set; }

@@ -10,14 +10,14 @@ Livetを基盤としてCoreTweetを使うTwitterクライアント
 ##機能
 * 一般的なTwitterクライアントの機能
 * マルチアカウント
-* IronPython,IronRuby,Luaによるプラグイン機能
+* IronPython,IronRuby,Lua,Javascriptによるプラグイン機能
 
 ##個人的に付けたい機能
 * mikutter,Shrimpのプラグインとの互換性。
  - プラグインローダーを作ることで対処?
 
 ## 参考にしました
-Kbtter2はいろいろなTwitterクライアントを参考にします。
+Kbtter3はいろいろなTwitterクライアントを参考にします。
 
 |内容                                  |クライアント名    |作者TwitterのSN  |
 |:-------------------------------------|:-----------------|:----------------|
@@ -33,13 +33,16 @@ MIT Licenseとします。
 LICENSE.txtを参照してください。
 
 ##Special Thanks
-* azyobuzinさん
+* あじょぶじんさん
  - Kbtter2の時にGitHub上のソースでビルド出来なかった問題を解決していただきました。
-* java_shitさん
+   そしてCoreTweetの機能とか仕様についていろいろ教えていただきました。
+* Javaはクソさん
  - Entityの取り扱いについてアドバイスしていただきました。
-* ulicknormanowenさん
+   WPF関係でもありがとうござした。
+* 竹内さん
  - Kbtter1時代からお世話になってます。
-
+* 七瀬さん
+ - Nanasetterすごそうです
 
 ##ライセンス
 * KbtterのソースのライセンスはLICENSE.txtを参照してください。
