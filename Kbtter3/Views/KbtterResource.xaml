@@ -35,6 +35,7 @@
     <v:DoubleTwitterBannerHeightConverter x:Key="BannerHeightConverter"/>
     <v:DoubleTwitterUserImageHeightConverter x:Key="UserImageHeightConverter"/>
     <v:InvertedVisibilityConverter x:Key="InvertedVisibilityConverter"/>
+    <v:UriToStringConverter x:Key="UriToStringConverter"/>
 
     <ControlTemplate x:Key="SelectBorderListBoxItem" TargetType="ListBoxItem">
         <Border Name="Border"

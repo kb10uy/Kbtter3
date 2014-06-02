@@ -137,6 +137,7 @@
     <Compile Include="Models\Caching\CacheModels.cs" />
     <Compile Include="Models\Plugin\Kbtter3PluginProvider.cs" />
     <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
+    <Compile Include="ViewModels\InternalBrowserViewModel.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="ViewModels\UserProfilePageViewModel.cs" />
@@ -147,6 +148,9 @@
       <DependentUpon>ClosableRoundTabItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters.cs" />
+    <Compile Include="Views\InternalBrowserPage.xaml.cs">
+      <DependentUpon>InternalBrowserPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\NotificationPage.xaml.cs">
       <DependentUpon>NotificationPage.xaml</DependentUpon>
     </Compile>
@@ -176,6 +180,10 @@
     <Page Include="Views\DesignData\Notification.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\InternalBrowserPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\KbtterResource.xaml">
       <SubType>Designer</SubType>

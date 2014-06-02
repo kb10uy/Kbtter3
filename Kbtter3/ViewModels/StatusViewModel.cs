@@ -548,6 +548,24 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
+        #region IsOthersRetweet変更通知プロパティ
+        private bool _IsOthersRetweet;
+
+        public bool IsOthersRetweet
+        {
+            get
+            { return _IsOthersRetweet; }
+            set
+            { 
+                if (_IsOthersRetweet == value)
+                    return;
+                _IsOthersRetweet = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
 
     }
 
@@ -580,6 +598,7 @@ namespace Kbtter3.ViewModels
             ret.IsRetweeted = (st.IsRetweeted ?? false) || (ret.status.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.status));
             ret.FavoriteCount = st.FavoriteCount ?? 0;
             ret.IsMyStatus = (Kbtter.Instance.AuthenticatedUser != null && Kbtter.Instance.AuthenticatedUser.Id == st.User.Id);
+            ret.IsOthersStatus = !ret.IsMyStatus;
             ret.IsOthersStatus = !ret.IsMyStatus;
             ret._CreatedTimeText = st.CreatedAt.DateTime.ToLocalTime();
             ret.IsReplyToMe = st.Entities.UserMentions.Any(p => p.ScreenName == Kbtter.Instance.AuthenticatedUser.ScreenName);

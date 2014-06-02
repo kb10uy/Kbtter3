@@ -12,16 +12,13 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using Kbtter3.Models;
-using Kbtter3.Views;
 
 namespace Kbtter3.ViewModels
 {
-    internal class SettingViewModel : ViewModel
+    internal class InternalBrowserViewModel : ViewModel
     {
-
         public void Initialize()
         {
         }
-
     }
 }

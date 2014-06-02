@@ -24,7 +24,7 @@
         <ContextMenu>
             <MenuItem Header="削除" IsEnabled="{Binding IsMyStatus}" Command="{Binding DeleteStatusCommand}"/>
             <MenuItem Header="お気に入り" IsCheckable="True" IsChecked="{Binding IsFavorited,Mode=TwoWay}"/>
-            <MenuItem Header="リツイート" IsCheckable="True" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"/>
+            <MenuItem Header="リツイート" IsEnabled="{Binding IsOthersStatus}" IsCheckable="True" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"/>
             <Separator/>
             <MenuItem Header="返信" Command="{Binding ReplyToCommand}"/>
         </ContextMenu>

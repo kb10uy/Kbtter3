@@ -94,13 +94,13 @@ namespace Kbtter3.Models.Plugin
 
     internal sealed class Kbtter3NativePluginProvider : Kbtter3PluginProvider
     {
-        Kbtter kbtter;
+        //Kbtter kbtter;
         int count = 0;
 
 
         public override void Initialize(Kbtter kbtter)
         {
-            kbtter = Kbtter.Instance;
+            //kbtter = Kbtter.Instance;
         }
 
         public override void Load(IList<string> filenames)

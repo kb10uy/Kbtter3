@@ -50,6 +50,9 @@ namespace Kbtter3.Models
         /// </summary>
         public List<Status> Cache { get; set; }
 
+        /// <summary>
+        /// ユーザーのキャッシュ
+        /// </summary>
         public IDictionary<string, User> UserCache { get; set; }
 
         /// <summary>

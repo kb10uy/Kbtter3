@@ -1,0 +1,54 @@
+﻿<Page x:Class="Kbtter3.Views.InternalBrowserPage"
+      x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:v="clr-namespace:Kbtter3.Views"
+        xmlns:vm="clr-namespace:Kbtter3.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="InternalBrowserPage" d:DesignHeight="350" d:DesignWidth="525">
+    
+     <i:Interaction.Triggers>
+     
+     	<!--Viewに特別な要件が存在しない限りは、トリガーやアクションの自作にこだわらず積極的にコードビハインドを使いましょう -->
+    	<!--Viewのコードビハインドは、基本的にView内で完結するロジックとViewModelからのイベントの受信(専用リスナを使用する)に限るとトラブルが少なくなります -->
+    	<!--Livet1.1からはコードビハインドでViewModelのイベントを受信するためのWeakEventLisnterサポートが追加されています --> 
+        
+        <!--WindowのContentRenderedイベントのタイミングでViewModelのInitializeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
+        </i:EventTrigger>
+
+        <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+
+        <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
+
+    </i:Interaction.Triggers>
+
+    <Page.Resources>
+        <ResourceDictionary Source="KbtterResource.xaml"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Name="ButtonGoBack" Click="ButtonGoBack_Click" IsEnabled="{Binding ElementName=WebBrowserMain, Path=CanGoBack}">戻る</Button>
+                <Button Name="ButtonGoForward" Click="ButtonGoForward_Click" IsEnabled="{Binding ElementName=WebBrowserMain, Path=CanGoForward}">進む</Button>
+                <Button Name="ButtonRefresh" Click="ButtonRefresh_Click">更新</Button>
+                <!--<TextBox Name="TextBoxUri" Text="{Binding ElementName=WebBrowserMain,Path=Source,Converter={StaticResource UriToStringConverter}}" Width="320"/>-->
+            </ToolBar>
+        </ToolBarTray>
+        <WebBrowser Name="WebBrowserMain" Grid.Row="1"/>
+    </Grid>
+</Page>

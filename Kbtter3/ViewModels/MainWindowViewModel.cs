@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
@@ -256,7 +257,17 @@ namespace Kbtter3.ViewModels
             opt["status"] = UpdateStatusText;
             if (IsReplying) opt["in_reply_to_status_id"] = ReplyingStatus.Id;
 
-            await kbtter.Token.Statuses.UpdateAsync(opt);
+            if (HasMedia)
+            {
+                opt["media"] = Media;
+                await kbtter.Token.Statuses.UpdateWithMediaAsync(opt);
+                RemoveMedia();
+            }
+            else
+            {
+                await kbtter.Token.Statuses.UpdateAsync(opt);
+            }
+
 
             _tokenus = false;
             UpdateStatusCommand.RaiseCanExecuteChanged();
@@ -321,6 +332,95 @@ namespace Kbtter3.ViewModels
             }
         }
         #endregion
+
+
+        #region HasMedia変更通知プロパティ
+        public bool HasMedia
+        {
+            get
+            { return Media != null; }
+        }
+        #endregion
+
+
+        internal Stream Media { get; set; }
+
+
+        #region MediaPath変更通知プロパティ
+        private string _MediaPath = "";
+
+        public string MediaPath
+        {
+            get
+            { return _MediaPath; }
+            set
+            {
+                if (_MediaPath == value)
+                    return;
+                _MediaPath = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region AddMediaCommand
+        private ListenerCommand<OpeningFileSelectionMessage> _AddMediaCommand;
+
+        public ListenerCommand<OpeningFileSelectionMessage> AddMediaCommand
+        {
+            get
+            {
+                if (_AddMediaCommand == null)
+                {
+                    _AddMediaCommand = new ListenerCommand<OpeningFileSelectionMessage>(AddMedia);
+                }
+                return _AddMediaCommand;
+            }
+        }
+
+        public async void AddMedia(OpeningFileSelectionMessage parameter)
+        {
+            await Task.Run(() =>
+            {
+                Media = File.Open(parameter.Response[0], FileMode.Open);
+                MediaPath = parameter.Response[0];
+                RaisePropertyChanged(() => HasMedia);
+                RemoveMediaCommand.RaiseCanExecuteChanged();
+            });
+        }
+        #endregion
+
+
+        #region RemoveMediaCommand
+        private ViewModelCommand _RemoveMediaCommand;
+
+        public ViewModelCommand RemoveMediaCommand
+        {
+            get
+            {
+                if (_RemoveMediaCommand == null)
+                {
+                    _RemoveMediaCommand = new ViewModelCommand(RemoveMedia, CanRemoveMedia);
+                }
+                return _RemoveMediaCommand;
+            }
+        }
+
+        public bool CanRemoveMedia()
+        {
+            return HasMedia;
+        }
+
+        public void RemoveMedia()
+        {
+            Media.Dispose();
+            Media = null;
+            RaisePropertyChanged(() => HasMedia);
+            RemoveMediaCommand.RaiseCanExecuteChanged();
+        }
+        #endregion
+
 
 
         public void SetReplyTo(Status rep)

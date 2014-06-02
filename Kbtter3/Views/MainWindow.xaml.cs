@@ -203,6 +203,8 @@ namespace Kbtter3.Views
             switch (type)
             {
                 case "Url":
+                    AddTab(new TextBlock { Text = info.Substring(0, 16) + "..." },
+                           new Frame { Content = new InternalBrowserPage(new Uri(info)) });
                     break;
                 case "Media":
                     break;
@@ -210,7 +212,8 @@ namespace Kbtter3.Views
                     var upvm = await vm.GetUserProfile(info);
                     //ここは取得するようにしたほうがいいかなーとか
                     if (upvm == null) return;
-                    AddTab(String.Format("{0}さんの情報", info), new Frame { Content = new UserProfilePage(this, upvm) });
+                    AddTab(new TextBlock { Text = String.Format("{0}さんの情報", info) }, 
+                           new Frame { Content = new UserProfilePage(this, upvm) });
                     break;
                 case "Hashtag":
                     break;
