@@ -27,6 +27,11 @@ namespace Kbtter3.Views.Control
             InitializeComponent();
         }
 
+        ~ClosableRoundTabItem()
+        {
+            Console.WriteLine("");
+        }
+
         static ClosableRoundTabItem()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(ClosableRoundTabItem),

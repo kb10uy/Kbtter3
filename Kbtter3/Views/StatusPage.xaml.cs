@@ -12,6 +12,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Diagnostics;
 
 using Kbtter3.ViewModels;
 
@@ -44,7 +45,7 @@ namespace Kbtter3.Views
             DataContext = vm;
             elm = vm.TextElements;
             stsn = vm.ScreenName;
-            mainw.WindowEvent += mainw_WindowEvent;
+            //mainw.WindowEvent += mainw_WindowEvent;
 
             if (vm.Via == "") StackPanelBlockVia.Visibility = Visibility.Collapsed;
             SetMainText();
@@ -56,7 +57,8 @@ namespace Kbtter3.Views
 
         ~StatusPage()
         {
-            mainw.WindowEvent -= mainw_WindowEvent;
+            Debug.WriteLine("Statuspage has been deleted!");
+            //mainw.WindowEvent -= mainw_WindowEvent;
         }
 
         void mainw_WindowEvent(string target, string type, object obj)

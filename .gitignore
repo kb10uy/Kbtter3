@@ -201,6 +201,8 @@ sdist/
 develop-eggs/
 .installed.cfg
 
+Kbtter3.sln.ide/
+
 # Installer logs
 pip-log.txt
 

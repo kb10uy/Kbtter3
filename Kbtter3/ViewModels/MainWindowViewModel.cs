@@ -209,6 +209,7 @@ namespace Kbtter3.ViewModels
                 RaisePropertyChanged();
                 RaisePropertyChanged(() => UpdateStatusTextLength);
                 RaisePropertyChanged(() => IsTextNoInput);
+                SayDajareCommand.RaiseCanExecuteChanged();
                 UpdateStatusCommand.RaiseCanExecuteChanged();
 
                 errors["UpdateStatusText"] = (value.Length > 140) ? "140文字を超えています" : null;
@@ -519,20 +520,219 @@ namespace Kbtter3.ViewModels
             {
                 if (_FireCSharpBeamCommand == null)
                 {
-                    _FireCSharpBeamCommand = new ViewModelCommand(FireCSharpBeam, CanFireCSharpBeam);
+                    _FireCSharpBeamCommand = new ViewModelCommand(FireCSharpBeam);
                 }
                 return _FireCSharpBeamCommand;
             }
         }
 
-        public bool CanFireCSharpBeam()
-        {
-            return true;
-        }
-
         public void FireCSharpBeam()
         {
-            kbtter.FireCSharpBeam();
+            kbtter.FireBeam("C#");
+        }
+        #endregion
+
+
+        #region FireXamlBeamCommand
+        private ViewModelCommand _FireXamlBeamCommand;
+
+        public ViewModelCommand FireXamlBeamCommand
+        {
+            get
+            {
+                if (_FireXamlBeamCommand == null)
+                {
+                    _FireXamlBeamCommand = new ViewModelCommand(FireXamlBeam);
+                }
+                return _FireXamlBeamCommand;
+            }
+        }
+
+        public void FireXamlBeam()
+        {
+            kbtter.FireBeam("XAML");
+        }
+        #endregion
+
+
+        #region FireWpfBeamCommand
+        private ViewModelCommand _FireWpfBeamCommand;
+
+        public ViewModelCommand FireWpfBeamCommand
+        {
+            get
+            {
+                if (_FireWpfBeamCommand == null)
+                {
+                    _FireWpfBeamCommand = new ViewModelCommand(FireWpfBeam);
+                }
+                return _FireWpfBeamCommand;
+            }
+        }
+
+        public void FireWpfBeam()
+        {
+            kbtter.FireBeam("WPF");
+        }
+        #endregion
+
+
+        #region FireCoreTweetBeamCommand
+        private ViewModelCommand _FireCoreTweetBeamCommand;
+
+        public ViewModelCommand FireCoreTweetBeamCommand
+        {
+            get
+            {
+                if (_FireCoreTweetBeamCommand == null)
+                {
+                    _FireCoreTweetBeamCommand = new ViewModelCommand(FireCoreTweetBeam);
+                }
+                return _FireCoreTweetBeamCommand;
+            }
+        }
+
+        public void FireCoreTweetBeam()
+        {
+            kbtter.FireBeam("CoreTweet");
+        }
+        #endregion
+
+
+        #region FireLivetBeamCommand
+        private ViewModelCommand _FireLivetBeamCommand;
+
+        public ViewModelCommand FireLivetBeamCommand
+        {
+            get
+            {
+                if (_FireLivetBeamCommand == null)
+                {
+                    _FireLivetBeamCommand = new ViewModelCommand(FireLivetBeam);
+                }
+                return _FireLivetBeamCommand;
+            }
+        }
+
+        public void FireLivetBeam()
+        {
+            kbtter.FireBeam("Livet");
+        }
+        #endregion
+
+
+        #region FireJsonBeamCommand
+        private ViewModelCommand _FireJsonBeamCommand;
+
+        public ViewModelCommand FireJsonBeamCommand
+        {
+            get
+            {
+                if (_FireJsonBeamCommand == null)
+                {
+                    _FireJsonBeamCommand = new ViewModelCommand(FireJsonBeam);
+                }
+                return _FireJsonBeamCommand;
+            }
+        }
+
+        public void FireJsonBeam()
+        {
+            kbtter.FireBeam("JSON");
+        }
+        #endregion
+
+
+        #region FireReactiveExtensionsBeamCommand
+        private ViewModelCommand _FireReactiveExtensionsBeamCommand;
+
+        public ViewModelCommand FireReactiveExtensionsBeamCommand
+        {
+            get
+            {
+                if (_FireReactiveExtensionsBeamCommand == null)
+                {
+                    _FireReactiveExtensionsBeamCommand = new ViewModelCommand(FireReactiveExtensionsBeam);
+                }
+                return _FireReactiveExtensionsBeamCommand;
+            }
+        }
+
+        public void FireReactiveExtensionsBeam()
+        {
+            kbtter.FireBeam("Rx");
+        }
+        #endregion
+
+
+        #region FireSQLiteBeamCommand
+        private ViewModelCommand _FireSQLiteBeamCommand;
+
+        public ViewModelCommand FireSQLiteBeamCommand
+        {
+            get
+            {
+                if (_FireSQLiteBeamCommand == null)
+                {
+                    _FireSQLiteBeamCommand = new ViewModelCommand(FireSQLiteBeam);
+                }
+                return _FireSQLiteBeamCommand;
+            }
+        }
+
+        public void FireSQLiteBeam()
+        {
+            kbtter.FireBeam("SQLite");
+        }
+        #endregion
+
+
+        #region SayDajareCommand
+        private ViewModelCommand _SayDajareCommand;
+
+        public ViewModelCommand SayDajareCommand
+        {
+            get
+            {
+                if (_SayDajareCommand == null)
+                {
+                    _SayDajareCommand = new ViewModelCommand(SayDajare, CanSayDajare);
+                }
+                return _SayDajareCommand;
+            }
+        }
+
+        public bool CanSayDajare()
+        {
+            return UpdateStatusText != "";
+        }
+
+        public void SayDajare()
+        {
+            kbtter.SayDajare(UpdateStatusText);
+            UpdateStatusText = "";
+        }
+        #endregion
+
+
+        #region GCCollectCommand
+        private ViewModelCommand _GCCollectCommand;
+
+        public ViewModelCommand GCCollectCommand
+        {
+            get
+            {
+                if (_GCCollectCommand == null)
+                {
+                    _GCCollectCommand = new ViewModelCommand(GCCollect);
+                }
+                return _GCCollectCommand;
+            }
+        }
+
+        public void GCCollect()
+        {
+            GC.Collect();
         }
         #endregion
 

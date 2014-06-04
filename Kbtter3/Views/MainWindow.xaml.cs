@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
-
+using System.Diagnostics;
 using Newtonsoft.Json;
 
 using Kbtter3.ViewModels;
@@ -53,6 +53,9 @@ namespace Kbtter3.Views
             vm.StatusUpdate += MainWindow_Update;
             vm.EventUpdate += vm_EventUpdate;
             setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
+
+            if (!setting.MainWindow.AllowJokeCommands) ToolBarJokes.Visibility = Visibility.Collapsed;
+
             SetShortcuts();
             WindowEvent += MainWindow_WindowEvent;
         }
@@ -203,8 +206,10 @@ namespace Kbtter3.Views
             switch (type)
             {
                 case "Url":
-                    AddTab(new TextBlock { Text = info.Substring(0, 16) + "..." },
-                           new Frame { Content = new InternalBrowserPage(new Uri(info)) });
+                    //内蔵ブラウザはクソ、廃案
+                    //AddTab(new TextBlock { Text = info.Substring(0, 16) + "..." },
+                    //new Frame { Content = new InternalBrowserPage(new Uri(info)) });
+                    Process.Start(info);
                     break;
                 case "Media":
                     break;

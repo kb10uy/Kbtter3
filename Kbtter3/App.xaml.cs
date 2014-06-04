@@ -143,13 +143,17 @@ namespace Kbtter3
     {
         public long LastFavoritedStatusId { get; set; }
         public long LastRetweetedStatusId { get; set; }
-        public int CSharpBeamCount { get; set; }
+        public IDictionary<string, int> BeamCount { get; set; }
+        public IDictionary<string, int> HateCount { get; set; }
+        public IDictionary<string, int> GodCount { get; set; }
 
         public Kbtter3SystemData()
         {
             LastFavoritedStatusId = 0;
             LastRetweetedStatusId = 0;
-            CSharpBeamCount = 1;
+            BeamCount = new Dictionary<string, int>();
+            HateCount = new Dictionary<string, int>();
+            GodCount = new Dictionary<string, int>();
         }
     }
 
@@ -160,13 +164,14 @@ namespace Kbtter3
         public int NotificationsShowMax { get; set; }
         public bool NotifyNewStatus { get; set; }
         public bool NotifyNewNotification { get; set; }
-
+        public bool AllowJokeCommands { get; set; }
         public MainWindowSetting()
         {
             StatusesShowMax = 200;
             NotificationsShowMax = 200;
             NotifyNewStatus = false;
             NotifyNewNotification = true;
+            AllowJokeCommands = false;
         }
     }
 

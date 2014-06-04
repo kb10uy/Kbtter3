@@ -384,12 +384,76 @@ namespace Kbtter3.Models
         /// <summary>
         /// C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww
         /// </summary>
-        public async void FireCSharpBeam()
+        /// <param name="beam">なまえ</param>
+        public async void FireBeam(string beam)
         {
             if (Token == null) return;
-            await Token.Statuses.UpdateAsync(status => String.Format("C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww({0}回目) #Kbtter3", Setting.System.CSharpBeamCount));
-            Setting.System.CSharpBeamCount++;
+            if (!Setting.System.BeamCount.ContainsKey(beam)) Setting.System.BeamCount[beam] = 1;
+            try
+            {
+                await Token.Statuses.UpdateAsync(status => String.Format("{0}ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww({1}回目) #Kbtter3", beam, Setting.System.BeamCount[beam]));
+            }
+            catch
+            {
+            }
+            Setting.System.BeamCount[beam]++;
             Setting.SaveJson(App.ConfigurationFileName);
+        }
+
+        /// <summary>
+        /// Javaはクソ。
+        /// </summary>
+        /// <param name="beam">なまえ</param>
+        public async void Hate(string beam)
+        {
+            if (Token == null) return;
+            if (!Setting.System.HateCount.ContainsKey(beam)) Setting.System.HateCount[beam] = 1;
+            try
+            {
+                await Token.Statuses.UpdateAsync(status => String.Format("{0}はクソ。({1}回目) #Kbtter3", beam, Setting.System.HateCount[beam]));
+            }
+            catch
+            {
+            }
+            Setting.System.HateCount[beam]++;
+            Setting.SaveJson(App.ConfigurationFileName);
+        }
+
+        /// <summary>
+        /// GO is GOD
+        /// </summary>
+        /// <param name="beam">なまえ</param>
+        public async void God(string beam)
+        {
+            if (Token == null) return;
+            if (!Setting.System.GodCount.ContainsKey(beam)) Setting.System.GodCount[beam] = 1;
+            try
+            {
+                await Token.Statuses.UpdateAsync(status => String.Format("{0} is GOD({1}回目) #Kbtter3", beam, Setting.System.GodCount[beam]));
+            }
+            catch
+            {
+            }
+            Setting.System.GodCount[beam]++;
+            Setting.SaveJson(App.ConfigurationFileName);
+        }
+
+        /// <summary>
+        /// いまからおもしろいこといいます
+        /// </summary>
+        /// <param name="s">ダジャレ</param>
+        public async void SayDajare(string s)
+        {
+            if (Token == null) return;
+            try
+            {
+                await Token.Statuses.UpdateAsync(status => "いまからおもしろいこといいます");
+                await Token.Statuses.UpdateAsync(status => s);
+                await Token.Statuses.UpdateAsync(status => "ありがとうございました");
+            }
+            catch
+            {
+            }
         }
 
         /// <summary>
@@ -399,7 +463,7 @@ namespace Kbtter3.Models
         /// <returns>User</returns>
         public Task<User> GetUser(string sn)
         {
-            return Task<User>.Run(async() =>
+            return Task<User>.Run(async () =>
             {
                 if (UserCache.ContainsKey(sn)) return UserCache[sn];
                 var us = await Token.Users.ShowAsync(screen_name => sn);

@@ -27,6 +27,26 @@
             <MenuItem Header="リツイート" IsEnabled="{Binding IsOthersStatus}" IsCheckable="True" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"/>
             <Separator/>
             <MenuItem Header="返信" Command="{Binding ReplyToCommand}"/>
+            <MenuItem Header="異議あり！">
+                <MenuItem Command="{Binding WhatDoYouSayCommand}">
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>なーにが</TextBlock>
+                            <TextBlock Text="{Binding Text}"/>
+                            <TextBlock>じゃ</TextBlock>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+                <MenuItem Command="{Binding WhatAreYouMeaningCommand}">
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>だーれが</TextBlock>
+                            <TextBlock Text="{Binding Text}"/>
+                            <TextBlock>じゃ</TextBlock>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+            </MenuItem>
         </ContextMenu>
     </Page.ContextMenu>
 

@@ -20,8 +20,17 @@ namespace Kbtter3.Views
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null) return new BitmapImage();
-            return new BitmapImage(value as Uri);
+            var u = value as Uri;
+            if (u == null || u.ToString() == "")
+            {
+                var b = new BitmapImage();
+                return b;
+            }
+            else
+            {
+                var b = new BitmapImage(u);
+                return b;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

@@ -566,6 +566,49 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
+        #region WhatDoYouSayCommand
+        private ViewModelCommand _WhatDoYouSayCommand;
+
+        public ViewModelCommand WhatDoYouSayCommand
+        {
+            get
+            {
+                if (_WhatDoYouSayCommand == null)
+                {
+                    _WhatDoYouSayCommand = new ViewModelCommand(WhatDoYouSay);
+                }
+                return _WhatDoYouSayCommand;
+            }
+        }
+
+        public void WhatDoYouSay()
+        {
+            kbtter.Token.Statuses.UpdateAsync(status => "なーにが" + Text + "じゃ");
+        }
+        #endregion
+
+
+        #region WhoAreYouMeaningCommand
+        private ViewModelCommand _WhoAreYouMeaningCommand;
+
+        public ViewModelCommand WhoAreYouMeaningCommand
+        {
+            get
+            {
+                if (_WhoAreYouMeaningCommand == null)
+                {
+                    _WhoAreYouMeaningCommand = new ViewModelCommand(WhoAreYouMeaning);
+                }
+                return _WhoAreYouMeaningCommand;
+            }
+        }
+
+        public void WhoAreYouMeaning()
+        {
+            kbtter.Token.Statuses.UpdateAsync(status => "だーれが" + Text + "じゃ");
+        }
+        #endregion
+
 
     }
 
