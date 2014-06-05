@@ -39,6 +39,11 @@
 
     <Page.ContextMenu>
         <ContextMenu>
+            <MenuItem Header="リプライ" Visibility="{Binding IsReply,Converter={StaticResource BooleanToVisibilityConverter}}">
+                <MenuItem Header="返信" Command="{Binding ReplyStatusViewModel.ReplyToCommand}"/>
+                <MenuItem Header="お気に入り" IsCheckable="True" IsChecked="{Binding ReplyStatusViewModel.IsFavorited,Mode=TwoWay}"/>
+                <MenuItem Header="リツイート" IsCheckable="True" IsChecked="{Binding ReplyStatusViewModel.IsRetweeted,Mode=TwoWay}"/>
+            </MenuItem>
         </ContextMenu>
     </Page.ContextMenu>
 
@@ -52,6 +57,9 @@
             <ColumnDefinition Width="40"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <Rectangle Name="RectangleReplyToMeBackground" Grid.ColumnSpan="3" Grid.RowSpan="2" 
+                   Fill="{StaticResource Kbtter3ReplyBackColor}" Panel.ZIndex="-100" 
+                   Visibility="{Binding ReplyStatusViewModel.IsReplyToMe, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         <Image Width="16" Height="16" Source="{Binding IconUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
 
         <Image Width="32" Height="32" Grid.Column="1" Source="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageConverter}}">

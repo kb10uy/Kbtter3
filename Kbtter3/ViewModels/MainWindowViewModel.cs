@@ -54,7 +54,20 @@ namespace Kbtter3.ViewModels
 
         public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
         {
-            if (StatusUpdate != null) StatusUpdate(this, this.CreateStatusViewModel(kbtter.ShowingStatuses.Dequeue()));
+            var st = kbtter.ShowingStatuses.Dequeue();
+            if (StatusUpdate != null) StatusUpdate(this, this.CreateStatusViewModel(st));
+            if (st.RetweetedStatus != null)
+            {
+                if (st.RetweetedStatus.User.Id != kbtter.AuthenticatedUser.Id) return;
+                var vm = new NotificationViewModel(st);
+                if (EventUpdate != null) EventUpdate(this, vm);
+                return;
+            }
+            if (st.Entities.UserMentions.Count(p => p.ScreenName == kbtter.AuthenticatedUser.ScreenName) != 0)
+            {
+                var vm = new NotificationViewModel(st, this);
+                if (EventUpdate != null) EventUpdate(this, vm);
+            }
         }
 
         public void OnEvent(object sender, PropertyChangedEventArgs e)
@@ -71,7 +84,6 @@ namespace Kbtter3.ViewModels
             UserProfileFriends = kbtter.AuthenticatedUser.FriendsCount;
             UserProfileFollowers = kbtter.AuthenticatedUser.FollowersCount;
             UserProfileFavorites = kbtter.AuthenticatedUser.FavouritesCount;
-            RaisePropertyChanged("UserPropfileImageUri");
         }
 
         public async Task<UserProfilePageViewModel> GetUserProfile(string sn)
@@ -421,7 +433,6 @@ namespace Kbtter3.ViewModels
             RemoveMediaCommand.RaiseCanExecuteChanged();
         }
         #endregion
-
 
 
         public void SetReplyTo(Status rep)

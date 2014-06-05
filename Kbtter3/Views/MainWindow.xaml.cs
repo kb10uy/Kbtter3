@@ -206,12 +206,11 @@ namespace Kbtter3.Views
             switch (type)
             {
                 case "Url":
+                case "Media":
                     //内蔵ブラウザはクソ、廃案
                     //AddTab(new TextBlock { Text = info.Substring(0, 16) + "..." },
                     //new Frame { Content = new InternalBrowserPage(new Uri(info)) });
                     Process.Start(info);
-                    break;
-                case "Media":
                     break;
                 case "Mention":
                     var upvm = await vm.GetUserProfile(info);

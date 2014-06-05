@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 
 using Kbtter3.ViewModels;
+using Newtonsoft.Json;
 
 using Livet;
 using Livet.EventListeners;
@@ -37,6 +38,12 @@ namespace Kbtter3.Views
         IList<StatusViewModel.StatusElement> elm;
         string stsn;
         MainWindow mainw;
+        static Kbtter3Setting setting;
+
+        static StatusPage()
+        {
+            setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
+        }
 
         public StatusPage(MainWindow m, StatusViewModel vm)
         {
@@ -110,6 +117,7 @@ namespace Kbtter3.Views
         {
             if (showed) return;
             showed = true;
+            if (!setting.StatusPage.AnimationNewStatus) return;
 
             var cdu = new Duration(TimeSpan.FromMilliseconds(500));
             //たかさ

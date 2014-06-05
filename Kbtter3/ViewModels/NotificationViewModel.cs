@@ -70,9 +70,74 @@ namespace Kbtter3.ViewModels
             }
         }
 
+        /// <summary>
+        /// 自分へのリプ以外を渡すな
+        /// </summary>
+        /// <param name="msg">はい</param>
+        public NotificationViewModel(Status msg, MainWindowViewModel mvm)
+        {
+            NotificationTime = msg.CreatedAt.LocalDateTime.ToShortTimeString();
+            UserImageUri = msg.User.ProfileImageUrlHttps;
+            IconUri = new Uri("/Resources/reply.png", UriKind.Relative);
+            Description = String.Format("{0}さんからのリプライ・メンションがあります", msg.User.Name);
+            IsReply = true;
+            ReplyStatusViewModel = StatusViewModelExtension.CreateStatusViewModel(mvm, msg);
+            ContentText = msg.Text;
+        }
+
+        /// <summary>
+        /// 自分以外の被リツイートを渡すな
+        /// </summary>
+        /// <param name="rt">リツイート♡</param>
+        public NotificationViewModel(Status rt)
+        {
+            NotificationTime = rt.CreatedAt.LocalDateTime.ToShortTimeString();
+            UserImageUri = rt.User.ProfileImageUrlHttps;
+            IconUri= new Uri("/Resources/rt.png", UriKind.Relative);
+            Description = String.Format("あなたのツイートが{0}さんにリツイートされました", rt.User.Name);
+            ContentText = rt.RetweetedStatus.Text;
+        }
+
         public void Initialize()
         {
         }
+
+
+
+        #region IsReply変更通知プロパティ
+        private bool _IsReply;
+
+        public bool IsReply
+        {
+            get
+            { return _IsReply; }
+            set
+            {
+                if (_IsReply == value)
+                    return;
+                _IsReply = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ReplyStatusViewModel変更通知プロパティ
+        private StatusViewModel _ReplyStatusViewModel = new StatusViewModel();
+
+        public StatusViewModel ReplyStatusViewModel
+        {
+            get
+            { return _ReplyStatusViewModel; }
+            set
+            {
+                if (_ReplyStatusViewModel == value)
+                    return;
+                _ReplyStatusViewModel = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
 
         #region ContentText変更通知プロパティ

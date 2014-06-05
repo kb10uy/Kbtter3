@@ -175,10 +175,20 @@ namespace Kbtter3
         }
     }
 
+    internal class StatusPageSetting
+    {
+        public bool AnimationNewStatus { get;set; }
+        public StatusPageSetting()
+        {
+            AnimationNewStatus = true;
+        }
+    }
+
     internal class Kbtter3Setting
     {
         public Kbtter3SystemData System { get; set; }
         public MainWindowSetting MainWindow { get; set; }
+        public StatusPageSetting StatusPage { get;set; }
         public IList<AccessToken> AccessTokens { get; set; }
         public ConsumerToken Consumer { get; set; }
 
@@ -186,6 +196,7 @@ namespace Kbtter3
         {
             System = new Kbtter3SystemData();
             MainWindow = new MainWindowSetting();
+            StatusPage = new StatusPageSetting();
             AccessTokens = new List<AccessToken>();
             Consumer = new ConsumerToken();
         }
