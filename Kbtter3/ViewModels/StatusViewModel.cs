@@ -24,8 +24,14 @@ namespace Kbtter3.ViewModels
         internal Status origin, status;
         internal MainWindowViewModel main;
         internal PropertyChangedEventListener listener;
+        static Kbtter3Setting setting;
 
         long rtid;
+
+        static StatusViewModel()
+        {
+            setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
+        }
 
         public void Initialize()
         {
@@ -439,6 +445,24 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
+        #region DecodedText変更通知プロパティ
+        private string _DecodedText;
+
+        public string DecodedText
+        {
+            get
+            { return _DecodedText; }
+            set
+            { 
+                if (_DecodedText == value)
+                    return;
+                _DecodedText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region UserProfileImageUri変更通知プロパティ
         private Uri _UserProfileImageUri = new Uri("/Resources/cancel.png", UriKind.Relative);
 
@@ -500,6 +524,8 @@ namespace Kbtter3.ViewModels
         {
             get
             {
+                if (setting.StatusPage.ShowAbsoluteTime) return _CreatedTimeText.ToString();
+
                 var ts = (DateTime.Now - _CreatedTimeText);
                 if (ts.Days >= 10)
                 {

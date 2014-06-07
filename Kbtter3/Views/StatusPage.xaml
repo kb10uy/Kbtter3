@@ -19,38 +19,36 @@
     <Page.Resources>
         <ResourceDictionary Source="KbtterResource.xaml"/>
     </Page.Resources>
-
-    <Page.ContextMenu>
-        <ContextMenu>
-            <MenuItem Header="削除" IsEnabled="{Binding IsMyStatus}" Command="{Binding DeleteStatusCommand}"/>
-            <MenuItem Header="お気に入り" IsCheckable="True" IsChecked="{Binding IsFavorited,Mode=TwoWay}"/>
-            <MenuItem Header="リツイート" IsEnabled="{Binding IsOthersStatus}" IsCheckable="True" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"/>
-            <Separator/>
-            <MenuItem Header="返信" Command="{Binding ReplyToCommand}"/>
-            <MenuItem Header="異議あり！">
-                <MenuItem Command="{Binding WhatDoYouSayCommand}">
-                    <MenuItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock>なーにが</TextBlock>
-                            <TextBlock Text="{Binding Text}"/>
-                            <TextBlock>じゃ</TextBlock>
-                        </StackPanel>
-                    </MenuItem.Header>
-                </MenuItem>
-                <MenuItem Command="{Binding WhatAreYouMeaningCommand}">
-                    <MenuItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock>だーれが</TextBlock>
-                            <TextBlock Text="{Binding Text}"/>
-                            <TextBlock>じゃ</TextBlock>
-                        </StackPanel>
-                    </MenuItem.Header>
-                </MenuItem>
-            </MenuItem>
-        </ContextMenu>
-    </Page.ContextMenu>
-
     <Grid>
+        <Grid.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="削除" IsEnabled="{Binding IsMyStatus}" Command="{Binding DeleteStatusCommand}"/>
+                <MenuItem Header="お気に入り" IsCheckable="True" IsChecked="{Binding IsFavorited,Mode=TwoWay}"/>
+                <MenuItem Header="リツイート" IsEnabled="{Binding IsOthersStatus}" IsCheckable="True" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"/>
+                <Separator/>
+                <MenuItem Header="返信" Command="{Binding ReplyToCommand}"/>
+                <MenuItem Header="異議あり！">
+                    <MenuItem Command="{Binding WhatDoYouSayCommand}">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock>なーにが</TextBlock>
+                                <TextBlock Text="{Binding Text}"/>
+                                <TextBlock>じゃ</TextBlock>
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem Command="{Binding WhatAreYouMeaningCommand}">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock>だーれが</TextBlock>
+                                <TextBlock Text="{Binding Text}"/>
+                                <TextBlock>じゃ</TextBlock>
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                </MenuItem>
+            </ContextMenu>
+        </Grid.ContextMenu>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

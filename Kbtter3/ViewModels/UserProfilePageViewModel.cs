@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 using Livet;
 using Livet.Commands;
@@ -19,14 +20,17 @@ namespace Kbtter3.ViewModels
     internal class UserProfilePageViewModel : ViewModel
     {
         User user;
+        MainWindowViewModel mainw;
+        Kbtter kbtter = Kbtter.Instance;
         public UserProfilePageViewModel()
         {
 
         }
 
-        public UserProfilePageViewModel(User us)
+        public UserProfilePageViewModel(User us, MainWindowViewModel vm)
         {
             user = us;
+            mainw = vm;
         }
 
         public void Initialize()
@@ -38,11 +42,12 @@ namespace Kbtter3.ViewModels
             TextColor = "#" + user.ProfileTextColor;
             Description = user.Description;
             Location = user.Location;
-            Url = user.Url ?? new Uri("",UriKind.RelativeOrAbsolute);
+            Url = user.Url ?? new Uri("", UriKind.RelativeOrAbsolute);
             Statuses = user.StatusesCount;
             Favorites = user.FavouritesCount;
             Friends = user.FriendsCount;
             Followers = user.FollowersCount;
+
         }
 
 
@@ -198,7 +203,7 @@ namespace Kbtter3.ViewModels
             get
             { return _Statuses; }
             set
-            { 
+            {
                 if (_Statuses == value)
                     return;
                 _Statuses = value;
@@ -216,7 +221,7 @@ namespace Kbtter3.ViewModels
             get
             { return _Favorites; }
             set
-            { 
+            {
                 if (_Favorites == value)
                     return;
                 _Favorites = value;
@@ -234,7 +239,7 @@ namespace Kbtter3.ViewModels
             get
             { return _Friends; }
             set
-            { 
+            {
                 if (_Friends == value)
                     return;
                 _Friends = value;
@@ -252,7 +257,7 @@ namespace Kbtter3.ViewModels
             get
             { return _Followers; }
             set
-            { 
+            {
                 if (_Followers == value)
                     return;
                 _Followers = value;
@@ -261,6 +266,328 @@ namespace Kbtter3.ViewModels
         }
         #endregion
 
+
+        #region ShowingStatuses変更通知プロパティ
+        private ObservableCollection<StatusViewModel> _ShowingStatuses = new ObservableCollection<StatusViewModel>();
+
+        public ObservableCollection<StatusViewModel> ShowingStatuses
+        {
+            get
+            { return _ShowingStatuses; }
+            set
+            {
+                if (_ShowingStatuses == value)
+                    return;
+                _ShowingStatuses = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ShowOlderStatusesCommand
+        private ViewModelCommand _ShowOlderStatusesCommand;
+        long stoc = 0;
+
+        public ViewModelCommand ShowOlderStatusesCommand
+        {
+            get
+            {
+                if (_ShowOlderStatusesCommand == null)
+                {
+                    _ShowOlderStatusesCommand = new ViewModelCommand(ShowOlderStatuses, CanShowOlderStatuses);
+                }
+                return _ShowOlderStatusesCommand;
+            }
+        }
+
+        public bool CanShowOlderStatuses()
+        {
+            return stoc != 0;
+        }
+
+        public async void ShowOlderStatuses()
+        {
+            ShowingStatuses.Clear();
+            try
+            {
+                var s = await kbtter.Token.Statuses.UserTimelineAsync(screen_name => user.ScreenName, count => showst, max_id => stoc);
+                stoc = s.Last().Id;
+                stnc = s.First().Id;
+                ShowOlderStatusesCommand.RaiseCanExecuteChanged();
+                ShowNewerStatusesCommand.RaiseCanExecuteChanged();
+                foreach (var i in s)
+                {
+                    ShowingStatuses.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
+                }
+            }
+            catch
+            {
+            }
+        }
+        #endregion
+
+
+        #region ShowNewerStatusesCommand
+        private ViewModelCommand _ShowNewerStatusesCommand;
+        long stnc = 0;
+
+        public ViewModelCommand ShowNewerStatusesCommand
+        {
+            get
+            {
+                if (_ShowNewerStatusesCommand == null)
+                {
+                    _ShowNewerStatusesCommand = new ViewModelCommand(ShowNewerStatuses, CanShowNewerStatuses);
+                }
+                return _ShowNewerStatusesCommand;
+            }
+        }
+
+        public bool CanShowNewerStatuses()
+        {
+            return stnc != 0;
+        }
+
+        public async void ShowNewerStatuses()
+        {
+            ShowingStatuses.Clear();
+            try
+            {
+                var s = await kbtter.Token.Statuses.UserTimelineAsync(screen_name => user.ScreenName, count => showst, since_id => stnc);
+                stoc = s.Last().Id;
+                stnc = s.First().Id;
+                ShowOlderStatusesCommand.RaiseCanExecuteChanged();
+                ShowNewerStatusesCommand.RaiseCanExecuteChanged();
+                foreach (var i in s)
+                {
+                    ShowingStatuses.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
+                }
+            }
+            catch
+            {
+            }
+        }
+        #endregion
+
+
+        #region RefreshStatusesCommand
+        private ViewModelCommand _RefreshStatusesCommand;
+        long showst = 20;
+
+        public ViewModelCommand RefreshStatusesCommand
+        {
+            get
+            {
+                if (_RefreshStatusesCommand == null)
+                {
+                    _RefreshStatusesCommand = new ViewModelCommand(RefreshStatuses);
+                }
+                return _RefreshStatusesCommand;
+            }
+        }
+
+        public async void RefreshStatuses()
+        {
+            ShowingStatuses.Clear();
+            try
+            {
+                var s = await kbtter.Token.Statuses.UserTimelineAsync(screen_name => user.ScreenName, count => showst);
+                stoc = s.Last().Id;
+                stnc = s.First().Id;
+                ShowOlderStatusesCommand.RaiseCanExecuteChanged();
+                ShowNewerStatusesCommand.RaiseCanExecuteChanged();
+                foreach (var i in s)
+                {
+                    ShowingStatuses.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
+                }
+            }
+            catch
+            {
+                stoc = 0;
+                stnc = 0;
+            }
+        }
+        #endregion
+
+
+        #region ShowingFavorites変更通知プロパティ
+        private ObservableCollection<StatusViewModel> _ShowingFavorites = new ObservableCollection<StatusViewModel>();
+
+        public ObservableCollection<StatusViewModel> ShowingFavorites
+        {
+            get
+            { return _ShowingFavorites; }
+            set
+            {
+                if (_ShowingFavorites == value)
+                    return;
+                _ShowingFavorites = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ShowOlderFavoritesCommand
+        private ViewModelCommand _ShowOlderFavoritesCommand;
+        long favoc = 0;
+
+        public ViewModelCommand ShowOlderFavoritesCommand
+        {
+            get
+            {
+                if (_ShowOlderFavoritesCommand == null)
+                {
+                    _ShowOlderFavoritesCommand = new ViewModelCommand(ShowOlderFavorites, CanShowOlderFavorites);
+                }
+                return _ShowOlderFavoritesCommand;
+            }
+        }
+
+        public bool CanShowOlderFavorites()
+        {
+            return favoc != 0;
+        }
+
+        public async void ShowOlderFavorites()
+        {
+            ShowingFavorites.Clear();
+            try
+            {
+                var s = await kbtter.Token.Favorites.ListAsync(screen_name => user.ScreenName, count => showst, since_id => favoc);
+                favoc = s.Last().Id;
+                favnc = s.First().Id;
+                ShowOlderFavoritesCommand.RaiseCanExecuteChanged();
+                ShowNewerFavoritesCommand.RaiseCanExecuteChanged();
+                foreach (var i in s)
+                {
+                    ShowingFavorites.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
+                }
+            }
+            catch
+            {
+            }
+        }
+        #endregion
+
+
+        #region ShowNewerFavoritesCommand
+        private ViewModelCommand _ShowNewerFavoritesCommand;
+        long favnc = 0;
+
+        public ViewModelCommand ShowNewerFavoritesCommand
+        {
+            get
+            {
+                if (_ShowNewerFavoritesCommand == null)
+                {
+                    _ShowNewerFavoritesCommand = new ViewModelCommand(ShowNewerFavorites, CanShowNewerFavorites);
+                }
+                return _ShowNewerFavoritesCommand;
+            }
+        }
+
+        public bool CanShowNewerFavorites()
+        {
+            return favoc != 0;
+        }
+
+        public async void ShowNewerFavorites()
+        {
+            ShowingFavorites.Clear();
+            try
+            {
+                var s = await kbtter.Token.Favorites.ListAsync(screen_name => user.ScreenName, count => showst, max_id => favnc);
+                favoc = s.Last().Id;
+                favnc = s.First().Id;
+                ShowOlderFavoritesCommand.RaiseCanExecuteChanged();
+                ShowNewerFavoritesCommand.RaiseCanExecuteChanged();
+                foreach (var i in s)
+                {
+                    ShowingFavorites.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
+                }
+            }
+            catch
+            {
+            }
+        }
+        #endregion
+
+
+        #region RefreshFavoritesCommand
+        private ViewModelCommand _RefreshFavoritesCommand;
+
+        public ViewModelCommand RefreshFavoritesCommand
+        {
+            get
+            {
+                if (_RefreshFavoritesCommand == null)
+                {
+                    _RefreshFavoritesCommand = new ViewModelCommand(RefreshFavorites);
+                }
+                return _RefreshFavoritesCommand;
+            }
+        }
+
+        public async void RefreshFavorites()
+        {
+            ShowingFavorites.Clear();
+            try
+            {
+                var s = await kbtter.Token.Favorites.ListAsync(screen_name => user.ScreenName, count => showst);
+                stoc = s.Last().Id;
+                stnc = s.First().Id;
+                ShowOlderFavoritesCommand.RaiseCanExecuteChanged();
+                ShowNewerFavoritesCommand.RaiseCanExecuteChanged();
+                foreach (var i in s)
+                {
+                    ShowingFavorites.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
+                }
+            }
+            catch
+            {
+                stoc = 0;
+                stnc = 0;
+            }
+        }
+        #endregion
+
+
+        #region ShowingFriends変更通知プロパティ
+        private ObservableCollection<User> _ShowingFriends = new ObservableCollection<User>();
+
+        public ObservableCollection<User> ShowingFriends
+        {
+            get
+            { return _ShowingFriends; }
+            set
+            {
+                if (_ShowingFriends == value)
+                    return;
+                _ShowingFriends = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region ShowingFollowers変更通知プロパティ
+        private ObservableCollection<User> _ShowingFollowers = new ObservableCollection<User>();
+
+        public ObservableCollection<User> ShowingFollowers
+        {
+            get
+            { return _ShowingFollowers; }
+            set
+            {
+                if (_ShowingFollowers == value)
+                    return;
+                _ShowingFollowers = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
     }
 }

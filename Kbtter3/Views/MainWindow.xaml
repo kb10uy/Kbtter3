@@ -90,7 +90,7 @@
                     <MenuItem Name="MenuCSharpBeam" Header="C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww" Command="{Binding FireCSharpBeamCommand}"/>
                     <Separator/>
                     <MenuItem Name="MenuGCCollect" Header="ガベージコレクションを実行する" Command="{Binding GCCollectCommand}"/>
-                    <MenuItem Name="MenuSetting" Header="設定"/>
+                    <MenuItem Name="MenuSetting" Header="設定" Click="MenuSetting_Click"/>
                     <MenuItem Name="MenuExit" Header="終了" Command="{Binding ApplicationExitCommand}"/>
                 </MenuItem>
             </Menu>

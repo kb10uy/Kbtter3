@@ -26,9 +26,13 @@
     </LinearGradientBrush>
     <SolidColorBrush x:Key="Kbtter3RetweetBackColor" Color="#669FFF72"/>
     <SolidColorBrush x:Key="Kbtter3ReplyBackColor" Color="#66FFBC5A"/>
-    <SolidColorBrush x:Key="Kbtter3AchievementColor" Color="#66FFF74B"/>
     <SolidColorBrush x:Key="Kbtter3ErrorColor" Color="#66FF6161"/>
-
+    
+    <SolidColorBrush x:Key="Kbtter3GeneralRed" Color="#20FF4466"/>
+    <SolidColorBrush x:Key="Kbtter3GeneralGreen" Color="#2066FF66"/>
+    <SolidColorBrush x:Key="Kbtter3GeneralBlue" Color="#206666FF"/>
+    <SolidColorBrush x:Key="Kbtter3GeneralYellow" Color="#20FFF74B"/>
+    
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     <v:UriToBitmapImageConverter x:Key="UriToBitmapImageConverter"/>
     <v:Int32ToShortenNumberStringConverter x:Key="Int32ToShortenNumberStringConverter"/>
@@ -36,6 +40,7 @@
     <v:DoubleTwitterUserImageHeightConverter x:Key="UserImageHeightConverter"/>
     <v:InvertedVisibilityConverter x:Key="InvertedVisibilityConverter"/>
     <v:UriToStringConverter x:Key="UriToStringConverter"/>
+
 
     <ControlTemplate x:Key="SelectBorderListBoxItem" TargetType="ListBoxItem">
         <Border Name="Border"
@@ -209,5 +214,125 @@
             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Border>
     </ControlTemplate>
+
+
+    <DataTemplate x:Key="StatusEmbeddedViewTemplate" DataType="{x:Type vm:StatusViewModel}">
+        <Grid HorizontalAlignment="Stretch">
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="削除" IsEnabled="{Binding IsMyStatus}" Command="{Binding DeleteStatusCommand}"/>
+                    <MenuItem Header="お気に入り" IsCheckable="True" IsChecked="{Binding IsFavorited,Mode=TwoWay}"/>
+                    <MenuItem Header="リツイート" IsEnabled="{Binding IsOthersStatus}" IsCheckable="True" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"/>
+                    <Separator/>
+                    <MenuItem Header="返信" Command="{Binding ReplyToCommand}"/>
+                    <MenuItem Header="異議あり！">
+                        <MenuItem Command="{Binding WhatDoYouSayCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock>なーにが</TextBlock>
+                                    <TextBlock Text="{Binding Text}"/>
+                                    <TextBlock>じゃ</TextBlock>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem Command="{Binding WhatAreYouMeaningCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock>だーれが</TextBlock>
+                                    <TextBlock Text="{Binding Text}"/>
+                                    <TextBlock>じゃ</TextBlock>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
+                </ContextMenu>
+            </Grid.ContextMenu>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Image Name="ImageReply" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" 
+               Margin="4,16,0,0" Grid.RowSpan="2" Width="16" Height="16"
+               Source="/Kbtter3;component/Resources/reply.png" Panel.ZIndex="2"
+               Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <Grid Grid.Row="1" Panel.ZIndex="-10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="52"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Rectangle Panel.ZIndex="-100" Grid.ColumnSpan="2" Grid.RowSpan="2" Fill="{StaticResource Kbtter3StatusBackColor}"/>
+                <Rectangle Name="RectangleRetweetBackground" Grid.ColumnSpan="2" Grid.RowSpan="2" 
+                   Fill="{StaticResource Kbtter3RetweetBackColor}" Panel.ZIndex="-100" 
+                   Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Rectangle Name="RectangleReplyToMeBackground" Grid.ColumnSpan="2" Grid.RowSpan="2" 
+                   Fill="{StaticResource Kbtter3ReplyBackColor}" Panel.ZIndex="-100" 
+                   Visibility="{Binding IsReplyToMe, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <StackPanel Grid.Column="0" Grid.Row="0">
+                    <Image Name="ImageUserIcon" Margin="4" Height="36" Width="36"
+                       Source="{Binding UserProfileImageUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
+                    <StackPanel Margin="4" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <ToggleButton Name="ButtonFavorite" Margin="2"
+                                      Template="{StaticResource FavoriteToggleButton}" IsChecked="{Binding IsFavorited,Mode=TwoWay}"
+                                      Height="16" Width="16"/>
+                            <TextBlock Name="TextBlockFavoriteCount" FontSize="9" VerticalAlignment="Center" Text="{Binding FavoriteCount,Converter={StaticResource Int32ToShortenNumberStringConverter}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsOthersStatus,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ToggleButton Name="ButtonRetweet" Margin="2"
+                                      Template="{StaticResource RetweetToggleButton}" IsChecked="{Binding IsRetweeted,Mode=TwoWay}"
+                                      Height="16" Width="16"/>
+                            <TextBlock Name="TextBlockRetweetCount" FontSize="9" VerticalAlignment="Center" Text="{Binding RetweetCount,Converter={StaticResource Int32ToShortenNumberStringConverter}}"/>
+                        </StackPanel>
+                        <Button Name="ButtonDelete" Margin="2"
+                                  Height="16" Width="16" Visibility="{Binding IsMyStatus,Converter={StaticResource BooleanToVisibilityConverter}}"
+                                  Template="{StaticResource DeleteButton}" Command="{Binding DeleteStatusCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+                <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="2,0,0,0" Orientation="Horizontal">
+                        <TextBlock Name="TextBlockUserName" FontSize="15" FontWeight="Bold" Text="{Binding UserName}"/>
+                        <TextBlock Margin="8,0,0,0" TextAlignment="Center" VerticalAlignment="Center" FontStyle="Italic">
+                    <TextBlock Name="TextBlockScreenName">
+                        @<TextBlock Text="{Binding ScreenName}"/>
+                    </TextBlock>
+                </TextBlock>
+                    </StackPanel>
+
+                    <TextBlock Name="TextBlockMainText" Margin="2,0,0,4" Grid.Row="1" FontSize="14" TextWrapping="Wrap" Text="{Binding Text}"/>
+                    <StackPanel Orientation="Horizontal" Grid.Row="2" >
+                        <TextBlock Foreground="Gray" Margin="0,0,16,0" Text="{Binding CreatedTimeText}"/>
+                        <StackPanel Orientation="Horizontal" Name="StackPanelBlockVia">
+                            <TextBlock Foreground="Gray" Margin="0,0,4,0">via</TextBlock>
+                            <TextBlock>
+                                <TextBlock  Margin="0,0,0,0" Text="{Binding Via}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="3" Visibility="{Binding IsRetweet, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Foreground="Gray" Margin="0,0,4,0">
+                    Retweeted by
+                        </TextBlock>
+                        <TextBlock Name="TextBlockRetweetedBy" Foreground="Gray" Margin="0,0,0,0" Text="{Binding RetweetUserName}"/>
+                    </StackPanel>
+
+                </Grid>
+            </Grid>
+        </Grid>
+    </DataTemplate>
+
 
 </ResourceDictionary>

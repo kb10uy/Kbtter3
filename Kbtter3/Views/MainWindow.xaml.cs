@@ -216,7 +216,7 @@ namespace Kbtter3.Views
                     var upvm = await vm.GetUserProfile(info);
                     //ここは取得するようにしたほうがいいかなーとか
                     if (upvm == null) return;
-                    AddTab(new TextBlock { Text = String.Format("{0}さんの情報", info) }, 
+                    AddTab(new TextBlock { Text = String.Format("{0}さんの情報", info) },
                            new Frame { Content = new UserProfilePage(this, upvm) });
                     break;
                 case "Hashtag":
@@ -248,6 +248,12 @@ namespace Kbtter3.Views
             WindowEvent("Global", type + "-" + typeval, null);
         }
         #endregion
+
+        private void MenuSetting_Click(object sender, RoutedEventArgs e)
+        {
+            AddTab(new TextBlock { Text = "設定" },
+                           new Frame { Content = new SettingPage(), NavigationUIVisibility = NavigationUIVisibility.Hidden });
+        }
 
     }
 

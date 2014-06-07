@@ -93,7 +93,7 @@ namespace Kbtter3.ViewModels
             {
                 return null;
             }
-            return new UserProfilePageViewModel(t);
+            return new UserProfilePageViewModel(t,this);
         }
 
 

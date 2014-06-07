@@ -139,7 +139,7 @@
     <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
     <Compile Include="ViewModels\InternalBrowserViewModel.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
-    <Compile Include="ViewModels\SettingViewModel.cs" />
+    <Compile Include="ViewModels\SettingPageViewModel.cs" />
     <Compile Include="ViewModels\UserProfilePageViewModel.cs" />
     <Compile Include="Views\AccountSelectWindow.xaml.cs">
       <DependentUpon>AccountSelectWindow.xaml</DependentUpon>
@@ -153,6 +153,21 @@
     </Compile>
     <Compile Include="Views\NotificationPage.xaml.cs">
       <DependentUpon>NotificationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingPage.xaml.cs">
+      <DependentUpon>SettingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Setting\Kbtter3\ConsumerPage.xaml.cs">
+      <DependentUpon>ConsumerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Setting\View\UserProfilePagePage.xaml.cs">
+      <DependentUpon>UserProfilePagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Setting\View\StatusPagePage.xaml.cs">
+      <DependentUpon>StatusPagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Setting\View\MainWindowPage.xaml.cs">
+      <DependentUpon>MainWindowPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\StatusMediaProvider.cs" />
     <Compile Include="Views\StatusPage.xaml.cs">
@@ -207,6 +222,42 @@
     <Page Include="Views\NotificationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SettingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Setting\DesignData\Consumer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Setting\DesignData\StatusPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Setting\DesignData\UserProfilePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Setting\DesignData\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Setting\Kbtter3\ConsumerPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Setting\View\UserProfilePagePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Setting\View\StatusPagePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Setting\View\MainWindowPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\StatusPage.xaml">
       <SubType>Designer</SubType>
@@ -277,9 +328,7 @@
     <Resource Include="Resources\rtno.png" />
     <Resource Include="Libraries\CoreTweet.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Setting\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
