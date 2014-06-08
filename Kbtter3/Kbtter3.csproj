@@ -137,6 +137,8 @@
     <Compile Include="Models\Caching\CacheModels.cs" />
     <Compile Include="Models\Plugin\Kbtter3PluginProvider.cs" />
     <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
+    <Compile Include="ViewModels\DirectMessageItemViewModel.cs" />
+    <Compile Include="ViewModels\DirectMessageViewModel.cs" />
     <Compile Include="ViewModels\InternalBrowserViewModel.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
     <Compile Include="ViewModels\SettingPageViewModel.cs" />

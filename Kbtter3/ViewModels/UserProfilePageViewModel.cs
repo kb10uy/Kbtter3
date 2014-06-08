@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 using Livet;
 using Livet.Commands;
@@ -22,6 +23,7 @@ namespace Kbtter3.ViewModels
         User user;
         MainWindowViewModel mainw;
         Kbtter kbtter = Kbtter.Instance;
+        RelationShipResponse fs;
         public UserProfilePageViewModel()
         {
 
@@ -33,7 +35,7 @@ namespace Kbtter3.ViewModels
             mainw = vm;
         }
 
-        public void Initialize()
+        public async void Initialize()
         {
             BannerImageUri = user.ProfileBannerUrl;
             UserImageUri = user.ProfileImageUrlHttps;
@@ -47,7 +49,14 @@ namespace Kbtter3.ViewModels
             Favorites = user.FavouritesCount;
             Friends = user.FriendsCount;
             Followers = user.FollowersCount;
-
+            IsProtected = user.IsProtected;
+            IsNotMe = kbtter.AuthenticatedUser.Id != user.Id;
+            fs = await kbtter.Token.Friendships.ShowAsync(source_id => kbtter.AuthenticatedUser.Id, target_id => user.Id);
+            IsMyFollower = fs.Target.IsFollowing ?? false;
+            IsMyFriend = fs.Target.IsFollowedBy ?? false;
+            IsBlocking = fs.Target.IsBlocking ?? false;
+            IsBlocked = fs.Source.IsBlocking ?? false;
+            IsFollowable = !IsBlocked;
         }
 
 
@@ -584,6 +593,271 @@ namespace Kbtter3.ViewModels
                 if (_ShowingFollowers == value)
                     return;
                 _ShowingFollowers = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsMyFriend変更通知プロパティ
+        private bool _IsMyFriend;
+
+        public bool IsMyFriend
+        {
+            get
+            { return _IsMyFriend; }
+            set
+            {
+                if (_IsMyFriend == value)
+                    return;
+                if (value)
+                {
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            kbtter.Token.Friendships.Create(screen_name => user.ScreenName);
+                            _IsMyFriend = value;
+                            RaisePropertyChanged();
+                            FriendStateText = "フォローしています";
+                        }
+                        catch (TwitterException e)
+                        {
+                            Messenger.Raise(new InformationMessage(e.Message, "フォローできませんでした", "Information"));
+                        }
+                    });
+                }
+                else
+                {
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            kbtter.Token.Friendships.Destroy(screen_name => user.ScreenName);
+                            _IsMyFriend = value;
+                            RaisePropertyChanged();
+                        }
+                        finally
+                        {
+                            FriendStateText = "フォローしていません";
+                        }
+                    });
+                }
+            }
+        }
+        #endregion
+
+
+        #region IsMyFollower変更通知プロパティ
+        private bool _IsMyFollower;
+
+        public bool IsMyFollower
+        {
+            get
+            { return _IsMyFollower; }
+            set
+            {
+                if (_IsMyFollower == value)
+                    return;
+                _IsMyFollower = value;
+                RaisePropertyChanged(() => FollowerStateText);
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsBlocking変更通知プロパティ
+        private bool _IsBlocking;
+
+        public bool IsBlocking
+        {
+            get
+            { return _IsBlocking; }
+            set
+            {
+                if (_IsBlocking == value)
+                    return;
+                if (value)
+                {
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            kbtter.Token.Blocks.Create(screen_name => user.ScreenName);
+                            _IsBlocking = value;
+                            RaisePropertyChanged();
+                            BlockingStateText = "ブロックしています";
+                        }
+                        catch
+                        {
+
+                        }
+                    });
+                }
+                else
+                {
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            kbtter.Token.Blocks.Destroy(screen_name => user.ScreenName);
+                            _IsBlocking = value;
+                            RaisePropertyChanged();
+                        }
+                        finally
+                        {
+                            BlockingStateText = "ブロックしていません";
+                        }
+                    });
+                }
+            }
+        }
+        #endregion
+
+
+        #region IsBlocked変更通知プロパティ
+        private bool _IsBlocked;
+
+        public bool IsBlocked
+        {
+            get
+            { return _IsBlocked; }
+            set
+            {
+                if (_IsBlocked == value)
+                    return;
+                _IsBlocked = value;
+                RaisePropertyChanged(() => BlockedStateText);
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsFollowable変更通知プロパティ
+        private bool _IsFollowable;
+
+        public bool IsFollowable
+        {
+            get
+            { return _IsFollowable; }
+            set
+            {
+                if (_IsFollowable == value)
+                    return;
+                _IsFollowable = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region FriendStateText変更通知プロパティ
+        private string _FriendStateText = "フォローしていません";
+
+        public string FriendStateText
+        {
+            get
+            { return _FriendStateText; }
+            set
+            {
+                if (_FriendStateText == value)
+                    return;
+                _FriendStateText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region FollowerStateText変更通知プロパティ
+
+        public string FollowerStateText
+        {
+            get
+            {
+                if (IsMyFollower)
+                {
+                    return "フォローされています";
+                }
+                else
+                {
+                    return "フォローされていません";
+                }
+            }
+        }
+        #endregion
+
+
+        #region BlockingStateText変更通知プロパティ
+        private string _BlockingStateText;
+
+        public string BlockingStateText
+        {
+            get
+            { return _BlockingStateText; }
+            set
+            {
+                if (_BlockingStateText == value)
+                    return;
+                _BlockingStateText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region BlockedStateText変更通知プロパティ
+        private string _BlockedStateText;
+
+        public string BlockedStateText
+        {
+            get
+            {
+                if (IsBlocked)
+                {
+                    return "ブロックされています";
+                }
+                else
+                {
+                    return "ブロックされていません";
+                }
+            }
+        }
+        #endregion
+
+
+        #region IsProtected変更通知プロパティ
+        private bool _IsProtected;
+
+        public bool IsProtected
+        {
+            get
+            { return _IsProtected; }
+            set
+            { 
+                if (_IsProtected == value)
+                    return;
+                _IsProtected = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsNotMe変更通知プロパティ
+        private bool _IsNotMe;
+
+        public bool IsNotMe
+        {
+            get
+            { return _IsNotMe; }
+            set
+            { 
+                if (_IsNotMe == value)
+                    return;
+                _IsNotMe = value;
                 RaisePropertyChanged();
             }
         }

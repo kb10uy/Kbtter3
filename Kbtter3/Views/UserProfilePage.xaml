@@ -14,7 +14,9 @@
         Title="UserProfilePage" d:DesignHeight="600" d:DesignWidth="500"
         Loaded="Page_Loaded">
     <i:Interaction.Triggers>
-
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Information">
+            <l:InformationDialogInteractionMessageAction/>
+        </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>
 
     <Page.Resources>
@@ -77,13 +79,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <StackPanel Grid.RowSpan="4">
+                <StackPanel>
                     <TextBlock TextWrapping="Wrap" Margin="4" FontSize="14" Text="{Binding Description}"/>
                     <StackPanel Orientation="Horizontal" Margin="4">
                         <TextBlock FontSize="14" Margin="0,0,4,0" FontWeight="Bold">場所</TextBlock>
@@ -97,75 +95,94 @@
                             </Hyperlink>
                         </TextBlock>
                     </StackPanel>
+                    <TextBlock Foreground="Red" HorizontalAlignment="Center" FontSize="14" Visibility="{Binding IsProtected,Converter={StaticResource BooleanToVisibilityConverter}}">非公開のアカウントです</TextBlock>
+                    <StackPanel Visibility="{Binding IsNotMe,Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="{Binding FollowerStateText}" TextAlignment="Center" FontSize="18"
+                               Foreground="{StaticResource TwitterColorSecondary}" Margin="4"/>
+                        <ToggleButton IsChecked="{Binding IsMyFriend}" IsEnabled="{Binding IsFollowable}"
+                                   Margin="4" Padding="4">
+                            <ToggleButton.Content>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding BlockedStateText}" Name="TextBlockBlockedText"
+                                           Visibility="{Binding IsBlocked,Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="18"/>
+                                    <TextBlock Text="{Binding FriendStateText}" FontSize="18"
+                                           Visibility="{Binding ElementName=TextBlockBlockedText,Path=Visibility,Converter={StaticResource InvertedVisibilityConverter}}"/>
+                                </StackPanel>
+                            </ToggleButton.Content>
+                        </ToggleButton>
+                    </StackPanel>
                 </StackPanel>
-                <Expander Name="ExpanderTweets" Grid.Row="0" Grid.Column="1"
+                <StackPanel Grid.Column="1">
+                    <Expander Name="ExpanderTweets" Grid.Row="0" Grid.Column="1"
                           Background="{StaticResource Kbtter3GeneralRed}" BorderThickness="0">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal" Margin="4">
-                            <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Statuses}"/>
-                            <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Margin="4">
+                                <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Statuses}"/>
+                                <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
                                 ツイート
-                            </TextBlock>
-                        </StackPanel>
-                    </Expander.Header>
-                    <ScrollViewer CanContentScroll="False">
-                        <StackPanel>
-                            <Button Command="{Binding RefreshStatusesCommand}">最新の状態に更新する</Button>
-                            <Button Command="{Binding ShowNewerStatusesCommand}">新しいツイートを表示</Button>
-                            <ListView ItemsSource="{Binding ShowingStatuses}" ItemTemplate="{StaticResource StatusEmbeddedViewTemplate}" 
+                                </TextBlock>
+                            </StackPanel>
+                        </Expander.Header>
+                        <ScrollViewer CanContentScroll="False">
+                            <StackPanel>
+                                <Button Command="{Binding RefreshStatusesCommand}">最新の状態に更新する</Button>
+                                <Button Command="{Binding ShowNewerStatusesCommand}">新しいツイートを表示</Button>
+                                <ListView ItemsSource="{Binding ShowingStatuses}" ItemTemplate="{StaticResource StatusEmbeddedViewTemplate}" 
                                       HorizontalContentAlignment="Stretch" Background="Transparent" MaxHeight="500"
                                       ScrollViewer.CanContentScroll="False"/>
-                            <Button Command="{Binding ShowOlderStatusesCommand}">昔のツイートを表示</Button>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Expander>
+                                <Button Command="{Binding ShowOlderStatusesCommand}">昔のツイートを表示</Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Expander>
 
-                <Expander Name="ExpanderFavorites" Grid.Row="1" Grid.Column="1"
+                    <Expander Name="ExpanderFavorites" Grid.Row="1" Grid.Column="1"
                           Background="{StaticResource Kbtter3GeneralGreen}" BorderThickness="0">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal" Margin="4">
-                            <TextBlock Name="TextBlockStatuses" FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Favorites}"/>
-                            <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Margin="4">
+                                <TextBlock Name="TextBlockStatuses" FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Favorites}"/>
+                                <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
                                 お気に入り
-                            </TextBlock>
-                        </StackPanel>
-                    </Expander.Header>
-                    <ScrollViewer CanContentScroll="False">
-                        <StackPanel>
-                            <Button Command="{Binding RefreshFavoritesCommand}">最新の状態に更新する</Button>
-                            <Button Command="{Binding ShowNewerFavoritesCommand}">新しいお気に入りを表示</Button>
-                            <ListView ItemsSource="{Binding ShowingFavorites}" ItemTemplate="{StaticResource StatusEmbeddedViewTemplate}" 
+                                </TextBlock>
+                            </StackPanel>
+                        </Expander.Header>
+                        <ScrollViewer CanContentScroll="False">
+                            <StackPanel>
+                                <Button Command="{Binding RefreshFavoritesCommand}">最新の状態に更新する</Button>
+                                <Button Command="{Binding ShowNewerFavoritesCommand}">新しいお気に入りを表示</Button>
+                                <ListView ItemsSource="{Binding ShowingFavorites}" ItemTemplate="{StaticResource StatusEmbeddedViewTemplate}" 
                                       HorizontalContentAlignment="Stretch" Background="Transparent" MaxHeight="500"
                                       ScrollViewer.CanContentScroll="False"/>
-                            <Button Command="{Binding ShowOlderFavoritesCommand}">昔のお気に入りを表示</Button>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Expander>
+                                <Button Command="{Binding ShowOlderFavoritesCommand}">昔のお気に入りを表示</Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Expander>
 
-                <Expander Name="ExpanderFriends" Grid.Row="2" Grid.Column="1" 
+                    <Expander Name="ExpanderFriends" Grid.Row="2" Grid.Column="1" 
                           Background="{StaticResource Kbtter3GeneralBlue}" BorderThickness="0">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Margin="4">
-                            <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Friends}"/>
-                            <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Margin="4">
+                                <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Friends}"/>
+                                <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
                                 フォロー
-                            </TextBlock>
-                        </StackPanel>
-                    </Expander.Header>
+                                </TextBlock>
+                            </StackPanel>
+                        </Expander.Header>
 
-                </Expander>
+                    </Expander>
 
-                <Expander Name="ExpanderFollowers" Grid.Row="3" Grid.Column="1" 
+                    <Expander Name="ExpanderFollowers" Grid.Row="3" Grid.Column="1" 
                           Background="{StaticResource Kbtter3GeneralYellow}" BorderThickness="0">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="4">
-                            <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Followers}"/>
-                            <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="4">
+                                <TextBlock FontSize="24" Foreground="{StaticResource TwitterColorPrimary}" Text="{Binding Followers}"/>
+                                <TextBlock VerticalAlignment="Bottom" FontSize="16" Margin="8,0,0,0">
                                 フォロワー
-                            </TextBlock>
-                        </StackPanel>
-                    </Expander.Header>
-                </Expander>
+                                </TextBlock>
+                            </StackPanel>
+                        </Expander.Header>
+                    </Expander>
+                </StackPanel>
+
             </Grid>
         </Grid>
     </ScrollViewer>

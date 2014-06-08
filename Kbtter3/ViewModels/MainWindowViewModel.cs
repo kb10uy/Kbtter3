@@ -44,6 +44,7 @@ namespace Kbtter3.ViewModels
             listener.Add("AccessTokenRequest", OnAccessTokenRequest);
             listener.Add("Status", OnStatusUpdate);
             listener.Add("Event", OnEvent);
+            listener.Add("DirectMessage", OnDirectMessageUpdate);
             listener.Add("AuthenticatedUser", OnUserProfileUpdate);
         }
 
@@ -86,6 +87,32 @@ namespace Kbtter3.ViewModels
             UserProfileFavorites = kbtter.AuthenticatedUser.FavouritesCount;
         }
 
+        public void OnDirectMessageUpdate(object sender, PropertyChangedEventArgs e)
+        {
+            var dm = kbtter.LatestDirectMessage.DirectMessage;
+            var dml = DirectMessages.FirstOrDefault(p => p.CheckUserPair(dm.Recipient.ScreenName, dm.Sender.ScreenName));
+            if (dml == null)
+            {
+                var nd = new DirectMessageViewModel(this, kbtter.AuthenticatedUser.ScreenName);
+                User tus;
+                if (dm.Recipient.Id == kbtter.AuthenticatedUser.Id)
+                {
+                    tus = dm.Sender;
+                }
+                else
+                {
+                    tus = dm.Recipient;
+                }
+                nd.TargetUserName = tus.Name;
+                nd.TargetUserScreenName = tus.ScreenName;
+                nd.TargetUserImageUri = tus.ProfileImageUrlHttps;
+                DirectMessages.Add(nd);
+                dml = nd;
+            }
+            dml.AddMessage(dm);
+            RaisePropertyChanged("DirectMessage");
+        }
+
         public async Task<UserProfilePageViewModel> GetUserProfile(string sn)
         {
             var t = await kbtter.GetUser(sn);
@@ -93,7 +120,7 @@ namespace Kbtter3.ViewModels
             {
                 return null;
             }
-            return new UserProfilePageViewModel(t,this);
+            return new UserProfilePageViewModel(t, this);
         }
 
 
@@ -281,7 +308,6 @@ namespace Kbtter3.ViewModels
                 await kbtter.Token.Statuses.UpdateAsync(opt);
             }
 
-
             _tokenus = false;
             UpdateStatusCommand.RaiseCanExecuteChanged();
             UpdateStatusText = "";
@@ -402,6 +428,19 @@ namespace Kbtter3.ViewModels
                 RaisePropertyChanged(() => HasMedia);
                 RemoveMediaCommand.RaiseCanExecuteChanged();
             });
+        }
+
+        public async void AddMediaDirect(string filepath)
+        {
+            await Task.Run(() =>
+            {
+                if (string.IsNullOrEmpty(filepath)) return;
+                Media = File.Open(filepath, FileMode.Open);
+                MediaPath = filepath;
+                RaisePropertyChanged(() => HasMedia);
+                RemoveMediaCommand.RaiseCanExecuteChanged();
+            });
+
         }
         #endregion
 
@@ -749,6 +788,253 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
+        #region DirectMessages変更通知プロパティ
+        private ConcurrentObservableCollection<DirectMessageViewModel> _DirectMessages = new ConcurrentObservableCollection<DirectMessageViewModel>();
+
+        public ConcurrentObservableCollection<DirectMessageViewModel> DirectMessages
+        {
+            get
+            { return _DirectMessages; }
+            set
+            {
+                if (_DirectMessages == value)
+                    return;
+                _DirectMessages = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region SendingDirectMessageTarget変更通知プロパティ
+        private DirectMessageViewModel _SendingDirectMessageTarget = new DirectMessageViewModel();
+
+        public DirectMessageViewModel SendingDirectMessageTarget
+        {
+            get
+            { return _SendingDirectMessageTarget; }
+            set
+            {
+                if (_SendingDirectMessageTarget == value)
+                    return;
+                _SendingDirectMessageTarget = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region IsDMTextNoInput変更通知プロパティ
+        private bool _IsDMTextNoInput;
+
+        public bool IsDMTextNoInput
+        {
+            get
+            { return _IsDMTextNoInput; }
+            set
+            {
+                if (_IsDMTextNoInput == value)
+                    return;
+                _IsDMTextNoInput = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region DirectMessageText変更通知プロパティ
+        private string _DirectMessageText = "";
+
+        public string DirectMessageText
+        {
+            get
+            { return _DirectMessageText; }
+            set
+            {
+                if (_DirectMessageText == value)
+                    return;
+                IsDMTextNoInput = value == "";
+                RaisePropertyChanged(() => DirectMessageTextLength);
+                SendDirectMessageCommand.RaiseCanExecuteChanged();
+                _DirectMessageText = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region DirectMessageTextLength変更通知プロパティ
+
+        public int DirectMessageTextLength
+        {
+            get
+            { return 140 - DirectMessageText.Length; }
+        }
+        #endregion
+
+
+        #region SendDirectMessageCommand
+        private ViewModelCommand _SendDirectMessageCommand;
+        bool _tokensd = false;
+
+        public ViewModelCommand SendDirectMessageCommand
+        {
+            get
+            {
+                if (_SendDirectMessageCommand == null)
+                {
+                    _SendDirectMessageCommand = new ViewModelCommand(SendDirectMessage, CanSendDirectMessage);
+                }
+                return _SendDirectMessageCommand;
+            }
+        }
+
+        public bool CanSendDirectMessage()
+        {
+            return !_tokensd && 0 < DirectMessageTextLength && DirectMessageTextLength < 140;
+        }
+
+        public async void SendDirectMessage()
+        {
+            _tokenus = true;
+            try
+            {
+                Dictionary<string, object> opt = new Dictionary<string, object>();
+                opt["text"] = DirectMessageText;
+                opt["screen_name"] = SendingDirectMessageTarget.TargetUserScreenName;
+                await kbtter.Token.DirectMessages.NewAsync(opt);
+            }
+            catch
+            {
+
+            }
+            _tokenus = false;
+            DirectMessageText = "";
+        }
+        #endregion
+
+
+        #region NewDirectMessageTargetScreenName変更通知プロパティ
+        private string _NewDirectMessageTargetScreenName = "";
+
+        public string NewDirectMessageTargetScreenName
+        {
+            get
+            { return _NewDirectMessageTargetScreenName; }
+            set
+            {
+                if (_NewDirectMessageTargetScreenName == value)
+                    return;
+                _NewDirectMessageTargetScreenName = value;
+                AddDirectMessageTargetCommand.RaiseCanExecuteChanged();
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region AddDirectMessageTargetCommand
+        private ViewModelCommand _AddDirectMessageTargetCommand;
+
+        public ViewModelCommand AddDirectMessageTargetCommand
+        {
+            get
+            {
+                if (_AddDirectMessageTargetCommand == null)
+                {
+                    _AddDirectMessageTargetCommand = new ViewModelCommand(AddDirectMessageTarget, CanAddDirectMessageTarget);
+                }
+                return _AddDirectMessageTargetCommand;
+            }
+        }
+
+        public bool CanAddDirectMessageTarget()
+        {
+            return NewDirectMessageTargetScreenName != "";
+        }
+
+        public async void AddDirectMessageTarget()
+        {
+            try
+            {
+                var fs = await kbtter.Token.Friendships.ShowAsync(source_id => kbtter.AuthenticatedUser.ScreenName, target_screen_name => NewDirectMessageTargetScreenName);
+                if (!fs.Target.CanDM ?? false)
+                {
+                    Messenger.Raise(new InformationMessage("そのユーザーにはDMを送れません", "DM送信不可", "Information"));
+                    return;
+                }
+                else
+                {
+                    var user = await kbtter.Token.Users.ShowAsync(screen_name => NewDirectMessageTargetScreenName);
+                    var dmvm = new DirectMessageViewModel(this, kbtter.AuthenticatedUser.ScreenName);
+                    dmvm.TargetUserName = user.Name;
+                    dmvm.TargetUserScreenName = user.ScreenName;
+                    dmvm.TargetUserImageUri = user.ProfileImageUrlHttps;
+                    DirectMessages.Add(dmvm);
+                }
+            }
+            catch
+            {
+                Messenger.Raise(new InformationMessage("そういうユーザーはたぶん存在しないかAPI制限に引っかかりました", "ユーザー情報取得失敗", "Information"));
+            }
+        }
+        #endregion
+
+
+        #region ReconnectStreamingCommand
+        private ViewModelCommand _ReconnectStreamingCommand;
+
+        public ViewModelCommand ReconnectStreamingCommand
+        {
+            get
+            {
+                if (_ReconnectStreamingCommand == null)
+                {
+                    _ReconnectStreamingCommand = new ViewModelCommand(ReconnectStreaming);
+                }
+                return _ReconnectStreamingCommand;
+            }
+        }
+
+        public void ReconnectStreaming()
+        {
+            kbtter.RestartStreaming();
+            strstop = false;
+            StopStreamingCommand.RaiseCanExecuteChanged();
+        }
+        #endregion
+
+
+        #region StopStreamingCommand
+        private ViewModelCommand _StopStreamingCommand;
+        bool strstop = false;
+
+        public ViewModelCommand StopStreamingCommand
+        {
+            get
+            {
+                if (_StopStreamingCommand == null)
+                {
+                    _StopStreamingCommand = new ViewModelCommand(StopStreaming, CanStopStreaming);
+                }
+                return _StopStreamingCommand;
+            }
+        }
+
+        public bool CanStopStreaming()
+        {
+            return !strstop;
+        }
+
+        public void StopStreaming()
+        {
+            kbtter.StopStreaming();
+            strstop = true;
+            StopStreamingCommand.RaiseCanExecuteChanged();
+        }
+        #endregion
+
+
         #region エラー
         public string Error
         {
@@ -771,5 +1057,24 @@ namespace Kbtter3.ViewModels
 
     internal delegate void StatusUpdateEventHandler(object sender, StatusViewModel vm);
     internal delegate void EventUpdateEventHandler(object sender, NotificationViewModel vm);
+
+    internal sealed class GenericEqualityComparer<T> : IEqualityComparer<T>
+    {
+        Func<T, T, bool> pred;
+
+        public GenericEqualityComparer(Func<T, T, bool> pr)
+        {
+            pred = pr;
+        }
+        public bool Equals(T x, T y)
+        {
+            return pred(x, y);
+        }
+
+        public int GetHashCode(T obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
 
 }

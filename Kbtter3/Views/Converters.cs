@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.ComponentModel;
 using System.Net;
 using Livet;
+using System.Globalization;
 
 namespace Kbtter3.Views
 {
@@ -37,15 +38,23 @@ namespace Kbtter3.Views
                 {
                     using (var wc = new WebClient())
                     {
-                        var bs = wc.DownloadData(u);
-                        using (var ms = new MemoryStream(bs))
+                        try
                         {
-                            b.BeginInit();
-                            b.CacheOption = BitmapCacheOption.OnLoad;
-                            b.CreateOptions = BitmapCreateOptions.None;
-                            b.StreamSource = ms;
-                            b.EndInit();
-                            if (b.CanFreeze) b.Freeze();
+                            var bs = wc.DownloadData(u);
+                            using (var ms = new MemoryStream(bs))
+                            {
+                                b.BeginInit();
+                                b.CacheOption = BitmapCacheOption.OnLoad;
+                                b.CreateOptions = BitmapCreateOptions.None;
+                                b.StreamSource = ms;
+                                b.EndInit();
+                                if (b.CanFreeze) b.Freeze();
+                            }
+                        }
+                        catch
+                        {
+                            b.Freeze();
+                            return b;
                         }
                         return b;
                     }
@@ -195,6 +204,27 @@ namespace Kbtter3.Views
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    internal sealed class BooleanToHorizontalAlignmentConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var b = (bool)value;
+            if (b)
+            {
+                return HorizontalAlignment.Right;
+            }
+            else
+            {
+                return HorizontalAlignment.Left;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

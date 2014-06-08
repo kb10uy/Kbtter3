@@ -392,7 +392,7 @@ namespace Kbtter3.ViewModels
 
 
         #region UserName変更通知プロパティ
-        private string _UserName="UserName";
+        private string _UserName = "UserName";
 
         public string UserName
         {
@@ -410,7 +410,7 @@ namespace Kbtter3.ViewModels
 
 
         #region ScreenName変更通知プロパティ
-        private string _ScreenName="screen_name";
+        private string _ScreenName = "screen_name";
 
         public string ScreenName
         {
@@ -428,7 +428,7 @@ namespace Kbtter3.ViewModels
 
 
         #region Text変更通知プロパティ
-        private string _Text="Text";
+        private string _Text = "Text";
 
         public string Text
         {
@@ -453,7 +453,7 @@ namespace Kbtter3.ViewModels
             get
             { return _DecodedText; }
             set
-            { 
+            {
                 if (_DecodedText == value)
                     return;
                 _DecodedText = value;
@@ -582,7 +582,7 @@ namespace Kbtter3.ViewModels
             get
             { return _IsOthersRetweet; }
             set
-            { 
+            {
                 if (_IsOthersRetweet == value)
                     return;
                 _IsOthersRetweet = value;
@@ -662,7 +662,7 @@ namespace Kbtter3.ViewModels
             ret.ScreenName = st.User.ScreenName;
             ret.Text = st.Text;
             ret.UserProfileImageUri = st.User.ProfileImageUrlHttps;
-            ret.RetweetCount = st.RetweetCount;
+            ret.RetweetCount = st.RetweetCount ?? 0;
             ret.IsFavorited = (st.IsFavorited ?? false) || Kbtter.Instance.IsFavoritedInCache(st);
             ret.IsRetweeted = (st.IsRetweeted ?? false) || (ret.status.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.status));
             ret.FavoriteCount = st.FavoriteCount ?? 0;

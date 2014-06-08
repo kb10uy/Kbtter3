@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,7 +16,7 @@ using System.Windows.Shapes;
 using System.ComponentModel;
 using System.Diagnostics;
 using Newtonsoft.Json;
-
+using IOPath = System.IO.Path;
 using Kbtter3.ViewModels;
 using Kbtter3.Views.Control;
 
@@ -30,7 +31,7 @@ namespace Kbtter3.Views
     /// </summary>
     internal partial class MainWindow : Window
     {
-        public static readonly string ConfigFileName = "config/mainwindow.json";
+        public static readonly string ClipboardImageSavingFolderName = "clipimage";
         LivetCompositeDisposable composite;
         PropertyChangedWeakEventListener ctxlistener;
         Kbtter3Setting setting;
@@ -248,6 +249,37 @@ namespace Kbtter3.Views
             WindowEvent("Global", type + "-" + typeval, null);
         }
         #endregion
+
+        private void ButtonSendClipImage_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (!Clipboard.ContainsImage()) return;
+            var b = Clipboard.GetImage();
+            b.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                var enc = new PngBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(b));
+                if (!Directory.Exists(ClipboardImageSavingFolderName)) Directory.CreateDirectory(ClipboardImageSavingFolderName);
+                var sdt = DateTime.Now;
+
+                var fn = IOPath.Combine(IOPath.GetFullPath(ClipboardImageSavingFolderName),
+                    String.Format("cbimg_{0:D4}-{1:D2}-{2:D2}_{3:D2}-{4:D2}-{5:D2}.png",
+                                    sdt.Year,
+                                    sdt.Month,
+                                    sdt.Day,
+                                    sdt.Hour,
+                                    sdt.Minute,
+                                    sdt.Second
+                    ));
+
+                using (var fs = new FileStream(fn, FileMode.Create))
+                {
+                    enc.Save(fs);
+                }
+                vm.AddMediaDirect(fn);
+                ExpanderNewTweet.IsExpanded = true;
+            }));
+        }
 
         private void MenuSetting_Click(object sender, RoutedEventArgs e)
         {

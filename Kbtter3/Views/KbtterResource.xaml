@@ -41,6 +41,7 @@
     <v:InvertedVisibilityConverter x:Key="InvertedVisibilityConverter"/>
     <v:UriToStringConverter x:Key="UriToStringConverter"/>
     <v:UriToBitmapImageConverter x:Key="UriToBitmapImageConverter"/>
+    <v:BooleanToHorizontalAlignmentConverter x:Key="BooleanToHorizontalAlignmentConverter"/>
 
 
     <ControlTemplate x:Key="SelectBorderListBoxItem" TargetType="ListBoxItem">

@@ -82,6 +82,7 @@ namespace Kbtter3.Models
 
         internal StatusMessage LatestStatus { get; set; }
         internal EventMessage LatestEvent { get; set; }
+        internal DirectMessageMessage LatestDirectMessage { get; set; }
 
         internal OAuth.OAuthSession OAuthSession { get; set; }
 
@@ -152,6 +153,11 @@ namespace Kbtter3.Models
             Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName, Setting);
             OAuthSession = await OAuth.AuthorizeAsync(Setting.Consumer.Key, Setting.Consumer.Secret);
             RaisePropertyChanged("AccessTokenRequest");
+            OnStatus += NotifyStatusUpdate;
+            OnEvent += NotifyEventUpdate;
+            OnIdEvent += NotifyIdEventUpdate;
+            OnDirectMessage += NotifyDirectMessageUpdate;
+
         }
 
 
@@ -541,30 +547,71 @@ namespace Kbtter3.Models
                 .Publish();
             ob.OfType<StatusMessage>().Subscribe((p) =>
             {
-                if (OnStatus != null) OnStatus(p);
+                OnStatus(p);
             });
             ob.OfType<EventMessage>().Subscribe((p) =>
             {
-                if (OnEvent != null) OnEvent(p);
+                OnEvent(p);
             });
             ob.OfType<IdMessage>().Subscribe((p) =>
             {
-                if (OnIdEvent != null) OnIdEvent(p);
+                OnIdEvent(p);
             });
             ob.OfType<DirectMessageMessage>().Subscribe((p) =>
             {
-                if (OnDirectMessage != null) OnDirectMessage(p);
+                OnDirectMessage(p);
             });
             ob.OfType<DisconnectMessage>().Subscribe(p =>
             {
                 App.Current.Shutdown();
             });
             Stream = ob.Connect();
+            
+            GetDirectMessages();
+        }
 
-            OnStatus += NotifyStatusUpdate;
-            OnEvent += NotifyEventUpdate;
-            OnIdEvent += NotifyIdEventUpdate;
-            OnDirectMessage += NotifyDirectMessageUpdate;
+        /// <summary>
+        /// Streamingを再接続します。
+        /// </summary>
+        public void RestartStreaming()
+        {
+            StopStreaming();
+            var ob = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
+                .Publish();
+            ob.OfType<StatusMessage>().Subscribe((p) =>
+            {
+                OnStatus(p);
+            });
+            ob.OfType<EventMessage>().Subscribe((p) =>
+            {
+                OnEvent(p);
+            });
+            ob.OfType<IdMessage>().Subscribe((p) =>
+            {
+                OnIdEvent(p);
+            });
+            ob.OfType<DirectMessageMessage>().Subscribe((p) =>
+            {
+                OnDirectMessage(p);
+            });
+            ob.OfType<DisconnectMessage>().Subscribe(p =>
+            {
+                App.Current.Shutdown();
+            });
+            Stream = ob.Connect();
+        }
+
+        private async void GetDirectMessages()
+        {
+            var r = (await Token.DirectMessages.ReceivedAsync(count => 200)).ToList();
+            r.RemoveAll(p => p.Sender.Id == AuthenticatedUser.Id);
+            var s = (await Token.DirectMessages.SentAsync(count => 200)).ToList();
+            s.AddRange(r);
+            s.Sort((x, y) => DateTime.Compare(x.CreatedAt.LocalDateTime, y.CreatedAt.LocalDateTime));
+            foreach (var i in s)
+            {
+                OnDirectMessage(new DirectMessageMessage { DirectMessage = i });
+            }
         }
 
         private async void NotifyStatusUpdate(StatusMessage msg)
@@ -592,6 +639,7 @@ namespace Kbtter3.Models
         private async void NotifyDirectMessageUpdate(DirectMessageMessage msg)
         {
             await CacheDirectMessage(msg);
+            LatestDirectMessage = msg;
             RaisePropertyChanged("DirectMessage");
         }
 

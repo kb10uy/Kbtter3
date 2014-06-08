@@ -6,11 +6,13 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 using System.IO;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Livet;
+using System.Collections.Specialized;
 
 namespace Kbtter3
 {
@@ -316,7 +318,7 @@ namespace Kbtter3
             get
             { return _ShowAbsoluteTime; }
             set
-            { 
+            {
                 if (_ShowAbsoluteTime == value)
                     return;
                 _ShowAbsoluteTime = value;
@@ -471,6 +473,35 @@ namespace Kbtter3
             UserProfilePage = new UserProfilePageSetting();
             AccessTokens = new ObservableCollection<AccessToken>();
             Consumer = new ConsumerToken();
+        }
+    }
+
+    //http://stackoverflow.com/questions/2137769/where-do-i-get-a-thread-safe-collectionview
+    //http://www.julmar.com/blog/mark/2009/04/01/AddingToAnObservableCollectionFromABackgroundThread.aspx
+    internal class ConcurrentObservableCollection<T> : ObservableCollection<T>
+    {
+        public override event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            var cheh = CollectionChanged;
+            if (cheh != null)
+            {
+                var dper = cheh.GetInvocationList()
+                    .Select(p => p.Target as DispatcherObject)
+                    .Where(p => p != null)
+                    .Select(p => p.Dispatcher)
+                    .FirstOrDefault();
+                if (dper != null && !dper.CheckAccess())
+                {
+                    dper.Invoke(DispatcherPriority.DataBind, (Action)(() => OnCollectionChanged(e)));
+                }
+                else
+                {
+                    foreach (NotifyCollectionChangedEventHandler i in cheh.GetInvocationList())
+                        i.Invoke(this, e);
+                }
+            }
         }
     }
 }
