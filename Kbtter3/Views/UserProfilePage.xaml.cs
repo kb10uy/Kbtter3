@@ -31,6 +31,11 @@ namespace Kbtter3.Views
         MainWindow mainw;
         UserProfilePageViewModel vm;
 
+        ~UserProfilePage()
+        {
+            Console.WriteLine("UserProfilePage Destroyed!");
+        }
+
         public UserProfilePage(MainWindow mw, UserProfilePageViewModel vm)
         {
             mainw = mw;

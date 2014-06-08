@@ -84,7 +84,8 @@
                    Visibility="{Binding IsReplyToMe, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             <StackPanel Grid.Column="0" Grid.Row="0">
                 <Image Name="ImageUserIcon" Margin="4" Height="36" Width="36"
-                       Source="{Binding UserProfileImageUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
+                       DataContext="{Binding UserProfileImageUri,Converter={StaticResource UriToBitmapImageAsyncConverter}}"
+                       Source="{Binding Result}"/>
                 <StackPanel Margin="4" HorizontalAlignment="Left">
                     <StackPanel Orientation="Horizontal">
                         <ToggleButton Name="ButtonFavorite" Margin="2"

@@ -62,7 +62,9 @@
                    Visibility="{Binding ReplyStatusViewModel.IsReplyToMe, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         <Image Width="16" Height="16" Source="{Binding IconUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
 
-        <Image Width="32" Height="32" Grid.Column="1" Source="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageConverter}}">
+        <Image Width="32" Height="32" Grid.Column="1" 
+               DataContext="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageAsyncConverter}}"
+               Source="{Binding Result}">
         </Image>
         <StackPanel Grid.Column="2" VerticalAlignment="Center">
             <TextBlock Text="{Binding Description}"/>

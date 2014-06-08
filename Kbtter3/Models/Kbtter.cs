@@ -123,7 +123,6 @@ namespace Kbtter3.Models
         ~Kbtter()
         {
             StopStreaming();
-            Setting.SaveJson(App.ConfigurationFileName);
             if (CacheDatabaseConnection != null) CacheDatabaseConnection.Dispose();
         }
         #endregion
@@ -396,8 +395,13 @@ namespace Kbtter3.Models
             catch
             {
             }
-            Setting.System.BeamCount[beam]++;
-            Setting.SaveJson(App.ConfigurationFileName);
+            await Task.Run(() =>
+            {
+                var p = ++Setting.System.BeamCount[beam];
+                Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
+                Setting.System.BeamCount[beam] = p;
+                Setting.SaveJson(App.ConfigurationFileName);
+            });
         }
 
         /// <summary>
@@ -415,8 +419,13 @@ namespace Kbtter3.Models
             catch
             {
             }
-            Setting.System.HateCount[beam]++;
-            Setting.SaveJson(App.ConfigurationFileName);
+            await Task.Run(() =>
+            {
+                var p = ++Setting.System.HateCount[beam];
+                Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
+                Setting.System.HateCount[beam] = p;
+                Setting.SaveJson(App.ConfigurationFileName);
+            });
         }
 
         /// <summary>
@@ -434,8 +443,14 @@ namespace Kbtter3.Models
             catch
             {
             }
-            Setting.System.GodCount[beam]++;
-            Setting.SaveJson(App.ConfigurationFileName);
+            await Task.Run(() =>
+            {
+                var p = ++Setting.System.GodCount[beam];
+                Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
+                Setting.System.GodCount[beam] = p;
+                Setting.SaveJson(App.ConfigurationFileName);
+            });
+
         }
 
         /// <summary>

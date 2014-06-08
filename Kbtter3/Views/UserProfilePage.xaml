@@ -51,7 +51,8 @@
                 </Grid.RowDefinitions>
 
                 <Border BorderThickness="4" BorderBrush="White" Grid.Column="1" Grid.Row="1" CornerRadius="2">
-                    <Image Source="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
+                    <Image DataContext="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageAsyncConverter}}"
+                           Source="{Binding Result}"/>
                 </Border>
             </Grid>
             <Grid Name="GridUserName" Background="{StaticResource TwitterColorWhite}" Grid.Row="1">
@@ -62,7 +63,8 @@
                 <Border Name="BorderSimpleUserImage" BorderThickness="4" BorderBrush="White" Grid.Column="0" CornerRadius="2"
                         Margin="0,0,16,0" Width="{Binding ElementName=GridUserName,Path=ActualHeight}"
                         Visibility="{Binding ElementName=MenuItemAllowSimpleView,Path=IsChecked,Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Image Source="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageConverter}}"/>
+                    <Image DataContext="{Binding UserImageUri,Converter={StaticResource UriToBitmapImageAsyncConverter}}"
+                           Source="{Binding Result}"/>
                 </Border>
                 <StackPanel Grid.Column="1">
                     <TextBlock Margin="4" FontSize="28" TextAlignment="Center" Foreground="{Binding TextColor}" Text="{Binding Name}"/>

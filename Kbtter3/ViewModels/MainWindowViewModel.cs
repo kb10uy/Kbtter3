@@ -396,6 +396,7 @@ namespace Kbtter3.ViewModels
         {
             await Task.Run(() =>
             {
+                if (parameter.Response.Length == 0) return;
                 Media = File.Open(parameter.Response[0], FileMode.Open);
                 MediaPath = parameter.Response[0];
                 RaisePropertyChanged(() => HasMedia);

@@ -42,7 +42,7 @@ namespace Kbtter3.ViewModels
             TextColor = "#" + user.ProfileTextColor;
             Description = user.Description;
             Location = user.Location;
-            Url = user.Url ?? new Uri("", UriKind.RelativeOrAbsolute);
+            Url = user.Url;
             Statuses = user.StatusesCount;
             Favorites = user.FavouritesCount;
             Friends = user.FriendsCount;
@@ -52,7 +52,7 @@ namespace Kbtter3.ViewModels
 
 
         #region BannerImageUri変更通知プロパティ
-        private Uri _BannerImageUri = new Uri("/Resources/cancel.png", UriKind.Relative);
+        private Uri _BannerImageUri;
 
         public Uri BannerImageUri
         {
@@ -70,7 +70,7 @@ namespace Kbtter3.ViewModels
 
 
         #region UserImageUri変更通知プロパティ
-        private Uri _UserImageUri = new Uri("/Resources/cancel.png", UriKind.Relative);
+        private Uri _UserImageUri;
 
         public Uri UserImageUri
         {
