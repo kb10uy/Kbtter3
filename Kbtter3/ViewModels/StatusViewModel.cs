@@ -13,6 +13,7 @@ using Livet.Messaging.IO;
 using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
+using System.Threading.Tasks;
 using Kbtter3.Models;
 using CoreTweet;
 
@@ -262,7 +263,13 @@ namespace Kbtter3.ViewModels
                 {
                     try
                     {
-                        rtid = kbtter.Token.Statuses.Retweet(id => status.Id).Id;
+                        kbtter.Token.Statuses.RetweetAsync(id => status.Id)
+                            .ContinueWith(p =>
+                        {
+                            if (p.IsFaulted) return;
+                            rtid = p.Result.Id;
+                            _IsRetweeted = value;
+                        });
                     }
                     catch /*(TwitterException e)*/
                     {
@@ -272,13 +279,20 @@ namespace Kbtter3.ViewModels
                 }
                 else
                 {
-                    if (rtid == 0)
+                    try
                     {
-                        rtid = kbtter.Token.Statuses.Show(id => origin.Id, include_my_retweet => true).CurrentUserRetweet ?? 0;
+                        if (rtid == 0)
+                        {
+                            rtid = kbtter.Token.Statuses.Show(id => origin.Id, include_my_retweet => true).CurrentUserRetweet ?? 0;
+                        }
+                        kbtter.Token.Statuses.Destroy(id => rtid);
+
                     }
-                    kbtter.Token.Statuses.Destroy(id => rtid);
+                    finally
+                    {
+                        _IsRetweeted = value;
+                    }
                 }
-                _IsRetweeted = value;
                 RaisePropertyChanged();
             }
         }
@@ -300,19 +314,23 @@ namespace Kbtter3.ViewModels
                 {
                     try
                     {
-                        kbtter.Token.Favorites.Create(id => status.Id);
+                        kbtter.Token.Favorites.CreateAsync(id => status.Id);
+                        _IsFavorited = value;
                     }
                     catch /*(TwitterException e)*/
-                    {
-
-                    }
-
+                    { }
                 }
                 else
                 {
-                    kbtter.Token.Favorites.Destroy(id => status.Id);
+                    try
+                    {
+                        kbtter.Token.Favorites.DestroyAsync(id => status.Id);
+                    }
+                    finally
+                    {
+                        _IsFavorited = value;
+                    }
                 }
-                _IsFavorited = value;
                 RaisePropertyChanged();
             }
         }

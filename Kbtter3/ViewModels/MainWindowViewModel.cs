@@ -297,16 +297,21 @@ namespace Kbtter3.ViewModels
             opt["status"] = UpdateStatusText;
             if (IsReplying) opt["in_reply_to_status_id"] = ReplyingStatus.Id;
 
-            if (HasMedia)
+            try
             {
-                opt["media"] = Media;
-                await kbtter.Token.Statuses.UpdateWithMediaAsync(opt);
-                RemoveMedia();
+                if (HasMedia)
+                {
+                    opt["media"] = Media;
+                    await kbtter.Token.Statuses.UpdateWithMediaAsync(opt);
+                    RemoveMedia();
+                }
+                else
+                {
+                    await kbtter.Token.Statuses.UpdateAsync(opt);
+                }
             }
-            else
-            {
-                await kbtter.Token.Statuses.UpdateAsync(opt);
-            }
+            catch
+            { }
 
             _tokenus = false;
             UpdateStatusCommand.RaiseCanExecuteChanged();

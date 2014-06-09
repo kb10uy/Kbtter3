@@ -16,6 +16,7 @@ using CoreTweet.Streaming.Reactive;
 
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -43,7 +44,8 @@ namespace Kbtter3.Models
         /// </summary>
         public Tokens Token { get; set; }
 
-        internal IDisposable Stream { get; set; }
+        internal IDisposable StreamManager { get; set; }
+        internal IConnectableObservable<StreamingMessage> Streaming { get; set; }
 
         /// <summary>
         /// 起動時以降のツイートのキャッシュ
@@ -390,18 +392,18 @@ namespace Kbtter3.Models
         /// C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww
         /// </summary>
         /// <param name="beam">なまえ</param>
-        public async void FireBeam(string beam)
+        public void FireBeam(string beam)
         {
             if (Token == null) return;
             if (!Setting.System.BeamCount.ContainsKey(beam)) Setting.System.BeamCount[beam] = 1;
             try
             {
-                await Token.Statuses.UpdateAsync(status => String.Format("{0}ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww({1}回目) #Kbtter3", beam, Setting.System.BeamCount[beam]));
+                Token.Statuses.UpdateAsync(status => String.Format("{0}ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww({1}回目) #Kbtter3", beam, Setting.System.BeamCount[beam]));
             }
             catch
             {
             }
-            await Task.Run(() =>
+            Task.Run(() =>
             {
                 var p = ++Setting.System.BeamCount[beam];
                 Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
@@ -414,18 +416,18 @@ namespace Kbtter3.Models
         /// Javaはクソ。
         /// </summary>
         /// <param name="beam">なまえ</param>
-        public async void Hate(string beam)
+        public void Hate(string beam)
         {
             if (Token == null) return;
             if (!Setting.System.HateCount.ContainsKey(beam)) Setting.System.HateCount[beam] = 1;
             try
             {
-                await Token.Statuses.UpdateAsync(status => String.Format("{0}はクソ。({1}回目) #Kbtter3", beam, Setting.System.HateCount[beam]));
+                Token.Statuses.UpdateAsync(status => String.Format("{0}はクソ。({1}回目) #Kbtter3", beam, Setting.System.HateCount[beam]));
             }
             catch
             {
             }
-            await Task.Run(() =>
+            Task.Run(() =>
             {
                 var p = ++Setting.System.HateCount[beam];
                 Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
@@ -438,18 +440,18 @@ namespace Kbtter3.Models
         /// GO is GOD
         /// </summary>
         /// <param name="beam">なまえ</param>
-        public async void God(string beam)
+        public void God(string beam)
         {
             if (Token == null) return;
             if (!Setting.System.GodCount.ContainsKey(beam)) Setting.System.GodCount[beam] = 1;
             try
             {
-                await Token.Statuses.UpdateAsync(status => String.Format("{0} is GOD({1}回目) #Kbtter3", beam, Setting.System.GodCount[beam]));
+                Token.Statuses.UpdateAsync(status => String.Format("{0} is GOD({1}回目) #Kbtter3", beam, Setting.System.GodCount[beam]));
             }
             catch
             {
             }
-            await Task.Run(() =>
+            Task.Run(() =>
             {
                 var p = ++Setting.System.GodCount[beam];
                 Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
@@ -543,31 +545,35 @@ namespace Kbtter3.Models
         /// </summary>
         public void StartStreaming()
         {
-            var ob = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
+            GetDirectMessages();
+            Streaming = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
                 .Publish();
-            ob.OfType<StatusMessage>().Subscribe((p) =>
+            Streaming.OfType<StatusMessage>().Subscribe((p) =>
             {
                 OnStatus(p);
             });
-            ob.OfType<EventMessage>().Subscribe((p) =>
+            Streaming.OfType<EventMessage>().Subscribe((p) =>
             {
                 OnEvent(p);
             });
-            ob.OfType<IdMessage>().Subscribe((p) =>
+            Streaming.OfType<IdMessage>().Subscribe((p) =>
             {
                 OnIdEvent(p);
             });
-            ob.OfType<DirectMessageMessage>().Subscribe((p) =>
+            Streaming.OfType<DirectMessageMessage>().Subscribe((p) =>
             {
                 OnDirectMessage(p);
             });
-            ob.OfType<DisconnectMessage>().Subscribe(p =>
+            Streaming.OfType<DisconnectMessage>().Subscribe(p =>
             {
                 App.Current.Shutdown();
             });
-            Stream = ob.Connect();
-            
-            GetDirectMessages();
+            Streaming.OfType<WarningMessage>().Subscribe(p =>
+            {
+                Console.WriteLine(p.Message);
+            });
+
+            StreamManager = Streaming.Connect();
         }
 
         /// <summary>
@@ -576,29 +582,34 @@ namespace Kbtter3.Models
         public void RestartStreaming()
         {
             StopStreaming();
-            var ob = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
+            Streaming = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
                 .Publish();
-            ob.OfType<StatusMessage>().Subscribe((p) =>
+            Streaming.OfType<StatusMessage>().Subscribe((p) =>
             {
                 OnStatus(p);
             });
-            ob.OfType<EventMessage>().Subscribe((p) =>
+            Streaming.OfType<EventMessage>().Subscribe((p) =>
             {
                 OnEvent(p);
             });
-            ob.OfType<IdMessage>().Subscribe((p) =>
+            Streaming.OfType<IdMessage>().Subscribe((p) =>
             {
                 OnIdEvent(p);
             });
-            ob.OfType<DirectMessageMessage>().Subscribe((p) =>
+            Streaming.OfType<DirectMessageMessage>().Subscribe((p) =>
             {
                 OnDirectMessage(p);
             });
-            ob.OfType<DisconnectMessage>().Subscribe(p =>
+            Streaming.OfType<DisconnectMessage>().Subscribe(p =>
             {
                 App.Current.Shutdown();
             });
-            Stream = ob.Connect();
+            Streaming.OfType<WarningMessage>().Subscribe(p =>
+            {
+                Console.WriteLine(p.Message);
+            });
+
+            StreamManager = Streaming.Connect();
         }
 
         private async void GetDirectMessages()
@@ -614,38 +625,38 @@ namespace Kbtter3.Models
             }
         }
 
-        private async void NotifyStatusUpdate(StatusMessage msg)
+        private void NotifyStatusUpdate(StatusMessage msg)
         {
             if (msg.Type != MessageType.Create) return;
             LatestStatus = msg;
             ShowingStatuses.Enqueue(msg.Status);
-            await CacheStatuses(msg);
+            CacheStatuses(msg);
             RaisePropertyChanged("Status");
         }
 
-        private async void NotifyEventUpdate(EventMessage msg)
+        private void NotifyEventUpdate(EventMessage msg)
         {
             LatestEvent = msg;
-            await CacheEvents(msg);
+            CacheEvents(msg);
             RaisePropertyChanged("Event");
         }
 
-        private async void NotifyIdEventUpdate(IdMessage msg)
+        private void NotifyIdEventUpdate(IdMessage msg)
         {
-            await CacheIdEvents(msg);
+            CacheIdEvents(msg);
             RaisePropertyChanged("IdEvent");
         }
 
-        private async void NotifyDirectMessageUpdate(DirectMessageMessage msg)
+        private void NotifyDirectMessageUpdate(DirectMessageMessage msg)
         {
-            await CacheDirectMessage(msg);
             LatestDirectMessage = msg;
+            CacheDirectMessage(msg);
             RaisePropertyChanged("DirectMessage");
         }
 
-        private Task CacheEvents(EventMessage msg)
+        private void CacheEvents(EventMessage msg)
         {
-            return Task.Run(() =>
+            Task.Run(() =>
             {
                 UserCache[msg.Source.ScreenName] = msg.Source;
                 UserCache[msg.Target.ScreenName] = msg.Target;
@@ -687,9 +698,9 @@ namespace Kbtter3.Models
             });
         }
 
-        private Task CacheStatuses(StatusMessage msg)
+        private void CacheStatuses(StatusMessage msg)
         {
-            return Task.Run(() =>
+            Task.Run(() =>
             {
 
                 if (AuthenticatedUser == null) return;
@@ -716,17 +727,17 @@ namespace Kbtter3.Models
             });
         }
 
-        private Task CacheDirectMessage(DirectMessageMessage msg)
+        private void CacheDirectMessage(DirectMessageMessage msg)
         {
-            return Task.Run(() =>
+            Task.Run(() =>
             {
 
             });
         }
 
-        private Task CacheIdEvents(IdMessage msg)
+        private void CacheIdEvents(IdMessage msg)
         {
-            return Task.Run(() =>
+            Task.Run(() =>
             {
                 if (AuthenticatedUser == null) return;
                 switch (msg.Type)
@@ -752,7 +763,11 @@ namespace Kbtter3.Models
         /// </summary>
         public void StopStreaming()
         {
-            if (Stream != null) Stream.Dispose();
+            if (StreamManager != null)
+            {
+                StreamManager.Dispose();
+                StreamManager = null;
+            }
         }
 
         #endregion
