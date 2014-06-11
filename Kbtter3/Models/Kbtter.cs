@@ -44,7 +44,7 @@ namespace Kbtter3.Models
         /// </summary>
         public Tokens Token { get; set; }
 
-        internal IDisposable StreamManager { get; set; }
+        internal List<IDisposable> StreamManager { get; set; }
         internal IConnectableObservable<StreamingMessage> Streaming { get; set; }
 
         /// <summary>
@@ -150,16 +150,16 @@ namespace Kbtter3.Models
         {
             ShowingStatuses = new Queue<Status>();
             Setting = new Kbtter3Setting();
+            StreamManager = new List<IDisposable>();
 
             if (!Directory.Exists(CacheFolderName)) Directory.CreateDirectory(CacheFolderName);
             Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName, Setting);
             OAuthSession = await OAuth.AuthorizeAsync(Setting.Consumer.Key, Setting.Consumer.Secret);
-            RaisePropertyChanged("AccessTokenRequest");
             OnStatus += NotifyStatusUpdate;
             OnEvent += NotifyEventUpdate;
             OnIdEvent += NotifyIdEventUpdate;
             OnDirectMessage += NotifyDirectMessageUpdate;
-
+            RaisePropertyChanged("AccessTokenRequest");
         }
 
 
@@ -546,34 +546,7 @@ namespace Kbtter3.Models
         public void StartStreaming()
         {
             GetDirectMessages();
-            Streaming = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
-                .Publish();
-            Streaming.OfType<StatusMessage>().Subscribe((p) =>
-            {
-                OnStatus(p);
-            });
-            Streaming.OfType<EventMessage>().Subscribe((p) =>
-            {
-                OnEvent(p);
-            });
-            Streaming.OfType<IdMessage>().Subscribe((p) =>
-            {
-                OnIdEvent(p);
-            });
-            Streaming.OfType<DirectMessageMessage>().Subscribe((p) =>
-            {
-                OnDirectMessage(p);
-            });
-            Streaming.OfType<DisconnectMessage>().Subscribe(p =>
-            {
-                App.Current.Shutdown();
-            });
-            Streaming.OfType<WarningMessage>().Subscribe(p =>
-            {
-                Console.WriteLine(p.Message);
-            });
-
-            StreamManager = Streaming.Connect();
+            RestartStreaming();
         }
 
         /// <summary>
@@ -582,34 +555,18 @@ namespace Kbtter3.Models
         public void RestartStreaming()
         {
             StopStreaming();
-            Streaming = Token.Streaming.StartObservableStream(StreamingType.User, new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
-                .Publish();
-            Streaming.OfType<StatusMessage>().Subscribe((p) =>
-            {
-                OnStatus(p);
-            });
-            Streaming.OfType<EventMessage>().Subscribe((p) =>
-            {
-                OnEvent(p);
-            });
-            Streaming.OfType<IdMessage>().Subscribe((p) =>
-            {
-                OnIdEvent(p);
-            });
-            Streaming.OfType<DirectMessageMessage>().Subscribe((p) =>
-            {
-                OnDirectMessage(p);
-            });
-            Streaming.OfType<DisconnectMessage>().Subscribe(p =>
-            {
-                App.Current.Shutdown();
-            });
-            Streaming.OfType<WarningMessage>().Subscribe(p =>
-            {
-                Console.WriteLine(p.Message);
-            });
 
-            StreamManager = Streaming.Connect();
+            Streaming = Token.Streaming
+                .StartObservableStream(
+                    StreamingType.User,
+                    new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
+                .Publish();
+            StreamManager.Add(Streaming.OfType<StatusMessage>().Subscribe(OnStatus));
+            StreamManager.Add(Streaming.OfType<EventMessage>().Subscribe(OnEvent));
+            StreamManager.Add(Streaming.OfType<IdMessage>().Subscribe(OnIdEvent));
+            StreamManager.Add(Streaming.OfType<DirectMessageMessage>().Subscribe(OnDirectMessage));
+
+            StreamManager.Add(Streaming.Connect());
         }
 
         private async void GetDirectMessages()
@@ -763,11 +720,8 @@ namespace Kbtter3.Models
         /// </summary>
         public void StopStreaming()
         {
-            if (StreamManager != null)
-            {
-                StreamManager.Dispose();
-                StreamManager = null;
-            }
+            StreamManager.ForEach(p => p.Dispose());
+            StreamManager.Clear();
         }
 
         #endregion

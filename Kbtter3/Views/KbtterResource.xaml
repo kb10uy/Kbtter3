@@ -9,6 +9,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
 
+    <Color x:Key="TwitterPrimaryColor" A="255" R="85" G="172" B="238"/>
     <SolidColorBrush x:Key="TwitterColorPrimary" Color="#55acee"/>
     <SolidColorBrush x:Key="TwitterColorSecondary" Color="#292f33"/>
     <SolidColorBrush x:Key="TwitterColorDarkGray" Color="#66757f"/>

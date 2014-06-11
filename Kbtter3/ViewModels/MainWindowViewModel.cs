@@ -309,6 +309,11 @@ namespace Kbtter3.ViewModels
                 {
                     await kbtter.Token.Statuses.UpdateAsync(opt);
                 }
+                NotifyInformation(string.Format("ツイートを送信しました"));
+            }
+            catch (TwitterException e)
+            {
+                NotifyInformation(string.Format("ツイートの送信に失敗しました : {0}", e.Message));
             }
             catch
             { }
@@ -487,6 +492,7 @@ namespace Kbtter3.ViewModels
 
             List<string> ru = ReplyingStatus.Entities.UserMentions.Select(p => p.ScreenName).ToList();
             if (!ru.Contains(rep.User.ScreenName)) ru.Add(rep.User.ScreenName);
+            if (ru.Count != 1 && ru.Contains(kbtter.AuthenticatedUser.ScreenName)) ru.Remove(kbtter.AuthenticatedUser.ScreenName);
             var t = new StringBuilder();
             ru.ForEach(p => t.Append(String.Format("@{0} ", p)));
 
@@ -908,11 +914,14 @@ namespace Kbtter3.ViewModels
                 opt["text"] = DirectMessageText;
                 opt["screen_name"] = SendingDirectMessageTarget.TargetUserScreenName;
                 await kbtter.Token.DirectMessages.NewAsync(opt);
+                NotifyInformation("ダイレクトメッセージを送信しました");
+            }
+            catch (TwitterException e)
+            {
+                NotifyInformation(string.Format("ダイレクトメッセージを送信できませんでした : {0}", e.Message));
             }
             catch
-            {
-
-            }
+            { }
             _tokenus = false;
             DirectMessageText = "";
         }
@@ -965,7 +974,7 @@ namespace Kbtter3.ViewModels
                 var fs = await kbtter.Token.Friendships.ShowAsync(source_id => kbtter.AuthenticatedUser.ScreenName, target_screen_name => NewDirectMessageTargetScreenName);
                 if (!fs.Target.CanDM ?? false)
                 {
-                    Messenger.Raise(new InformationMessage("そのユーザーにはDMを送れません", "DM送信不可", "Information"));
+                    NotifyInformation("そのユーザーにはダイレクトメッセージを送れません");
                     return;
                 }
                 else
@@ -978,10 +987,12 @@ namespace Kbtter3.ViewModels
                     DirectMessages.Add(dmvm);
                 }
             }
-            catch
+            catch (TwitterException e)
             {
-                Messenger.Raise(new InformationMessage("そういうユーザーはたぶん存在しないかAPI制限に引っかかりました", "ユーザー情報取得失敗", "Information"));
+                NotifyInformation(string.Format("ユーザー情報の取得に失敗しました : {0}", e.Message));
             }
+            catch
+            { }
         }
         #endregion
 
@@ -1036,6 +1047,102 @@ namespace Kbtter3.ViewModels
             kbtter.StopStreaming();
             strstop = true;
             StopStreamingCommand.RaiseCanExecuteChanged();
+        }
+        #endregion
+
+
+        #region NotificationText変更通知プロパティ
+        private string _NotificationText;
+
+        public string NotificationText
+        {
+            get
+            { return _NotificationText; }
+            set
+            {
+                _NotificationText = value;
+            }
+        }
+        #endregion
+
+
+        public void NotifyInformation(string text)
+        {
+            NotificationText = text;
+            if (!string.IsNullOrEmpty(text)) RaisePropertyChanged(() => NotificationText);
+        }
+
+
+        #region SearchText変更通知プロパティ
+        private string _SearchText = "";
+
+        public string SearchText
+        {
+            get
+            { return _SearchText; }
+            set
+            {
+                if (_SearchText == value)
+                    return;
+                _SearchText = value;
+                RaisePropertyChanged();
+                SearchStatusesCommand.RaiseCanExecuteChanged();
+                SearchUserCommand.RaiseCanExecuteChanged();
+            }
+        }
+        #endregion
+
+
+        #region SearchStatusesCommand
+        private ViewModelCommand _SearchStatusesCommand;
+
+        public ViewModelCommand SearchStatusesCommand
+        {
+            get
+            {
+                if (_SearchStatusesCommand == null)
+                {
+                    _SearchStatusesCommand = new ViewModelCommand(SearchStatuses, CanSearchStatuses);
+                }
+                return _SearchStatusesCommand;
+            }
+        }
+
+        public bool CanSearchStatuses()
+        {
+            return !string.IsNullOrEmpty(SearchText);
+        }
+
+        public void SearchStatuses()
+        {
+
+        }
+        #endregion
+
+
+        #region SearchUserCommand
+        private ViewModelCommand _SearchUserCommand;
+
+        public ViewModelCommand SearchUserCommand
+        {
+            get
+            {
+                if (_SearchUserCommand == null)
+                {
+                    _SearchUserCommand = new ViewModelCommand(SearchUser, CanSearchUser);
+                }
+                return _SearchUserCommand;
+            }
+        }
+
+        public bool CanSearchUser()
+        {
+            return !string.IsNullOrEmpty(SearchText);
+        }
+
+        public void SearchUser()
+        {
+
         }
         #endregion
 

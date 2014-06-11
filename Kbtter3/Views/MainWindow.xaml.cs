@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -279,6 +280,13 @@ namespace Kbtter3.Views
                 vm.AddMediaDirect(fn);
                 ExpanderNewTweet.IsExpanded = true;
             }));
+        }
+
+        private void TextBlockPopupNotification_TargetUpdated(object sender, DataTransferEventArgs e)
+        {
+            if (e.Property != TextBlock.TextProperty) return;
+            var sb = TextBlockPopupNotification.TryFindResource("Storyboard") as Storyboard;
+            sb.Begin();
         }
 
         private void MenuSetting_Click(object sender, RoutedEventArgs e)

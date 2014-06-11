@@ -54,8 +54,8 @@ namespace Kbtter3.ViewModels
             fs = await kbtter.Token.Friendships.ShowAsync(source_id => kbtter.AuthenticatedUser.Id, target_id => user.Id);
             IsMyFollower = fs.Target.IsFollowing ?? false;
             IsMyFriend = fs.Target.IsFollowedBy ?? false;
-            IsBlocking = fs.Target.IsBlocking ?? false;
-            IsBlocked = fs.Source.IsBlocking ?? false;
+            IsBlocking = fs.Source.IsBlocking ?? false;
+            IsBlocked = fs.Target.IsBlocking ?? false;
             IsFollowable = !IsBlocked;
         }
 
@@ -330,9 +330,12 @@ namespace Kbtter3.ViewModels
                     ShowingStatuses.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
                 }
             }
-            catch
+            catch (TwitterException e)
             {
+                mainw.NotifyInformation(string.Format("ツイートの取得に失敗しました : {0}", e.Message));
             }
+            catch
+            { }
         }
         #endregion
 
@@ -373,8 +376,9 @@ namespace Kbtter3.ViewModels
                     ShowingStatuses.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
                 }
             }
-            catch
+            catch (TwitterException e)
             {
+                mainw.NotifyInformation(string.Format("ツイートの取得に失敗しました : {0}", e.Message));
             }
         }
         #endregion
@@ -410,6 +414,12 @@ namespace Kbtter3.ViewModels
                 {
                     ShowingStatuses.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
                 }
+            }
+            catch (TwitterException e)
+            {
+                mainw.NotifyInformation(string.Format("ツイートの取得に失敗しました : {0}", e.Message));
+                stoc = 0;
+                stnc = 0;
             }
             catch
             {
@@ -474,9 +484,12 @@ namespace Kbtter3.ViewModels
                     ShowingFavorites.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
                 }
             }
-            catch
+            catch (TwitterException e)
             {
+                mainw.NotifyInformation(string.Format("ツイートの取得に失敗しました : {0}", e.Message));
             }
+            catch
+            { }
         }
         #endregion
 
@@ -517,9 +530,12 @@ namespace Kbtter3.ViewModels
                     ShowingFavorites.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
                 }
             }
-            catch
+            catch (TwitterException e)
             {
+                mainw.NotifyInformation(string.Format("ツイートの取得に失敗しました : {0}", e.Message));
             }
+            catch
+            { }
         }
         #endregion
 
@@ -545,8 +561,8 @@ namespace Kbtter3.ViewModels
             try
             {
                 var s = await kbtter.Token.Favorites.ListAsync(screen_name => user.ScreenName, count => showst);
-                stoc = s.Last().Id;
-                stnc = s.First().Id;
+                favoc = s.Last().Id;
+                favnc = s.First().Id;
                 ShowOlderFavoritesCommand.RaiseCanExecuteChanged();
                 ShowNewerFavoritesCommand.RaiseCanExecuteChanged();
                 foreach (var i in s)
@@ -554,10 +570,16 @@ namespace Kbtter3.ViewModels
                     ShowingFavorites.Add(StatusViewModelExtension.CreateStatusViewModel(mainw, i));
                 }
             }
+            catch (TwitterException e)
+            {
+                favoc = 0;
+                favnc = 0;
+                mainw.NotifyInformation(string.Format("ツイートの取得に失敗しました : {0}", e.Message));
+            }
             catch
             {
-                stoc = 0;
-                stnc = 0;
+                favoc = 0;
+                favnc = 0;
             }
         }
         #endregion
@@ -688,10 +710,11 @@ namespace Kbtter3.ViewModels
                             _IsBlocking = value;
                             RaisePropertyChanged();
                             BlockingStateText = "ブロックしています";
+                            mainw.NotifyInformation(string.Format("{0}さんをブロックしました", user.ScreenName));
                         }
                         catch
                         {
-
+                            mainw.NotifyInformation(string.Format("{0}さんをブロックできませんでした", user.ScreenName));
                         }
                     });
                 }
@@ -809,8 +832,6 @@ namespace Kbtter3.ViewModels
 
 
         #region BlockedStateText変更通知プロパティ
-        private string _BlockedStateText;
-
         public string BlockedStateText
         {
             get
@@ -836,7 +857,7 @@ namespace Kbtter3.ViewModels
             get
             { return _IsProtected; }
             set
-            { 
+            {
                 if (_IsProtected == value)
                     return;
                 _IsProtected = value;
@@ -854,7 +875,7 @@ namespace Kbtter3.ViewModels
             get
             { return _IsNotMe; }
             set
-            { 
+            {
                 if (_IsNotMe == value)
                     return;
                 _IsNotMe = value;

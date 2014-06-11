@@ -142,6 +142,7 @@
     <Compile Include="ViewModels\InternalBrowserViewModel.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
     <Compile Include="ViewModels\SettingPageViewModel.cs" />
+    <Compile Include="ViewModels\SimpleUserViewModel.cs" />
     <Compile Include="ViewModels\UserProfilePageViewModel.cs" />
     <Compile Include="Views\AccountSelectWindow.xaml.cs">
       <DependentUpon>AccountSelectWindow.xaml</DependentUpon>

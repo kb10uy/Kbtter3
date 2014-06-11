@@ -129,8 +129,17 @@ namespace Kbtter3.ViewModels
 
         public async void DeleteStatus()
         {
-            await kbtter.Token.Statuses.DestroyAsync(id => status.Id);
-            RaisePropertyChanged("Delete");
+            try
+            {
+                await kbtter.Token.Statuses.DestroyAsync(id => status.Id);
+                main.NotifyInformation("ツイートを削除しました");
+                RaisePropertyChanged("Delete");
+            }
+            catch (TwitterException e)
+            {
+                main.NotifyInformation(string.Format("ツイートを削除できませんでした : {0}", e.Message));
+            }
+
         }
         #endregion
 
@@ -249,7 +258,7 @@ namespace Kbtter3.ViewModels
 
 
         #region IsRetweeted変更通知プロパティ
-        private bool _IsRetweeted;
+        internal bool _IsRetweeted;
 
         public bool IsRetweeted
         {
@@ -269,12 +278,15 @@ namespace Kbtter3.ViewModels
                             if (p.IsFaulted) return;
                             rtid = p.Result.Id;
                             _IsRetweeted = value;
+                            RaisePropertyChanged();
                         });
                     }
-                    catch /*(TwitterException e)*/
+                    catch (TwitterException e)
                     {
-
+                        main.NotifyInformation(string.Format("リツイート出来ませんでした : {0}", e.Message));
                     }
+                    catch
+                    { }
 
                 }
                 else
@@ -286,7 +298,6 @@ namespace Kbtter3.ViewModels
                             rtid = kbtter.Token.Statuses.Show(id => origin.Id, include_my_retweet => true).CurrentUserRetweet ?? 0;
                         }
                         kbtter.Token.Statuses.Destroy(id => rtid);
-
                     }
                     finally
                     {
@@ -300,7 +311,7 @@ namespace Kbtter3.ViewModels
 
 
         #region IsFavorited変更通知プロパティ
-        private bool _IsFavorited;
+        internal bool _IsFavorited;
 
         public bool IsFavorited
         {
@@ -317,8 +328,10 @@ namespace Kbtter3.ViewModels
                         kbtter.Token.Favorites.CreateAsync(id => status.Id);
                         _IsFavorited = value;
                     }
-                    catch /*(TwitterException e)*/
-                    { }
+                    catch (TwitterException e)
+                    {
+                        main.NotifyInformation(string.Format("お気に入りに登録できませんでした : {0}", e.Message));
+                    }
                 }
                 else
                 {
@@ -627,7 +640,17 @@ namespace Kbtter3.ViewModels
 
         public void WhatDoYouSay()
         {
-            kbtter.Token.Statuses.UpdateAsync(status => "なーにが" + Text + "じゃ");
+            try
+            {
+                kbtter.Token.Statuses.UpdateAsync(status => "なーにが" + Text + "じゃ");
+            }
+            catch (TwitterException e)
+            {
+                main.NotifyInformation(string.Format("異議申立てが却下されました : {0}", e.Message));
+            }
+            catch
+            { }
+
         }
         #endregion
 
@@ -649,7 +672,16 @@ namespace Kbtter3.ViewModels
 
         public void WhoAreYouMeaning()
         {
-            kbtter.Token.Statuses.UpdateAsync(status => "だーれが" + Text + "じゃ");
+            try
+            {
+                kbtter.Token.Statuses.UpdateAsync(status => "だーれが" + Text + "じゃ");
+            }
+            catch (TwitterException e)
+            {
+                main.NotifyInformation(string.Format("異議申立てが却下されました : {0}", e.Message));
+            }
+            catch
+            { }
         }
         #endregion
 
@@ -681,8 +713,8 @@ namespace Kbtter3.ViewModels
             ret.Text = st.Text;
             ret.UserProfileImageUri = st.User.ProfileImageUrlHttps;
             ret.RetweetCount = st.RetweetCount ?? 0;
-            ret.IsFavorited = (st.IsFavorited ?? false) || Kbtter.Instance.IsFavoritedInCache(st);
-            ret.IsRetweeted = (st.IsRetweeted ?? false) || (ret.status.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.status));
+            ret._IsFavorited = (st.IsFavorited ?? false) || Kbtter.Instance.IsFavoritedInCache(st);
+            ret._IsRetweeted = (st.IsRetweeted ?? false) || (ret.status.RetweetedStatus != null && Kbtter.Instance.IsRetweetedInCache(ret.status));
             ret.FavoriteCount = st.FavoriteCount ?? 0;
             ret.IsMyStatus = (Kbtter.Instance.AuthenticatedUser != null && Kbtter.Instance.AuthenticatedUser.Id == st.User.Id);
             ret.IsOthersStatus = !ret.IsMyStatus;

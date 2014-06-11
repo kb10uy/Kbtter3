@@ -29,7 +29,7 @@
         <i:EventTrigger EventName="Closed">
             <l:DataContextDisposeAction/>
         </i:EventTrigger>
-        
+
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Information">
             <l:InformationDialogInteractionMessageAction/>
         </l:InteractionMessageTrigger>
@@ -52,7 +52,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="4"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="24"/>
+            <RowDefinition Height="32"/>
         </Grid.RowDefinitions>
 
         <Grid Background="{StaticResource TwitterColorPrimary}" Height="40">
@@ -225,6 +225,21 @@
                 <TabItem.Header>
                     <TextBlock>検索</TextBlock>
                 </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="128"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBox Name="TextBoxSearch" Margin="4" Text="{Binding SearchText,UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Name="ButtonSearch" Grid.Column="1" Margin="4" Command="{Binding SearchStatusesCommand}">検索</Button>
+                    <Button Name="ButtonUserSearch" Grid.Column="2" Margin="4" Command="{Binding SearchUserCommand}">ユーザー検索</Button>
+                    <ListView Name="ListViewSearchResult" Grid.Row="1" Grid.ColumnSpan="3" Margin="4"/>
+                </Grid>
             </TabItem>
             <TabItem Name="TabDirectMessage" Style="{StaticResource RoundTabItem}">
                 <TabItem.Header>
@@ -376,8 +391,47 @@
             </TabItem>
         </TabControl>
 
-        <StatusBar Grid.Row="5" Name="StatusBarMain">
-
-        </StatusBar>
+        <StackPanel Grid.Row="5" Name="StackPanelPopupNotification">
+            <StackPanel.Resources>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+            </StackPanel.Resources>
+            <TextBlock Name="TextBlockPopupNotification" Text="{Binding NotificationText,Mode=OneWay,NotifyOnTargetUpdated=True}"
+                       Margin="8,40,4,4" FontSize="16" TargetUpdated="TextBlockPopupNotification_TargetUpdated">
+                <TextBlock.Resources>
+                    <Storyboard Name="StoryboardPopupNotify" x:Key="Storyboard">
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetName="StackPanelPopupNotification"
+                                        Storyboard.TargetProperty="Background.Color"
+                                        Duration="0:0:2" From="{StaticResource TwitterPrimaryColor}"
+                                        To="Transparent" >
+                                <ColorAnimation.EasingFunction>
+                                    <SineEase EasingMode="EaseIn"/>
+                                </ColorAnimation.EasingFunction>
+                            </ColorAnimation>
+                        </Storyboard>
+                        <Storyboard>
+                            <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="TextBlockPopupNotification"
+                                                          Storyboard.TargetProperty="(TextBlock.Margin)"
+                                                          Duration="0:0:3">
+                                <LinearThicknessKeyFrame Value="8,40,4,4" KeyTime="0:0:0"/>
+                                <EasingThicknessKeyFrame Value="8,4,4,4" KeyTime="0:0:0.500">
+                                    <EasingThicknessKeyFrame.EasingFunction>
+                                        <ElasticEase Springiness="4" EasingMode="EaseOut"/>
+                                    </EasingThicknessKeyFrame.EasingFunction>
+                                </EasingThicknessKeyFrame>
+                                <LinearThicknessKeyFrame Value="8,4,4,4" KeyTime="0:0:2.750"/>
+                                <EasingThicknessKeyFrame Value="8,40,4,4" KeyTime="0:0:3">
+                                    <EasingThicknessKeyFrame.EasingFunction>
+                                        <SineEase EasingMode="EaseInOut"/>
+                                    </EasingThicknessKeyFrame.EasingFunction>
+                                </EasingThicknessKeyFrame>
+                            </ThicknessAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </Storyboard>
+                </TextBlock.Resources>
+            </TextBlock>
+        </StackPanel>
     </Grid>
 </Window>
