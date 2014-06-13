@@ -74,6 +74,7 @@ namespace Kbtter3.ViewModels
         /// 自分へのリプ以外を渡すな
         /// </summary>
         /// <param name="msg">はい</param>
+        /// <param name="mvm">MainWindowViewModel</param>
         public NotificationViewModel(Status msg, MainWindowViewModel mvm)
         {
             NotificationTime = msg.CreatedAt.LocalDateTime.ToShortTimeString();

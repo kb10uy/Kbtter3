@@ -163,8 +163,8 @@
                              VerticalAlignment="Stretch"
                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                              FontSize="14" Margin="4"
-                             Text="{Binding UpdateStatusText,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"
-                             Validation.ErrorTemplate="{StaticResource ErrorTemplate}"/>
+                         Text="{Binding UpdateStatusText,Delay=500,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}"
+                         Validation.ErrorTemplate="{StaticResource ErrorTemplate}"/>
                 <DockPanel Grid.Column="1" Grid.Row="1">
                     <StackPanel DockPanel.Dock="Top">
                         <StackPanel Orientation="Horizontal" Margin="0">

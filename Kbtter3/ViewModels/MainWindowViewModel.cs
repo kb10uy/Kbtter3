@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -41,6 +42,14 @@ namespace Kbtter3.ViewModels
         public void RegisterHandlers()
         {
             listener.Add("AccessTokenRequest", OnAccessTokenRequest);
+            listener.Add("PluginErrorCount", (s, e) =>
+            {
+                NotifyInformation(
+                    string.Format(
+                        "{0}個のプラグインがエラーで読み込めませんでした。確認してください。",
+                        kbtter.PluginErrorCount
+                    ));
+            });
             listener.Add("Status", OnStatusUpdate);
             listener.Add("Event", OnEvent);
             listener.Add("DirectMessage", OnDirectMessageUpdate);
@@ -131,7 +140,7 @@ namespace Kbtter3.ViewModels
             get
             { return _UserProfileImageUri; }
             set
-            { 
+            {
                 if (_UserProfileImageUri == value)
                     return;
                 _UserProfileImageUri = value;
@@ -245,23 +254,37 @@ namespace Kbtter3.ViewModels
                 _UpdateStatusText = value;
                 IsTextNoInput = value == "";
                 RaisePropertyChanged();
+
                 RaisePropertyChanged(() => UpdateStatusTextLength);
                 RaisePropertyChanged(() => IsTextNoInput);
                 SayDajareCommand.RaiseCanExecuteChanged();
                 UpdateStatusCommand.RaiseCanExecuteChanged();
 
-                errors["UpdateStatusText"] = (value.Length > 140) ? "140文字を超えています" : null;
+                errors["UpdateStatusText"] = (_UpdateStatusTextLength > 140) ? "140文字を超えています" : null;
             }
         }
         #endregion
 
 
         #region UpdateStatusTextLength変更通知プロパティ
+        //http://qiita.com/shr_em/items/f9282becc6e431d65e25
+        static Regex httpreg = new Regex("(?<![\\w])(http://)?(([\\w]|[^ -~])+(([\\w\\-]|[^ -~])+([\\w]|[^ -~]))?\\.)+(.+)(?![\\w])(/([\\w\\.\\-\\$&%/:=#~!]*\\??[\\w\\.\\-\\$&%/:=#~!]*[\\w\\-\\$/#])?)?", RegexOptions.Compiled|RegexOptions.CultureInvariant);
+        static Regex newlreg = new Regex("((?<!\\r)\\n|\\r(?!\\n)|\\r\\n)", RegexOptions.Compiled);
+
+        private int _UpdateStatusTextLength = 140;
 
         public int UpdateStatusTextLength
         {
             get
-            { return 140 - _UpdateStatusText.Length; }
+            {
+                var s = _UpdateStatusText;
+                s = s.Replace("https://", " http://");
+                s = httpreg.Replace(s, "                      ");
+                s = newlreg.Replace(s, " ");
+                if (HasMedia) s += "there is a imageaddress";
+                _UpdateStatusTextLength = 140 - s.Length;
+                return _UpdateStatusTextLength;
+            }
         }
         #endregion
 
@@ -479,6 +502,7 @@ namespace Kbtter3.ViewModels
             Media.Dispose();
             Media = null;
             RaisePropertyChanged(() => HasMedia);
+            RaisePropertyChanged(() => UpdateStatusTextLength);
             RemoveMediaCommand.RaiseCanExecuteChanged();
         }
         #endregion
@@ -1160,7 +1184,7 @@ namespace Kbtter3.ViewModels
             get
             { return _StatusAction; }
             set
-            { 
+            {
                 if (_StatusAction == value)
                     return;
                 _StatusAction = value;

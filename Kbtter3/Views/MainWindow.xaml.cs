@@ -39,10 +39,12 @@ namespace Kbtter3.Views
 
         MainWindowViewModel vm;
         int urs = 0, urn = 0;
+        bool imeing = false;
 
         public MainWindow()
         {
             InitializeComponent();
+
             vm = DataContext as MainWindowViewModel;
             composite = new LivetCompositeDisposable();
 

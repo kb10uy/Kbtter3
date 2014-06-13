@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Reflection;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -28,6 +29,8 @@ using System.Data.Linq;
 using System.Data;
 
 using Kbtter3.Models.Caching;
+using Kbtter3.Models.Plugin;
+
 using Livet;
 
 namespace Kbtter3.Models
@@ -82,6 +85,21 @@ namespace Kbtter3.Models
         /// </summary>
         public event Action<IdMessage> OnIdEvent;
 
+        /// <summary>
+        /// 読み込んでいるプラグインを取得します。
+        /// </summary>
+        public IList<Kbtter3PluginProvider> Plugins { get; private set; }
+
+        /// <summary>
+        /// ログります。
+        /// </summary>
+        public List<string> Logs { get; set; }
+
+        /// <summary>
+        /// エラーを返したプラグイン数を取得します。
+        /// </summary>
+        public int PluginErrorCount { get; private set; }
+
         internal StatusMessage LatestStatus { get; set; }
         internal EventMessage LatestEvent { get; set; }
         internal DirectMessageMessage LatestDirectMessage { get; set; }
@@ -100,6 +118,8 @@ namespace Kbtter3.Models
         internal static readonly string CacheUserBackgroundImageFileNameSuffix = "-background.png";
         internal static readonly string CacheUserProfileFileNameSuffix = "-profile.json";
         internal static readonly string CacheFolderName = "cache";
+
+        internal static readonly string PluginFolderName = "plugin";
 
         private SQLiteConnection CacheDatabaseConnection { get; set; }
         internal DataContext CacheContext { get; set; }
@@ -126,6 +146,7 @@ namespace Kbtter3.Models
         ~Kbtter()
         {
             StopStreaming();
+            foreach (var i in Plugins) i.Release();
             if (CacheDatabaseConnection != null) CacheDatabaseConnection.Dispose();
         }
         #endregion
@@ -151,14 +172,22 @@ namespace Kbtter3.Models
             ShowingStatuses = new Queue<Status>();
             Setting = new Kbtter3Setting();
             StreamManager = new List<IDisposable>();
+            Plugins = new List<Kbtter3PluginProvider>();
+            Logs = new List<string>();
 
             if (!Directory.Exists(CacheFolderName)) Directory.CreateDirectory(CacheFolderName);
+            if (!Directory.Exists(PluginFolderName)) Directory.CreateDirectory(PluginFolderName);
+
             Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName, Setting);
             OAuthSession = await OAuth.AuthorizeAsync(Setting.Consumer.Key, Setting.Consumer.Secret);
             OnStatus += NotifyStatusUpdate;
             OnEvent += NotifyEventUpdate;
             OnIdEvent += NotifyIdEventUpdate;
             OnDirectMessage += NotifyDirectMessageUpdate;
+
+            LogInformation("Model層初期化完了");
+            SaveLog();
+
             RaisePropertyChanged("AccessTokenRequest");
         }
 
@@ -234,6 +263,8 @@ namespace Kbtter3.Models
                 CacheContext = new DataContext(CacheDatabaseConnection);
                 CreateTables();
                 CacheUnknown();
+                LogInformation("キャッシュ接続・作成完了");
+                SaveLog();
             });
         }
 
@@ -297,6 +328,7 @@ namespace Kbtter3.Models
         /// <param name="st">ツイート</param>
         public void AddFavoriteCache(Status st)
         {
+            if (AddFavoriteCacheCommand == null) return;
             AddFavoriteCacheCommand.Parameters["Id"].Value = st.Id;
             AddFavoriteCacheCommand.Parameters["Date"].Value = st.CreatedAt.DateTime;
             AddFavoriteCacheCommand.Parameters["Name"].Value = st.User.ScreenName;
@@ -309,6 +341,7 @@ namespace Kbtter3.Models
         /// <param name="st">ツイート。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
         public void AddRetweetCache(Status st)
         {
+            if (AddRetweetCacheCommand == null) return;
             AddRetweetCacheCommand.Parameters["Id"].Value = st.Id;
             AddRetweetCacheCommand.Parameters["OriginalId"].Value = st.RetweetedStatus.Id;
             AddRetweetCacheCommand.Parameters["Date"].Value = st.CreatedAt.DateTime;
@@ -322,8 +355,9 @@ namespace Kbtter3.Models
         /// <param name="st">ツイート</param>
         public void RemoveFavoriteCache(Status st)
         {
+            if (RemoveFavoriteCacheCommand == null) return;
             RemoveFavoriteCacheCommand.Parameters["Id"].Value = st.Id;
-            AddFavoriteCacheCommand.ExecuteNonQuery();
+            RemoveFavoriteCacheCommand.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -332,8 +366,9 @@ namespace Kbtter3.Models
         /// <param name="st">ツイート。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
         public void RemoveRetweetCache(Status st)
         {
+            if (RemoveRetweetCacheCommand == null) return;
             RemoveRetweetCacheCommand.Parameters["Id"].Value = st.Id;
-            AddFavoriteCacheCommand.ExecuteNonQuery();
+            RemoveRetweetCacheCommand.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -342,8 +377,9 @@ namespace Kbtter3.Models
         /// <param name="stid">リツイートのID。リツイートした元ツイートではなく、リツイート自体を指定しください。</param>
         public void RemoveRetweetCache(long stid)
         {
+            if (RemoveRetweetCacheCommand == null) return;
             RemoveRetweetCacheCommand.Parameters["Id"].Value = stid;
-            AddFavoriteCacheCommand.ExecuteNonQuery();
+            RemoveRetweetCacheCommand.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -353,6 +389,7 @@ namespace Kbtter3.Models
         /// <returns>存在した場合はtrue</returns>
         public bool IsFavoritedInCache(Status st)
         {
+            if (IsFavoritedCommand == null) return false;
             IsFavoritedCommand.Parameters["Id"].Value = st.Id;
             using (var dr = IsFavoritedCommand.ExecuteReader())
             {
@@ -367,6 +404,7 @@ namespace Kbtter3.Models
         /// <returns>存在した場合はtrue</returns>
         public bool IsRetweetedInCache(Status st)
         {
+            if (IsRetweetedCommand == null) return false;
             IsRetweetedCommand.Parameters["OriginalId"].Value = st.RetweetedStatus.Id;
             using (var dr = IsRetweetedCommand.ExecuteReader())
             {
@@ -381,6 +419,7 @@ namespace Kbtter3.Models
         /// <returns>存在した場合はtrue</returns>
         public bool IsMyRetweetInCache(long stid)
         {
+            if (IsMyRetweetCommand == null) return false;
             IsMyRetweetCommand.Parameters["Id"].Value = stid;
             using (var dr = IsMyRetweetCommand.ExecuteReader())
             {
@@ -513,11 +552,12 @@ namespace Kbtter3.Models
             Cache = new SynchronizedCollection<Status>();
             UserCache = new Dictionary<string, User>();
             AuthenticatedUser = await Token.Account.VerifyCredentialsAsync(include_entities => true);
+            InitializePlugins();
             await InitializeCacheDatabase(ai);
             await InitializeUserCache();
             UserCache[AuthenticatedUser.ScreenName] = AuthenticatedUser;
             RaisePropertyChanged(() => AuthenticatedUser);
-
+            SaveLog();
         }
 
         /// <summary>
@@ -744,6 +784,30 @@ namespace Kbtter3.Models
 
         #endregion
 
+        #region プラグイン読み込みとか
+
+        internal void InitializePlugins()
+        {
+            Task.Run(() =>
+            {
+                var asmtypes = GetType().Assembly.GetTypes().Where(p => p.IsSubclassOf(typeof(Kbtter3PluginProvider)));
+                foreach (var i in asmtypes)
+                {
+                    Plugins.Add(Activator.CreateInstance(i) as Kbtter3PluginProvider);
+                }
+
+                foreach (var p in Plugins) p.Initialize(this);
+
+                var pflist = Directory.GetFiles(PluginFolderName);
+                PluginErrorCount = 0;
+                foreach (var p in Plugins) PluginErrorCount += p.Load(pflist);
+                SaveLog();
+                if (PluginErrorCount != 0) RaisePropertyChanged("PluginErrorCount");
+            });
+        }
+
+        #endregion
+
         #region コンフィグ用メソッド
 
         /// <summary>
@@ -765,6 +829,44 @@ namespace Kbtter3.Models
 
 
 
+        #endregion
+
+        #region ログ
+        /// <summary>
+        /// エラーをログに登録します。
+        /// </summary>
+        /// <param name="err">テキスト。これの前に[ERROR]が付加されます。</param>
+        public void LogError(string err)
+        {
+            Logs.Add(DateTime.Now.ToString() + " [ERROR]" + Environment.NewLine + err + Environment.NewLine);
+
+        }
+
+        /// <summary>
+        /// 情報をログに登録します。
+        /// </summary>
+        /// <param name="info">テキスト。これの前に[INFO]が付加されます。</param>
+        public void LogInformation(string info)
+        {
+            Logs.Add(DateTime.Now.ToString() + " [INFORMATION] " + Environment.NewLine + info + Environment.NewLine);
+        }
+
+        /// <summary>
+        /// 警告をログに登録します。
+        /// </summary>
+        /// <param name="warn">テキスト。これの前に[WARN]が付加されます。</param>
+        public void LogWarning(string warn)
+        {
+            Logs.Add(DateTime.Now.ToString() + " [WARNING] " + Environment.NewLine + warn + Environment.NewLine);
+        }
+
+        /// <summary>
+        /// 現在のログを保存します。
+        /// </summary>
+        public void SaveLog()
+        {
+            File.WriteAllLines(App.LoggingFileName, Logs);
+        }
         #endregion
     }
 

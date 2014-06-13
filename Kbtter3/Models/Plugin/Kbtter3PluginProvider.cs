@@ -38,8 +38,12 @@ namespace Kbtter3.Models.Plugin
         /// <summary>
         /// プラグインを読み込みます。
         /// </summary>
-        /// <param name="filenames">プラグインのファイル名リスト</param>
-        public abstract void Load(IList<string> filenames);
+        /// <param name="filenames">
+        /// プラグインのファイル名リスト。
+        /// 全て小文字で返されます。
+        /// </param>
+        /// <returns>エラーのあったプラグインの数</returns>
+        public abstract int Load(IList<string> filenames);
 
         /// <summary>
         /// ローダーを開放します。
@@ -51,7 +55,7 @@ namespace Kbtter3.Models.Plugin
         /// </summary>
         /// <param name="msg">StatusMessage</param>
         /// <param name="mon">非同期的に処理するためのモニター用オブジェクト</param>
-        public abstract void StatusUpdate(StatusMessage msg,object mon);
+        public abstract void StatusUpdate(StatusMessage msg, object mon);
 
         /// <summary>
         /// 受信したイベントについて、スクリプトの処理をします。
@@ -92,60 +96,142 @@ namespace Kbtter3.Models.Plugin
         public abstract int ProvidingPluginsCount { get; }
     }
 
-    internal sealed class Kbtter3NativePluginProvider : Kbtter3PluginProvider
+    /// <summary>
+    /// 
+    /// </summary>
+    public class Kbtter3PluginEventProvider
     {
-        //Kbtter kbtter;
-        int count = 0;
+        /// <summary>
+        /// 
+        /// </summary>
+        public Kbtter Instance { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<StatusMessage> StatusReceived;
 
-        public override void Initialize(Kbtter kbtter)
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<EventMessage> EventReceived;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<IdMessage> IdReceived;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<DirectMessageMessage> DirectMessageReceived;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        public void Tweet(string text)
         {
-            //kbtter = Kbtter.Instance;
+            try
+            {
+                Instance.Token.Statuses.UpdateAsync(Status => text);
+            }
+            catch
+            { }
         }
 
-        public override void Load(IList<string> filenames)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="text"></param>
+        public void Reply(long id, string text)
         {
-            
+            try
+            {
+                Instance.Token.Statuses.Update(Status => text, in_reply_to_status_id => id);
+            }
+            catch
+            { }
         }
 
-        public override void Release()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fid"></param>
+        public void Favorite(long fid)
         {
-            
+            try
+            {
+                Instance.Token.Favorites.CreateAsync(id => fid);
+            }
+            catch
+            { }
         }
 
-        public override void StatusUpdate(StatusMessage msg, object mon)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fid"></param>
+        public void Unfavorite(long fid)
         {
-            
+            try
+            {
+                Instance.Token.Favorites.DestroyAsync(id => fid);
+            }
+            catch
+            { }
         }
 
-        public override void EventUpdate(EventMessage msg, object mon)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rid"></param>
+        public void Retweet(long rid)
         {
-            
+            try
+            {
+                Instance.Token.Statuses.RetweetAsync(id => rid);
+            }
+            catch
+            { }
         }
 
-        public override void IdEventUpdate(IdMessage msg, object mon)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="did"></param>
+        public void Delete(long did)
         {
-            
+            try
+            {
+                Instance.Token.Statuses.DestroyAsync(id => did);
+            }
+            catch
+            { }
         }
 
-        public override void DirectMessageUpdate(DirectMessageMessage msg, object mon)
+        #region イベント励起
+        internal void RaiseStatus(StatusMessage msg)
         {
-            
+            if (StatusReceived != null) StatusReceived(msg);
         }
 
-        public override void SystemRequest(string msg, object mon)
+        internal void RaiseEvent(EventMessage msg)
         {
-            
+            if (StatusReceived != null) EventReceived(msg);
         }
 
-        public override string ProvidingLanguage
+        internal void RaiseIdEvent(IdMessage msg)
         {
-            get { return ".NET(CLR)"; }
+            if (StatusReceived != null) IdReceived(msg);
         }
 
-        public override int ProvidingPluginsCount
+        internal void RaiseDirectMessage(DirectMessageMessage msg)
         {
-            get { return count; }
+            if (StatusReceived != null) DirectMessageReceived(msg);
         }
+        #endregion
+
     }
 }

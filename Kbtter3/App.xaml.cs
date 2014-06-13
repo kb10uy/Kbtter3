@@ -26,6 +26,8 @@ namespace Kbtter3
         /// </summary>
         public static readonly string ConfigurationFolderName = "config";
 
+        public static readonly string LoggingFileName = "Kbtter3.log";
+
         /// <summary>
         /// 設定ファイルのパス
         /// </summary>
@@ -85,6 +87,11 @@ namespace Kbtter3
         public static void SaveJson<T>(this T obj, string filename)
         {
             File.WriteAllText(filename, JsonConvert.SerializeObject(obj, Formatting.Indented));
+        }
+
+        public static bool EndsWith(this string t,string es)
+        {
+            return t.IndexOf(es) == (t.Length - es.Length);
         }
     }
 
