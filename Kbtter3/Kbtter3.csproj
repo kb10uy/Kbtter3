@@ -113,6 +113,7 @@
     <Reference Include="System.Reactive.PlatformServices">
       <HintPath>..\packages\Rx-PlatformServices.2.2.4\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Interactivity">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>InfrastructureAssemblies\System.Windows.Interactivity.dll</HintPath>
@@ -147,6 +148,7 @@
     <Compile Include="Views\AccountSelectWindow.xaml.cs">
       <DependentUpon>AccountSelectWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors.cs" />
     <Compile Include="Views\Control\ClosableRoundTabItem.xaml.cs">
       <DependentUpon>ClosableRoundTabItem.xaml</DependentUpon>
     </Compile>

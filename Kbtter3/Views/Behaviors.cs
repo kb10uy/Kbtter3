@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ using IOPath = System.IO.Path;
 using Kbtter3.ViewModels;
 using Kbtter3.Views.Control;
 using System.Windows.Interactivity;
+using System.Collections.ObjectModel;
 
 using Livet;
 using Livet.EventListeners;
@@ -29,106 +31,21 @@ using Livet.EventListeners.WeakEvents;
 
 namespace Kbtter3.Views
 {
-    internal class TwitterLinkedTextBehavior : Behavior<TextBlock>
-    {
-        public static DependencyProperty HostedMainWindowProperty =
-            DependencyProperty.Register(
-                "HostedMainWindow",
-                typeof(MainWindowViewModel),
-                typeof(TwitterLinkedTextBehavior));
-
-        public static DependencyProperty TargetElementsProperty =
-            DependencyProperty.Register(
-                "TargetElements",
-                typeof(IList<StatusViewModel.StatusElement>),
-                typeof(TwitterLinkedTextBehavior));
-
-        public MainWindowViewModel HostedMainWindow
-        {
-            get { return GetValue(HostedMainWindowProperty) as MainWindowViewModel; }
-            set { SetValue(HostedMainWindowProperty, value); }
-        }
-
-        public IList<StatusViewModel.StatusElement> TargetElements
-        {
-            get { return GetValue(TargetElementsProperty) as IList<StatusViewModel.StatusElement>; }
-            set
-            {
-                SetValue(TargetElementsProperty, value);
-                Refresh();
-            }
-        }
-
-        protected override void OnAttached()
-        {
-            base.OnAttached();
-            Refresh();
-        }
-
-        protected override void OnDetaching()
-        {
-            base.OnDetaching();
-        }
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
-        {
-            base.OnPropertyChanged(e);
-        }
-
-        private void Refresh()
-        {
-            AssociatedObject.Inlines.Clear();
-            if (TargetElements == null) return;
-            foreach (var i in TargetElements)
-            {
-                switch (i.Type)
-                {
-                    case "None":
-                        AssociatedObject.Inlines.Add(i.Text);
-                        break;
-
-                    case "Url":
-                    case "Media":
-                    case "Mention":
-                    case "Hashtag":
-                        var hl = new Hyperlink();
-                        hl.Inlines.Add(i.Text);
-                        hl.Tag = i;
-                        var bh = new Kbtter3StatusLinkBehavior();
-                        bh.MouseEnteredForeground = Brushes.Red;
-                        bh.MouseLeftForeground = Brushes.DodgerBlue;
-                        bh.HostedMainWindow = HostedMainWindow;
-                        Interaction.GetBehaviors(hl).Add(bh);
-                        AssociatedObject.Inlines.Add(hl);
-                        break;
-                    default:
-                        throw new InvalidOperationException("予期しないテキスト要素です");
-                }
-            }
-        }
-    }
-
-    internal class Kbtter3StatusLinkBehavior : Behavior<Hyperlink>
+    internal class HyperlinkMouseOverColorChangeBehavior : Behavior<Hyperlink>
     {
         public static DependencyProperty MouseEnteredForegroundProperty =
             DependencyProperty.Register(
                 "MouseEnteredForeground",
                 typeof(Brush),
-                typeof(Kbtter3StatusLinkBehavior),
+                typeof(HyperlinkMouseOverColorChangeBehavior),
                 new UIPropertyMetadata(null));
 
         public static DependencyProperty MouseLeftForegroundProperty =
             DependencyProperty.Register(
                 "MouseLeftForeground",
                 typeof(Brush),
-                typeof(Kbtter3StatusLinkBehavior),
+                typeof(HyperlinkMouseOverColorChangeBehavior),
                 new UIPropertyMetadata(null));
-
-        public static DependencyProperty HostedMainWindowProperty =
-            DependencyProperty.Register(
-                "HostedMainWindow",
-                typeof(MainWindowViewModel),
-                typeof(Kbtter3StatusLinkBehavior));
 
         public Brush MouseEnteredForeground
         {
@@ -142,18 +59,11 @@ namespace Kbtter3.Views
             set { SetValue(MouseLeftForegroundProperty, value); }
         }
 
-        public MainWindowViewModel HostedMainWindow
-        {
-            get { return GetValue(HostedMainWindowProperty) as MainWindowViewModel; }
-            set { SetValue(HostedMainWindowProperty, value); }
-        }
-
         protected override void OnAttached()
         {
             base.OnAttached();
             AssociatedObject.MouseEnter += AssociatedObject_MouseEnter;
             AssociatedObject.MouseLeave += AssociatedObject_MouseLeave;
-            AssociatedObject.Click += AssociatedObject_Click;
             AssociatedObject.Foreground = MouseLeftForeground;
         }
 
@@ -162,7 +72,6 @@ namespace Kbtter3.Views
             base.OnDetaching();
             AssociatedObject.MouseEnter -= AssociatedObject_MouseEnter;
             AssociatedObject.MouseLeave -= AssociatedObject_MouseLeave;
-            AssociatedObject.Click -= AssociatedObject_Click;
         }
 
         private void AssociatedObject_MouseEnter(object sender, MouseEventArgs e)
@@ -175,14 +84,63 @@ namespace Kbtter3.Views
             AssociatedObject.Foreground = MouseLeftForeground;
         }
 
-        private void AssociatedObject_Click(object sender, RoutedEventArgs e)
+    }
+
+    internal class Kbtter3StatusBindingBehavior : Behavior<ListView>
+    {
+        public static DependencyProperty StatusesSourceProperty =
+            DependencyProperty.Register(
+                "StatusesSource",
+                typeof(ObservableCollection<StatusViewModel>),
+                typeof(Kbtter3StatusBindingBehavior),
+                new PropertyMetadata(null));
+
+        public ObservableCollection<StatusViewModel> StatusesSource
         {
-            e.Handled = true;
-            if (HostedMainWindow == null) return;
-            var t = AssociatedObject.Tag as StatusViewModel.StatusElement;
-            if (t == null) return;
-            HostedMainWindow.RequestStatusAction(t.Type, t.Infomation);
+            get { return GetValue(StatusesSourceProperty) as ObservableCollection<StatusViewModel>; }
+            set
+            {
+                SetValue(StatusesSourceProperty, value);
+                IsSourceEnable = value != null;
+            }
         }
 
+        private bool IsSourceEnable = false;
+
+        protected override void OnAttached()
+        {
+            if (StatusesSource != null)
+            {
+                IsSourceEnable = true;
+                StatusesSource.CollectionChanged += StatusesSource_CollectionChanged;
+            }
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            StatusesSource.CollectionChanged -= StatusesSource_CollectionChanged;
+        }
+
+        private void StatusesSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    AssociatedObject.Items.Add(
+                        new Frame
+                    {
+                        Content = new StatusPage(StatusesSource[e.NewStartingIndex]),
+                        NavigationUIVisibility = NavigationUIVisibility.Hidden
+                    });
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    AssociatedObject.Items.RemoveAt(e.OldStartingIndex);
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    AssociatedObject.Items.Clear();
+                    break;
+            }
+        }
     }
 }

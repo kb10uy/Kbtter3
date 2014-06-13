@@ -90,7 +90,6 @@
                     <MenuItem.Header>
                         <TextBlock FontFamily="Marlett" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">6</TextBlock>
                     </MenuItem.Header>
-                    <!--<MenuItem Name="MenuAllowTextWrapping" Header="ツイートの内容を右端で折り返す" IsCheckable="True" Click="MenuAllowTextWrapping_Click"/>-->
                     <MenuItem Name="MenuCSharpBeam" Header="C#ﾋﾞｰﾑﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞwwwwww" Command="{Binding FireCSharpBeamCommand}"/>
                     <Separator/>
                     <MenuItem Name="MenuGCCollect" Header="ガベージコレクションを実行する" Command="{Binding GCCollectCommand}"/>

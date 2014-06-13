@@ -50,7 +50,7 @@ namespace Kbtter3.Models
         /// <summary>
         /// 起動時以降のツイートのキャッシュ
         /// </summary>
-        public List<Status> Cache { get; set; }
+        public SynchronizedCollection<Status> Cache { get; set; }
 
         /// <summary>
         /// ユーザーのキャッシュ
@@ -510,7 +510,7 @@ namespace Kbtter3.Models
                 Setting.AccessTokens[ai].Token,
                 Setting.AccessTokens[ai].TokenSecret
                 );
-            Cache = new List<Status>();
+            Cache = new SynchronizedCollection<Status>();
             UserCache = new Dictionary<string, User>();
             AuthenticatedUser = await Token.Account.VerifyCredentialsAsync(include_entities => true);
             await InitializeCacheDatabase(ai);
@@ -561,10 +561,28 @@ namespace Kbtter3.Models
                     StreamingType.User,
                     new StreamingParameters(include_entities => "true", include_followings_activity => "true"))
                 .Publish();
-            StreamManager.Add(Streaming.OfType<StatusMessage>().Subscribe(OnStatus));
-            StreamManager.Add(Streaming.OfType<EventMessage>().Subscribe(OnEvent));
-            StreamManager.Add(Streaming.OfType<IdMessage>().Subscribe(OnIdEvent));
-            StreamManager.Add(Streaming.OfType<DirectMessageMessage>().Subscribe(OnDirectMessage));
+
+            StreamManager.Add(Streaming.Subscribe(
+                (p) =>
+                {
+                    Task.Run(() =>
+                    {
+                        if (p is StatusMessage) OnStatus((StatusMessage)p);
+                        if (p is EventMessage) OnEvent((EventMessage)p);
+                        if (p is IdMessage) OnIdEvent((IdMessage)p);
+                        if (p is DirectMessageMessage) OnDirectMessage((DirectMessageMessage)p);
+                    });
+                },
+                (Action<Exception>)((ex) =>
+                {
+                    throw ex;
+                }),
+                (Action)(() =>
+                {
+                    Console.WriteLine("Completed!?");
+                    throw new InvalidOperationException("何故かUserStreamが切れました");
+                })
+            ));
 
             StreamManager.Add(Streaming.Connect());
         }

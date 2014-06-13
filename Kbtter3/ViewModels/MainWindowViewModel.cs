@@ -35,7 +35,6 @@ namespace Kbtter3.ViewModels
             listener = new PropertyChangedEventListener(kbtter);
             CompositeDisposable.Add(listener);
             RegisterHandlers();
-
             kbtter.Initialize();
         }
 
@@ -132,7 +131,7 @@ namespace Kbtter3.ViewModels
             get
             { return _UserProfileImageUri; }
             set
-            {
+            { 
                 if (_UserProfileImageUri == value)
                     return;
                 _UserProfileImageUri = value;
@@ -800,9 +799,9 @@ namespace Kbtter3.ViewModels
 
 
         #region DirectMessages変更通知プロパティ
-        private ConcurrentObservableCollection<DirectMessageViewModel> _DirectMessages = new ConcurrentObservableCollection<DirectMessageViewModel>();
+        private ObservableSynchronizedCollection<DirectMessageViewModel> _DirectMessages = new ObservableSynchronizedCollection<DirectMessageViewModel>();
 
-        public ConcurrentObservableCollection<DirectMessageViewModel> DirectMessages
+        public ObservableSynchronizedCollection<DirectMessageViewModel> DirectMessages
         {
             get
             { return _DirectMessages; }
@@ -1147,6 +1146,30 @@ namespace Kbtter3.ViewModels
         #endregion
 
 
+        public void RequestStatusAction(string type, string info)
+        {
+            StatusAction = new StatusAction { Type = type, Information = info };
+        }
+
+
+        #region StatusAction変更通知プロパティ
+        private StatusAction _StatusAction;
+
+        public StatusAction StatusAction
+        {
+            get
+            { return _StatusAction; }
+            set
+            { 
+                if (_StatusAction == value)
+                    return;
+                _StatusAction = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
         #region エラー
         public string Error
         {
@@ -1186,6 +1209,18 @@ namespace Kbtter3.ViewModels
         public int GetHashCode(T obj)
         {
             return obj.GetHashCode();
+        }
+    }
+
+    internal class StatusAction
+    {
+        public string Type { get; set; }
+        public string Information { get; set; }
+
+        public StatusAction()
+        {
+            Type = "";
+            Information = "";
         }
     }
 

@@ -18,5 +18,15 @@
             <param name="type">Type of streaming API.</param>
             <param name="parameters">Parameters.</param>
         </member>
+        <member name="M:CoreTweet.Streaming.Reactive.Extension.Connect(CoreTweet.Core.TokensBase,CoreTweet.Streaming.StreamingParameters,CoreTweet.MethodType,System.String)">
+            <summary>
+            Get a stream from the specified url
+            </summary>
+        </member>
+        <member name="M:CoreTweet.Streaming.Reactive.Extension.ReactiveBase(CoreTweet.Streaming.StreamingApi,CoreTweet.Streaming.StreamingType,CoreTweet.Streaming.StreamingParameters)">
+            <summary>
+            Create an observable object.
+            </summary>
+        </member>
     </members>
 </doc>

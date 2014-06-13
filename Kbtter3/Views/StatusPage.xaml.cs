@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
+using System.Windows.Interactivity;
 
 using Kbtter3.ViewModels;
 using Newtonsoft.Json;
@@ -37,7 +38,8 @@ namespace Kbtter3.Views
         bool showed = false;
         IList<StatusViewModel.StatusElement> elm;
         string stsn;
-        MainWindow mainw;
+        StatusViewModel statvm;
+
         static Kbtter3Setting setting;
 
         static StatusPage()
@@ -45,14 +47,13 @@ namespace Kbtter3.Views
             setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
         }
 
-        public StatusPage(MainWindow m, StatusViewModel vm)
+        public StatusPage(StatusViewModel vm)
         {
-            mainw = m;
+            statvm = vm;
             InitializeComponent();
             DataContext = vm;
             elm = vm.TextElements;
             stsn = vm.ScreenName;
-            //mainw.WindowEvent += mainw_WindowEvent;
 
             if (vm.Via == "") StackPanelBlockVia.Visibility = Visibility.Collapsed;
             SetMainText();
@@ -65,12 +66,6 @@ namespace Kbtter3.Views
         ~StatusPage()
         {
             Debug.WriteLine("Statuspage has been deleted!");
-            //mainw.WindowEvent -= mainw_WindowEvent;
-        }
-
-        void mainw_WindowEvent(string target, string type, object obj)
-        {
-            if (target != "StatusPage" && target != "Global") return;
         }
 
         private void DeleteContent(object s, PropertyChangedEventArgs e)
@@ -101,9 +96,10 @@ namespace Kbtter3.Views
                             RequestHyperlinkAction(t.Type, t.Infomation);
                             e2.Handled = true;
                         };
-                        hl.MouseEnter += Hyperlink_MouseEnter;
-                        hl.MouseLeave += Hyperlink_MouseLeave;
-                        hl.Foreground = Brushes.DodgerBlue;
+                        var bh = new HyperlinkMouseOverColorChangeBehavior();
+                        bh.MouseEnteredForeground = Brushes.Red;
+                        bh.MouseLeftForeground = Brushes.DodgerBlue;
+                        Interaction.GetBehaviors(hl).Add(bh);
                         TextBlockMainText.Inlines.Add(hl);
                         break;
                     default:
@@ -139,17 +135,7 @@ namespace Kbtter3.Views
 
         private void RequestHyperlinkAction(string type, string info)
         {
-            mainw.RequestAction(type, info);
-        }
-
-        private void Hyperlink_MouseEnter(object sender, MouseEventArgs e)
-        {
-            (sender as Hyperlink).Foreground = Brushes.Red;
-        }
-
-        private void Hyperlink_MouseLeave(object sender, MouseEventArgs e)
-        {
-            (sender as Hyperlink).Foreground = Brushes.DodgerBlue;
+            statvm.main.RequestStatusAction(type, info);
         }
 
         //Via用とか

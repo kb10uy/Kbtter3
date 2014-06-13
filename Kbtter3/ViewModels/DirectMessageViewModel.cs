@@ -106,9 +106,9 @@ namespace Kbtter3.ViewModels
 
 
         #region MyMessage変更通知プロパティ
-        private ConcurrentObservableCollection<DirectMessageItemViewModel> _MyMessage = new ConcurrentObservableCollection<DirectMessageItemViewModel>();
+        private ObservableSynchronizedCollection<DirectMessageItemViewModel> _MyMessage = new ObservableSynchronizedCollection<DirectMessageItemViewModel>();
 
-        public ConcurrentObservableCollection<DirectMessageItemViewModel> MyMessage
+        public ObservableSynchronizedCollection<DirectMessageItemViewModel> MyMessage
         {
             get
             { return _MyMessage; }
@@ -124,9 +124,9 @@ namespace Kbtter3.ViewModels
 
 
         #region ReceiviedMessage変更通知プロパティ
-        private ConcurrentObservableCollection<DirectMessageItemViewModel> _ReceiviedMessage = new ConcurrentObservableCollection<DirectMessageItemViewModel>();
+        private ObservableSynchronizedCollection<DirectMessageItemViewModel> _ReceiviedMessage = new ObservableSynchronizedCollection<DirectMessageItemViewModel>();
 
-        public ConcurrentObservableCollection<DirectMessageItemViewModel> ReceiviedMessage
+        public ObservableSynchronizedCollection<DirectMessageItemViewModel> ReceiviedMessage
         {
             get
             { return _ReceiviedMessage; }
@@ -142,9 +142,9 @@ namespace Kbtter3.ViewModels
 
 
         #region MergedMessage変更通知プロパティ
-        private ConcurrentObservableCollection<DirectMessageItemViewModel> _MergedMessage = new ConcurrentObservableCollection<DirectMessageItemViewModel>();
+        private ObservableSynchronizedCollection<DirectMessageItemViewModel> _MergedMessage = new ObservableSynchronizedCollection<DirectMessageItemViewModel>();
 
-        public ConcurrentObservableCollection<DirectMessageItemViewModel> MergedMessage
+        public ObservableSynchronizedCollection<DirectMessageItemViewModel> MergedMessage
         {
             get
             { return _MergedMessage; }

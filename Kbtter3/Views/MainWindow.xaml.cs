@@ -37,7 +37,6 @@ namespace Kbtter3.Views
         PropertyChangedWeakEventListener ctxlistener;
         Kbtter3Setting setting;
 
-        internal event MainWindowEventHandler WindowEvent;
         MainWindowViewModel vm;
         int urs = 0, urn = 0;
 
@@ -46,10 +45,12 @@ namespace Kbtter3.Views
             InitializeComponent();
             vm = DataContext as MainWindowViewModel;
             composite = new LivetCompositeDisposable();
+
             ctxlistener = new PropertyChangedWeakEventListener(vm);
             ctxlistener.Add("AccessTokenRequest", StartAccountSelect);
             ctxlistener.Add("ReplyStart", ExpandNewTweet);
             ctxlistener.Add("ToggleNewStatus", ToggleNewTweet);
+            ctxlistener.Add("StatusAction", (s, e) => RequestAction(vm.StatusAction.Type, vm.StatusAction.Information));
             composite.Add(ctxlistener);
 
             vm.StatusUpdate += MainWindow_Update;
@@ -59,12 +60,6 @@ namespace Kbtter3.Views
             if (!setting.MainWindow.AllowJokeCommands) ToolBarJokes.Visibility = Visibility.Collapsed;
 
             SetShortcuts();
-            WindowEvent += MainWindow_WindowEvent;
-        }
-
-        void MainWindow_WindowEvent(string target, string type, object msg)
-        {
-
         }
 
         private void StartAccountSelect(object sender, PropertyChangedEventArgs e)
@@ -98,7 +93,7 @@ namespace Kbtter3.Views
                     urs++;
                     TextBlockUnreadStatuses.Text = String.Format(" {0}", urs);
                 }
-                ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(this, vm) });
+                ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(vm) });
                 if (ListBoxTimeline.Items.Count > setting.MainWindow.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.MainWindow.StatusesShowMax);
             }));
         }
@@ -194,29 +189,17 @@ namespace Kbtter3.Views
             }));
         }
 
-        private void MenuAllowTextWrapping_Click(object sender, RoutedEventArgs e)
-        {
-            //ListBoxTimeline.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, MenuAllowTextWrapping.IsChecked ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto);
-            //RaiseWindowEvent(WindowEventTargetStatusPage, MenuAllowTextWrapping.IsChecked.ToString());
-        }
-        #endregion
 
-
-        #region View間連携
         public async void RequestAction(string type, string info)
         {
             switch (type)
             {
                 case "Url":
                 case "Media":
-                    //内蔵ブラウザはクソ、廃案
-                    //AddTab(new TextBlock { Text = info.Substring(0, 16) + "..." },
-                    //new Frame { Content = new InternalBrowserPage(new Uri(info)) });
                     Process.Start(info);
                     break;
                 case "Mention":
                     var upvm = await vm.GetUserProfile(info);
-                    //ここは取得するようにしたほうがいいかなーとか
                     if (upvm == null) return;
                     AddTab(new TextBlock { Text = String.Format("{0}さんの情報", info) },
                            new Frame { Content = new UserProfilePage(this, upvm) });
@@ -227,29 +210,9 @@ namespace Kbtter3.Views
                     throw new InvalidOperationException(String.Format("不明なリクエストです:{0}", type));
             }
         }
-
-        public static readonly string WindowEventTargetStatusPage = "StatusPage";
-
-        public void RaiseWindowEvent(string target, string type, string typeval)
-        {
-            WindowEvent(target, type + "-" + typeval, null);
-        }
-
-        public void RaiseWindowEvent(string target, string type, object obj)
-        {
-            WindowEvent(target, type, obj);
-        }
-
-        public void RaiseWindowEvent(string target, string type, string typeval, object obj)
-        {
-            WindowEvent(target, type + "-" + typeval, obj);
-        }
-
-        public void RaiseWindowEvent(string type, string typeval)
-        {
-            WindowEvent("Global", type + "-" + typeval, null);
-        }
         #endregion
+
+
 
         private void ButtonSendClipImage_Click(object sender, RoutedEventArgs e)
         {

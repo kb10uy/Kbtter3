@@ -127,9 +127,12 @@
                             <StackPanel>
                                 <Button Command="{Binding RefreshStatusesCommand}">最新の状態に更新する</Button>
                                 <Button Command="{Binding ShowNewerStatusesCommand}">新しいツイートを表示</Button>
-                                <ListView ItemsSource="{Binding ShowingStatuses}" ItemTemplate="{StaticResource StatusEmbeddedViewTemplate}" 
-                                      HorizontalContentAlignment="Stretch" Background="Transparent" MaxHeight="500"
-                                      ScrollViewer.CanContentScroll="False"/>
+                                <ListView HorizontalContentAlignment="Stretch" Background="Transparent" MaxHeight="500"
+                                          ScrollViewer.CanContentScroll="False">
+                                    <i:Interaction.Behaviors>
+                                        <v:Kbtter3StatusBindingBehavior StatusesSource="{Binding ShowingStatuses}"/>
+                                    </i:Interaction.Behaviors>
+                                </ListView>
                                 <Button Command="{Binding ShowOlderStatusesCommand}">昔のツイートを表示</Button>
                             </StackPanel>
                         </ScrollViewer>
@@ -149,9 +152,12 @@
                             <StackPanel>
                                 <Button Command="{Binding RefreshFavoritesCommand}">最新の状態に更新する</Button>
                                 <Button Command="{Binding ShowNewerFavoritesCommand}">新しいお気に入りを表示</Button>
-                                <ListView ItemsSource="{Binding ShowingFavorites}" ItemTemplate="{StaticResource StatusEmbeddedViewTemplate}" 
-                                      HorizontalContentAlignment="Stretch" Background="Transparent" MaxHeight="500"
-                                      ScrollViewer.CanContentScroll="False"/>
+                                <ListView HorizontalContentAlignment="Stretch" Background="Transparent" MaxHeight="500"
+                                          ScrollViewer.CanContentScroll="False">
+                                    <i:Interaction.Behaviors>
+                                        <v:Kbtter3StatusBindingBehavior StatusesSource="{Binding ShowingFavorites}"/>
+                                    </i:Interaction.Behaviors>
+                                </ListView>
                                 <Button Command="{Binding ShowOlderFavoritesCommand}">昔のお気に入りを表示</Button>
                             </StackPanel>
                         </ScrollViewer>

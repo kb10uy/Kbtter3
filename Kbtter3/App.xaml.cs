@@ -475,33 +475,4 @@ namespace Kbtter3
             Consumer = new ConsumerToken();
         }
     }
-
-    //http://stackoverflow.com/questions/2137769/where-do-i-get-a-thread-safe-collectionview
-    //http://www.julmar.com/blog/mark/2009/04/01/AddingToAnObservableCollectionFromABackgroundThread.aspx
-    internal class ConcurrentObservableCollection<T> : ObservableCollection<T>
-    {
-        public override event NotifyCollectionChangedEventHandler CollectionChanged;
-
-        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-        {
-            var cheh = CollectionChanged;
-            if (cheh != null)
-            {
-                var dper = cheh.GetInvocationList()
-                    .Select(p => p.Target as DispatcherObject)
-                    .Where(p => p != null)
-                    .Select(p => p.Dispatcher)
-                    .FirstOrDefault();
-                if (dper != null && !dper.CheckAccess())
-                {
-                    dper.Invoke(DispatcherPriority.DataBind, (Action)(() => OnCollectionChanged(e)));
-                }
-                else
-                {
-                    foreach (NotifyCollectionChangedEventHandler i in cheh.GetInvocationList())
-                        i.Invoke(this, e);
-                }
-            }
-        }
-    }
 }
