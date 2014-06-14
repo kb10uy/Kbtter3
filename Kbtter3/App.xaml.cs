@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Livet;
 using System.Collections.Specialized;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Kbtter3
 {
@@ -44,9 +45,9 @@ namespace Kbtter3
             var Setting = new Kbtter3Setting();
             Setting.Consumer = new ConsumerToken { Key = ConsumerDefaultKey, Secret = ConsumerDefaultSecret };
             Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName, Setting);
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
         }
-
+        /*
         //集約エラーハンドラ
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
@@ -59,6 +60,7 @@ namespace Kbtter3
 
             Environment.Exit(1);
         }
+        */
     }
 
 
@@ -89,9 +91,36 @@ namespace Kbtter3
             File.WriteAllText(filename, JsonConvert.SerializeObject(obj, Formatting.Indented));
         }
 
-        public static bool EndsWith(this string t,string es)
+        public static bool EndsWith(this string t, string es)
         {
             return t.IndexOf(es) == (t.Length - es.Length);
+        }
+
+        public static T CloneViaJson<T>(T obj)
+            where T : class
+        {
+            return JsonConvert.DeserializeObject(JsonConvert.SerializeObject(obj)) as T;
+        }
+        
+        //http://d.hatena.ne.jp/hilapon/20120301/1330569751
+        public static T DeepCopy<T>(this T source) where T : class
+        {
+            T result;
+            try
+            {
+                var serializer = new System.Runtime.Serialization.DataContractSerializer(typeof(T));
+                using (var mem = new System.IO.MemoryStream())
+                {
+                    serializer.WriteObject(mem, source);
+                    mem.Position = 0;
+                    result = serializer.ReadObject(mem) as T;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return result;
         }
     }
 

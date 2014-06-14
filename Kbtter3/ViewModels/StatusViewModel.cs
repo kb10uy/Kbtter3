@@ -73,20 +73,26 @@ namespace Kbtter3.ViewModels
             TextElements = new List<StatusElement>();
 
             var el = new List<EntityInfo>();
-            if (origin.Entities.Urls != null) el.AddRange(origin.Entities.Urls.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Url" }));
-            if (origin.Entities.Media != null) el.AddRange(origin.Entities.Media.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Media" }));
-            if (origin.Entities.UserMentions != null) el.AddRange(origin.Entities.UserMentions.Select(p => new EntityInfo { Indices = p.Indices, Text = "@" + p.ScreenName, Infomation = p.ScreenName, Type = "Mention" }));
-            if (origin.Entities.HashTags != null) el.AddRange(origin.Entities.HashTags.Select(p => new EntityInfo { Indices = p.Indices, Text = "#" + p.Text, Infomation = p.Text, Type = "Hashtag" }));
-            el.Sort((x, y) => x.Indices[0].CompareTo(y.Indices[0]));
+            if (origin.Entities != null)
+            {
+                if (origin.Entities.Urls != null) el.AddRange(origin.Entities.Urls.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Url" }));
+                if (origin.Entities.Media != null) el.AddRange(origin.Entities.Media.Select(p => new EntityInfo { Indices = p.Indices, Text = p.DisplayUrl, Infomation = p.ExpandedUrl.ToString(), Type = "Media" }));
+                if (origin.Entities.UserMentions != null) el.AddRange(origin.Entities.UserMentions.Select(p => new EntityInfo { Indices = p.Indices, Text = "@" + p.ScreenName, Infomation = p.ScreenName, Type = "Mention" }));
+                if (origin.Entities.HashTags != null) el.AddRange(origin.Entities.HashTags.Select(p => new EntityInfo { Indices = p.Indices, Text = "#" + p.Text, Infomation = p.Text, Type = "Hashtag" }));
+                el.Sort((x, y) => x.Indices[0].CompareTo(y.Indices[0]));
+            }
             int n = 0;
             string s = _Text;
             foreach (var i in el)
             {
-                TextElements.Add(new StatusElement { Text = s.Substring(n, i.Indices[0] - n), Type = "None" });
+                i.Indices[0] = i.Indices[0] >= s.Length ? s.Length - 1 : i.Indices[0];
+                var ssi = i.Indices[0] - n;
+                ssi = (i.Indices[0] + ssi >= s.Length) ? (s.Length - n) : ssi;
+                TextElements.Add(new StatusElement { Text = s.Substring(n, ssi), Type = "None" });
                 TextElements.Add(new StatusElement { Text = i.Text, Infomation = i.Infomation, Type = i.Type });
-                n = i.Indices[1];
+                n = (i.Indices[1] >= s.Length - 1) ? s.Length - 1 : i.Indices[1];
             }
-            if (n < s.Length) TextElements.Add(new StatusElement { Text = s.Substring(n), Type = "None" });
+            if (n < s.Length - 1) TextElements.Add(new StatusElement { Text = s.Substring(n), Type = "None" });
         }
 
         public class EntityInfo
@@ -720,7 +726,7 @@ namespace Kbtter3.ViewModels
             ret.IsOthersStatus = !ret.IsMyStatus;
             ret.IsOthersStatus = !ret.IsMyStatus;
             ret._CreatedTimeText = st.CreatedAt.DateTime.ToLocalTime();
-            ret.IsReplyToMe = st.Entities.UserMentions.Any(p => p.ScreenName == Kbtter.Instance.AuthenticatedUser.ScreenName);
+            ret.IsReplyToMe = st.Entities != null && st.Entities.UserMentions.Any(p => p.ScreenName == Kbtter.Instance.AuthenticatedUser.ScreenName);
             ret.AnalyzeText();
             ret.TryGetReply();
 

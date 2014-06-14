@@ -91,6 +91,12 @@ namespace Kbtter3.Models
         public IList<Kbtter3PluginProvider> Plugins { get; private set; }
 
         /// <summary>
+        /// プラグイン同士で非同期的に処理する際にlock構文やMonitorで用いるオブジェクトを取得します。
+        /// </summary>
+        /// <returns></returns>
+        public object PluginMonitoringToken { get; private set; }
+
+        /// <summary>
         /// ログります。
         /// </summary>
         public List<string> Logs { get; set; }
@@ -173,6 +179,7 @@ namespace Kbtter3.Models
             Setting = new Kbtter3Setting();
             StreamManager = new List<IDisposable>();
             Plugins = new List<Kbtter3PluginProvider>();
+            PluginMonitoringToken = new object();
             Logs = new List<string>();
 
             if (!Directory.Exists(CacheFolderName)) Directory.CreateDirectory(CacheFolderName);
@@ -640,33 +647,50 @@ namespace Kbtter3.Models
             }
         }
 
-        private void NotifyStatusUpdate(StatusMessage msg)
+        private async void NotifyStatusUpdate(StatusMessage msg)
         {
-            if (msg.Type != MessageType.Create) return;
-            LatestStatus = msg;
-            ShowingStatuses.Enqueue(msg.Status);
             CacheStatuses(msg);
+            if (msg.Type != MessageType.Create) return;
+            LatestStatus = await ProcessStatuses(msg);
+            ShowingStatuses.Enqueue(LatestStatus.Status);
             RaisePropertyChanged("Status");
+            await Task.Run(() =>
+            {
+                foreach (var p in Plugins) p.StatusUpdate(msg.DeepCopy(), PluginMonitoringToken);
+            });
         }
 
-        private void NotifyEventUpdate(EventMessage msg)
+        private async void NotifyEventUpdate(EventMessage msg)
         {
-            LatestEvent = msg;
             CacheEvents(msg);
+            LatestEvent = await ProcessEvents(msg);
             RaisePropertyChanged("Event");
+            await Task.Run(() =>
+            {
+                foreach (var p in Plugins) p.EventUpdate(msg.DeepCopy(), PluginMonitoringToken);
+            });
         }
 
-        private void NotifyIdEventUpdate(IdMessage msg)
+        private async void NotifyIdEventUpdate(IdMessage msg)
         {
             CacheIdEvents(msg);
+            await ProcessIdEvents(msg);
             RaisePropertyChanged("IdEvent");
+            await Task.Run(() =>
+            {
+                foreach (var p in Plugins) p.IdEventUpdate(msg.DeepCopy(), PluginMonitoringToken);
+            });
         }
 
-        private void NotifyDirectMessageUpdate(DirectMessageMessage msg)
+        private async void NotifyDirectMessageUpdate(DirectMessageMessage msg)
         {
-            LatestDirectMessage = msg;
             CacheDirectMessage(msg);
+            LatestDirectMessage = await ProcessDirectMessages(msg);
             RaisePropertyChanged("DirectMessage");
+            await Task.Run(() =>
+            {
+                foreach (var p in Plugins) p.DirectMessageUpdate(msg.DeepCopy(), PluginMonitoringToken);
+            });
         }
 
         private void CacheEvents(EventMessage msg)
@@ -710,6 +734,7 @@ namespace Kbtter3.Models
                         }
                         break;
                 }
+
             });
         }
 
@@ -739,6 +764,7 @@ namespace Kbtter3.Models
                         break;
 
                 }
+
             });
         }
 
@@ -770,6 +796,50 @@ namespace Kbtter3.Models
                         }
                         break;
                 }
+
+            });
+        }
+
+        private Task<StatusMessage> ProcessStatuses(StatusMessage msg)
+        {
+            return Task.Run(() =>
+            {
+                var ret = msg.DeepCopy();
+                foreach (var i in Plugins)
+                {
+                    ret = i.StatusUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
+                }
+                return ret;
+            });
+        }
+
+        private Task<EventMessage> ProcessEvents(EventMessage msg)
+        {
+            return Task.Run(() =>
+            {
+                var ret = msg.DeepCopy();
+                foreach (var i in Plugins) ret = i.EventUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
+                return ret;
+            });
+        }
+
+        private Task<IdMessage> ProcessIdEvents(IdMessage msg)
+        {
+            return Task.Run(() =>
+            {
+                var ret = msg.DeepCopy();
+                foreach (var i in Plugins) ret = i.IdEventUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
+                return ret;
+            });
+        }
+
+        private Task<DirectMessageMessage> ProcessDirectMessages(DirectMessageMessage msg)
+        {
+            return Task.Run(() =>
+            {
+                var ret = msg.DeepCopy();
+                foreach (var i in Plugins) ret = i.DirectMessageUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
+                return ret;
             });
         }
 
@@ -803,6 +873,7 @@ namespace Kbtter3.Models
                 foreach (var p in Plugins) PluginErrorCount += p.Load(pflist);
                 SaveLog();
                 if (PluginErrorCount != 0) RaisePropertyChanged("PluginErrorCount");
+                foreach (var p in Plugins) p.PluginInitialze();
             });
         }
 
@@ -865,7 +936,10 @@ namespace Kbtter3.Models
         /// </summary>
         public void SaveLog()
         {
-            File.WriteAllLines(App.LoggingFileName, Logs);
+            lock (PluginMonitoringToken)
+            {
+                File.WriteAllLines(App.LoggingFileName, Logs);
+            }
         }
         #endregion
     }

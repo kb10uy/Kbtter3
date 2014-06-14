@@ -143,6 +143,8 @@
     <Reference Include="System.Reactive.PlatformServices">
       <HintPath>..\packages\Rx-PlatformServices.2.2.4\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Interactivity">
       <SpecificVersion>False</SpecificVersion>
@@ -168,7 +170,7 @@
     <Compile Include="Models\Caching\CacheModels.cs" />
     <Compile Include="Models\Plugin\IronPythonPluginLoader.cs" />
     <Compile Include="Models\Plugin\Kbtter3PluginProvider.cs" />
-    <Compile Include="Models\Plugin\NativePluginLoader.cs" />
+    <Compile Include="Models\Plugin\LuaPluginLoader.cs" />
     <Compile Include="ViewModels\AccountSelectWindowViewModel.cs" />
     <Compile Include="ViewModels\DirectMessageItemViewModel.cs" />
     <Compile Include="ViewModels\DirectMessageViewModel.cs" />

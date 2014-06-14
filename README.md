@@ -50,10 +50,9 @@ LICENSE.txtを参照してください。
 * Kbtterは、多くのライブラリを参照使用しています。  
   参照しているライブラリのライセンスは以下を参照してください。
   各ライブラリの使用については、それぞれの条文に従ってください。
- - CoreTweetは、MIT Licenseのライブラリです。
- - JSON.NETはMIT Licenseのライブラリです。
+ - CoreTweet,JSON.NET,NLuaは、MIT Licenseのライブラリです。
  - Livetはzlib/pngのライブラリです。
- - Reactive Extensionsは、Apache License 2.0のライブラリです。
+ - Reactive Extensions、IronPythonは、Apache License 2.0のライブラリです。
  - SQLite、System.Data.SQLiteは、Public Domainのライブラリです。
  - Entity Frameworkは、マイクロソフト ソフトウェア ライセンス条項下のライブラリです。  
    詳しくは[マイクロソフト ソフトウェア ライセンス条項](http://www.microsoft.com/web/webpi/eula/net_library_eula_jpn.htm)を参照してください。
@@ -170,5 +169,85 @@ LICENSE.txtを参照してください。
 > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-----------------
+---------
+
+> ----------------
+> NLua License
+> --------------------
+> 
+> NLua is licensed under the terms of the MIT license reproduced below.
+> This mean that NLua is free software and can be used for both academic and
+> commercial purposes at absolutely no cost.
+> 
+> ===============================================================================
+> 
+> Copyright (C) 2013 - Vinicius Jarina (viniciusjarina@gmail.com)
+> Copyright (C) 2012 Megax <http://megax.yeahunter.hu/>
+> Copyright (C) 2003-2005 Fabio Mascarenhas de Queiroz.
+> 
+> 
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+> 
+> The above copyright notice and this permission notice shall be included in
+> all copies or substantial portions of the Software.
+> 
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+> THE SOFTWARE.
+> 
+> ===============================================================================
+> 
+> Kopi Lua License
+> ----------------
+> 
+> Kopi Lua is licensed under the terms of the MIT license. Both the MIT
+> license and the original Lua copyright notice are reproduced below.
+> 
+> Please see http://www.ppl-pilot.com/KopiLua for details.
+> 
+> ===============================================================================
+> 
+> Lua License
+> -----------
+> 
+> Lua is licensed under the terms of the MIT license reproduced below.
+> This means that Lua is free software and can be used for both academic
+> and commercial purposes at absolutely no cost.
+> 
+> For details and rationale, see http://www.lua.org/license.html .
+> 
+> ===============================================================================
+> 
+> Copyright (C) 1994-2008 Lua.org, PUC-Rio.
+> 
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+> 
+> The above copyright notice and this permission notice shall be included in
+> all copies or substantial portions of the Software.
+> 
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+> THE SOFTWARE.
+> 
+> ===============================================================================
+
+
 (C) 2014 kb10uy
