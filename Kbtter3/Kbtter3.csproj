@@ -146,10 +146,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Windows.Interactivity">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>InfrastructureAssemblies\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -175,9 +172,11 @@
     <Compile Include="ViewModels\DirectMessageItemViewModel.cs" />
     <Compile Include="ViewModels\DirectMessageViewModel.cs" />
     <Compile Include="ViewModels\InternalBrowserViewModel.cs" />
+    <Compile Include="ViewModels\NewUserTimelineViewModel.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
     <Compile Include="ViewModels\SettingPageViewModel.cs" />
     <Compile Include="ViewModels\SimpleUserViewModel.cs" />
+    <Compile Include="ViewModels\UserCustomizableTimelineViewModel.cs" />
     <Compile Include="ViewModels\UserProfilePageViewModel.cs" />
     <Compile Include="Views\AccountSelectWindow.xaml.cs">
       <DependentUpon>AccountSelectWindow.xaml</DependentUpon>
@@ -189,6 +188,9 @@
     <Compile Include="Views\Converters.cs" />
     <Compile Include="Views\InternalBrowserPage.xaml.cs">
       <DependentUpon>InternalBrowserPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NewUserTimelineWindow.xaml.cs">
+      <DependentUpon>NewUserTimelineWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\NotificationPage.xaml.cs">
       <DependentUpon>NotificationPage.xaml</DependentUpon>
@@ -212,6 +214,9 @@
     <Compile Include="Views\StatusPage.xaml.cs">
       <DependentUpon>StatusPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UserCustomizableTimelinePage.xaml.cs">
+      <DependentUpon>UserCustomizableTimelinePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UserProfilePage.xaml.cs">
       <DependentUpon>UserProfilePage.xaml</DependentUpon>
     </Compile>
@@ -227,14 +232,22 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DesignData\UserProfile.xaml">
+    <DesignData Include="Views\DesignData\NewUserTimeline.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </DesignData>
+    <DesignData Include="Views\DesignData\UserProfile.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\DesignData\Notification.xaml">
+    </DesignData>
+    <DesignData Include="Views\DesignData\Notification.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
+    </DesignData>
+    <DesignData Include="Views\DesignData\UserTimeline.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </DesignData>
     <Page Include="Views\InternalBrowserPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -258,6 +271,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\NewUserTimelineWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\NotificationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -302,6 +319,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\UserCustomizableTimelinePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\UserProfilePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -339,6 +360,8 @@
     <Content Include="InfrastructureAssemblies\Livet.XML" />
     <Content Include="InfrastructureAssemblies\Microsoft.Expression.Interactions.dll" />
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
+    <Content Include="Libraries\Azuki.dll" />
+    <Resource Include="Libraries\Azuki.xml" />
     <Content Include="Libraries\CoreTweet.dll" />
     <Resource Include="Resources\kbtter3.ico" />
     <Resource Include="Resources\kbtter3.png" />
@@ -367,7 +390,12 @@
     <Resource Include="Resources\rtno.png" />
     <Resource Include="Libraries\CoreTweet.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Kbtter3.Query\Kbtter3.Query.csproj">
+      <Project>{8546db30-0f0b-4378-ba4e-b0a4f71f960c}</Project>
+      <Name>Kbtter3.Query</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

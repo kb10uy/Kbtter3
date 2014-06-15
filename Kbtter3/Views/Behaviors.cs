@@ -91,13 +91,12 @@ namespace Kbtter3.Views
         public static DependencyProperty StatusesSourceProperty =
             DependencyProperty.Register(
                 "StatusesSource",
-                typeof(ObservableCollection<StatusViewModel>),
-                typeof(Kbtter3StatusBindingBehavior),
-                new PropertyMetadata(null));
+                typeof(ObservableSynchronizedCollection<StatusViewModel>),
+                typeof(Kbtter3StatusBindingBehavior));
 
-        public ObservableCollection<StatusViewModel> StatusesSource
+        public ObservableSynchronizedCollection<StatusViewModel> StatusesSource
         {
-            get { return GetValue(StatusesSourceProperty) as ObservableCollection<StatusViewModel>; }
+            get { return GetValue(StatusesSourceProperty) as ObservableSynchronizedCollection<StatusViewModel>; }
             set
             {
                 SetValue(StatusesSourceProperty, value);
@@ -124,23 +123,28 @@ namespace Kbtter3.Views
 
         private void StatusesSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
+            DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
             {
-                case NotifyCollectionChangedAction.Add:
-                    AssociatedObject.Items.Add(
-                        new Frame
-                    {
-                        Content = new StatusPage(StatusesSource[e.NewStartingIndex]),
-                        NavigationUIVisibility = NavigationUIVisibility.Hidden
-                    });
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    AssociatedObject.Items.RemoveAt(e.OldStartingIndex);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    AssociatedObject.Items.Clear();
-                    break;
-            }
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        AssociatedObject.Items.Insert(e.NewStartingIndex,
+                            new Frame
+                        {
+                            Content = new StatusPage(StatusesSource[e.NewStartingIndex]),
+                            NavigationUIVisibility = NavigationUIVisibility.Hidden
+                        });
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        AssociatedObject.Items.RemoveAt(e.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        AssociatedObject.Items.Clear();
+                        break;
+                }
+            }));
+
+
         }
     }
 }

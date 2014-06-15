@@ -33,6 +33,10 @@
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Information">
             <l:InformationDialogInteractionMessageAction/>
         </l:InteractionMessageTrigger>
+        
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="NewUserTimeline">
+            <l:TransitionInteractionMessageAction WindowType="{x:Type v:NewUserTimelineWindow}" Mode="Modal"/>
+        </l:InteractionMessageTrigger>
 
         <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
 
@@ -114,6 +118,7 @@
                     </MenuItem>
                 </Menu>
                 <Button Name="ButtonSendClipImage" VerticalAlignment="Center" Click="ButtonSendClipImage_Click">クリップボードの画像を追加</Button>
+                <Button Name="ButtonNewUserTimeline" VerticalAlignment="Center" Command="{Binding AddUserTimelineCommand}">新規ユーザーTL</Button>
             </ToolBar>
             <ToolBar Name="ToolBarJokes" VerticalAlignment="Center">
                 <Menu Background="Transparent">

@@ -622,7 +622,7 @@ namespace Kbtter3.Models
                 },
                 (Action<Exception>)((ex) =>
                 {
-                    throw ex;
+                    //throw ex;
                 }),
                 (Action)(() =>
                 {
@@ -805,6 +805,7 @@ namespace Kbtter3.Models
             return Task.Run(() =>
             {
                 var ret = msg.DeepCopy();
+                if (ret == null) return msg;
                 foreach (var i in Plugins)
                 {
                     ret = i.StatusUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
@@ -818,6 +819,7 @@ namespace Kbtter3.Models
             return Task.Run(() =>
             {
                 var ret = msg.DeepCopy();
+                if (ret == null) return msg;
                 foreach (var i in Plugins) ret = i.EventUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
                 return ret;
             });
@@ -828,6 +830,7 @@ namespace Kbtter3.Models
             return Task.Run(() =>
             {
                 var ret = msg.DeepCopy();
+                if (ret == null) return msg;
                 foreach (var i in Plugins) ret = i.IdEventUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
                 return ret;
             });
@@ -838,6 +841,7 @@ namespace Kbtter3.Models
             return Task.Run(() =>
             {
                 var ret = msg.DeepCopy();
+                if (ret == null) return msg;
                 foreach (var i in Plugins) ret = i.DirectMessageUpdateDestructive(ret, PluginMonitoringToken) ?? ret;
                 return ret;
             });

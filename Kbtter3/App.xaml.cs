@@ -118,7 +118,7 @@ namespace Kbtter3
             }
             catch (Exception)
             {
-                throw;
+                return null;
             }
             return result;
         }

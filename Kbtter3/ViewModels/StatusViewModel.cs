@@ -87,7 +87,7 @@ namespace Kbtter3.ViewModels
             {
                 i.Indices[0] = i.Indices[0] >= s.Length ? s.Length - 1 : i.Indices[0];
                 var ssi = i.Indices[0] - n;
-                ssi = (i.Indices[0] + ssi >= s.Length) ? (s.Length - n) : ssi;
+                ssi = (i.Indices[0] + ssi > s.Length) ? (s.Length - n) : ssi;
                 TextElements.Add(new StatusElement { Text = s.Substring(n, ssi), Type = "None" });
                 TextElements.Add(new StatusElement { Text = i.Text, Infomation = i.Infomation, Type = i.Type });
                 n = (i.Indices[1] >= s.Length - 1) ? s.Length - 1 : i.Indices[1];

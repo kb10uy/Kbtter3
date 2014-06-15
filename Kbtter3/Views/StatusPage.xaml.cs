@@ -50,8 +50,8 @@ namespace Kbtter3.Views
         public StatusPage(StatusViewModel vm)
         {
             statvm = vm;
-            InitializeComponent();
             DataContext = vm;
+            InitializeComponent();
             elm = vm.TextElements;
             stsn = vm.ScreenName;
 

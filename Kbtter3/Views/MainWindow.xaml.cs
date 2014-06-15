@@ -53,6 +53,14 @@ namespace Kbtter3.Views
             ctxlistener.Add("ReplyStart", ExpandNewTweet);
             ctxlistener.Add("ToggleNewStatus", ToggleNewTweet);
             ctxlistener.Add("StatusAction", (s, e) => RequestAction(vm.StatusAction.Type, vm.StatusAction.Information));
+            ctxlistener.Add("UserTimeline", (s, e) =>
+                AddTab("ユーザー定義タブ1",
+                new Frame
+            {
+                NavigationUIVisibility = NavigationUIVisibility.Hidden,
+                Content = new UserCustomizableTimelinePage(vm.UserTimelineViewModel)
+            }));
+
             composite.Add(ctxlistener);
 
             vm.StatusUpdate += MainWindow_Update;
@@ -168,10 +176,7 @@ namespace Kbtter3.Views
                 var tp = new ClosableRoundTabItem();
                 tp.Header = header;
                 tp.Content = elm;
-                tp.Closed += (s, e) =>
-                {
-                    TabControlMain.Items.Remove(s);
-                };
+                tp.Closed += Tp_Closed;
                 TabControlMain.Items.Add(tp);
             }));
         }
@@ -183,14 +188,21 @@ namespace Kbtter3.Views
                 var tp = new ClosableRoundTabItem();
                 tp.Header = header;
                 tp.Content = elm;
-                tp.Closed += (s, e) =>
-                {
-                    TabControlMain.Items.Remove(s);
-                };
+                tp.Closed += Tp_Closed;
                 TabControlMain.Items.Add(tp);
             }));
+            //DispatcherHelper.UIDispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
+            
         }
 
+        private void Tp_Closed(object sender, RoutedEventArgs e)
+        {
+            var s = sender as ClosableRoundTabItem;
+            s.Closed -= Tp_Closed;
+            s.Header = null;
+            s.Content = null;
+            TabControlMain.Items.Remove(s);
+        }
 
         public async void RequestAction(string type, string info)
         {
@@ -252,6 +264,11 @@ namespace Kbtter3.Views
             if (e.Property != TextBlock.TextProperty) return;
             var sb = TextBlockPopupNotification.TryFindResource("Storyboard") as Storyboard;
             sb.Begin();
+        }
+
+        private void InteractionMessageTrigger_Changed(object sender, EventArgs e)
+        {
+
         }
 
         private void MenuSetting_Click(object sender, RoutedEventArgs e)

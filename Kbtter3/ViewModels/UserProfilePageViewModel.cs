@@ -277,9 +277,9 @@ namespace Kbtter3.ViewModels
 
 
         #region ShowingStatuses変更通知プロパティ
-        private ObservableCollection<StatusViewModel> _ShowingStatuses = new ObservableCollection<StatusViewModel>();
+        private ObservableSynchronizedCollection<StatusViewModel> _ShowingStatuses = new ObservableSynchronizedCollection<StatusViewModel>();
 
-        public ObservableCollection<StatusViewModel> ShowingStatuses
+        public ObservableSynchronizedCollection<StatusViewModel> ShowingStatuses
         {
             get
             { return _ShowingStatuses; }
@@ -431,9 +431,9 @@ namespace Kbtter3.ViewModels
 
 
         #region ShowingFavorites変更通知プロパティ
-        private ObservableCollection<StatusViewModel> _ShowingFavorites = new ObservableCollection<StatusViewModel>();
+        private ObservableSynchronizedCollection<StatusViewModel> _ShowingFavorites = new ObservableSynchronizedCollection<StatusViewModel>();
 
-        public ObservableCollection<StatusViewModel> ShowingFavorites
+        public ObservableSynchronizedCollection<StatusViewModel> ShowingFavorites
         {
             get
             { return _ShowingFavorites; }

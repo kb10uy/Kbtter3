@@ -50,10 +50,20 @@ LICENSE.txtを参照してください。
 * Kbtterは、多くのライブラリを参照使用しています。  
   参照しているライブラリのライセンスは以下を参照してください。
   各ライブラリの使用については、それぞれの条文に従ってください。
- - CoreTweet,JSON.NET,NLuaは、MIT Licenseのライブラリです。
- - Livetはzlib/pngのライブラリです。
- - Reactive Extensions、IronPythonは、Apache License 2.0のライブラリです。
- - SQLite、System.Data.SQLiteは、Public Domainのライブラリです。
+ - 以下はMIT Licenseのライブラリです。
+  + CoreTweet
+  + JSON.NET
+  + NLua
+  + Irony
+ - 以下はzlib/pngライセンスのライブラリです。
+  + Livet
+ - 以下はApache License 2.0のライブラリです。
+  + Reactive Extensions
+  + IronPython
+  + WPF SyntaxHighlightBox
+ - 以下はPublic Domainのライブラリです。
+  + SQLite
+  + System.Data.SQLite
  - Entity Frameworkは、マイクロソフト ソフトウェア ライセンス条項下のライブラリです。  
    詳しくは[マイクロソフト ソフトウェア ライセンス条項](http://www.microsoft.com/web/webpi/eula/net_library_eula_jpn.htm)を参照してください。
 

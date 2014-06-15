@@ -1208,6 +1208,36 @@ namespace Kbtter3.ViewModels
             }
         }
         #endregion
+
+        #region AddUserTimelineCommand
+        private ViewModelCommand _AddUserTimelineCommand;
+
+        public ViewModelCommand AddUserTimelineCommand
+        {
+            get
+            {
+                if (_AddUserTimelineCommand == null)
+                {
+                    _AddUserTimelineCommand = new ViewModelCommand(AddUserTimeline);
+                }
+                return _AddUserTimelineCommand;
+            }
+        }
+
+        public void AddUserTimeline()
+        {
+            Messenger.Raise(new TransitionMessage(new NewUserTimelineViewModel(this), "NewUserTimeline"));
+        }
+
+        public UserCustomizableTimelineViewModel UserTimelineViewModel { get; private set; }
+        public void RequestUserTimeline(UserCustomizableTimelineViewModel vm)
+        {
+            UserTimelineViewModel = vm;
+            RaisePropertyChanged("UserTimeline");
+        }
+        #endregion
+
+
     }
 
     internal delegate void StatusUpdateEventHandler(object sender, StatusViewModel vm);
