@@ -59,14 +59,41 @@ namespace Kbtter3.Views
             {
                 NavigationUIVisibility = NavigationUIVisibility.Hidden,
                 Content = new UserCustomizableTimelinePage(vm.UserTimelineViewModel)
-            }));
+            }, vm.UserTimelineViewModel));
+
+            ctxlistener.Add("StatusUpdate", (s, e) =>
+            {
+                DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (TabControlMain.SelectedIndex != 0 && setting.MainWindow.NotifyNewStatus)
+                    {
+
+                        EmphasisTextBlock(TextBlockTimeline);
+                        urs++;
+                        TextBlockUnreadStatuses.Text = String.Format(" {0}", urs);
+
+                    }
+                }));
+            });
+
+            ctxlistener.Add("EventUpdate", (s, e) =>
+            {
+                DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (TabControlMain.SelectedIndex != 1 && setting.MainWindow.NotifyNewNotification)
+                    {
+
+                        EmphasisTextBlock(TextBlockNotification);
+                        urn++;
+                        TextBlockUnreadNotifications.Text = String.Format(" {0}", urn);
+
+                    }
+                }));
+            });
 
             composite.Add(ctxlistener);
 
-            vm.StatusUpdate += MainWindow_Update;
-            vm.EventUpdate += vm_EventUpdate;
             setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
-
             if (!setting.MainWindow.AllowJokeCommands) ToolBarJokes.Visibility = Visibility.Collapsed;
 
             SetShortcuts();
@@ -76,39 +103,6 @@ namespace Kbtter3.Views
         {
             new AccountSelectWindow().ShowDialog();
         }
-
-        #region Status・Event受信
-        void vm_EventUpdate(object sender, NotificationViewModel vm)
-        {
-            DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
-            {
-                if (TabControlMain.SelectedIndex != 1 && setting.MainWindow.NotifyNewNotification)
-                {
-                    EmphasisTextBlock(TextBlockNotification);
-                    urn++;
-                    TextBlockUnreadNotifications.Text = String.Format(" {0}", urn);
-                }
-                ListBoxNotify.Items.Insert(0, new Frame { Content = new NotificationPage(vm) });
-                if (ListBoxTimeline.Items.Count > setting.MainWindow.NotificationsShowMax) ListBoxNotify.Items.RemoveAt(setting.MainWindow.NotificationsShowMax);
-            }));
-        }
-
-        private void MainWindow_Update(object sender, StatusViewModel vm)
-        {
-            DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
-            {
-                if (TabControlMain.SelectedIndex != 0 && setting.MainWindow.NotifyNewStatus)
-                {
-                    EmphasisTextBlock(TextBlockTimeline);
-                    urs++;
-                    TextBlockUnreadStatuses.Text = String.Format(" {0}", urs);
-                }
-                ListBoxTimeline.Items.Insert(0, new Frame { Content = new StatusPage(vm) });
-                if (ListBoxTimeline.Items.Count > setting.MainWindow.StatusesShowMax) ListBoxTimeline.Items.RemoveAt(setting.MainWindow.StatusesShowMax);
-            }));
-        }
-        #endregion
-
 
         #region ショートカット
         private void SetShortcuts()
@@ -169,30 +163,30 @@ namespace Kbtter3.Views
             tb.FontWeight = FontWeights.Normal;
         }
 
-        public void AddTab(UIElement header, UIElement elm)
+        public void AddTab(UIElement header, UIElement elm, object tag)
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
                 var tp = new ClosableRoundTabItem();
                 tp.Header = header;
                 tp.Content = elm;
+                tp.Tag = tag;
                 tp.Closed += Tp_Closed;
                 TabControlMain.Items.Add(tp);
             }));
         }
 
-        public void AddTab(string header, UIElement elm)
+        public void AddTab(string header, UIElement elm, object tag)
         {
             DispatcherHelper.UIDispatcher.BeginInvoke(new Action(() =>
             {
                 var tp = new ClosableRoundTabItem();
                 tp.Header = header;
                 tp.Content = elm;
+                tp.Tag = tag;
                 tp.Closed += Tp_Closed;
                 TabControlMain.Items.Add(tp);
             }));
-            //DispatcherHelper.UIDispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
-            
         }
 
         private void Tp_Closed(object sender, RoutedEventArgs e)
@@ -202,6 +196,8 @@ namespace Kbtter3.Views
             s.Header = null;
             s.Content = null;
             TabControlMain.Items.Remove(s);
+            vm.RaiseTabClose(s.Tag);
+            //s.Dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.SystemIdle);
         }
 
         public async void RequestAction(string type, string info)
@@ -216,7 +212,8 @@ namespace Kbtter3.Views
                     var upvm = await vm.GetUserProfile(info);
                     if (upvm == null) return;
                     AddTab(new TextBlock { Text = String.Format("{0}さんの情報", info) },
-                           new Frame { Content = new UserProfilePage(this, upvm) });
+                           new Frame { Content = new UserProfilePage(this, upvm) },
+                           upvm);
                     break;
                 case "Hashtag":
                     break;
@@ -274,7 +271,7 @@ namespace Kbtter3.Views
         private void MenuSetting_Click(object sender, RoutedEventArgs e)
         {
             AddTab(new TextBlock { Text = "設定" },
-                           new Frame { Content = new SettingPage(), NavigationUIVisibility = NavigationUIVisibility.Hidden });
+                   new Frame { Content = new SettingPage(), NavigationUIVisibility = NavigationUIVisibility.Hidden }, null);
         }
 
     }

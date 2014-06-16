@@ -6,12 +6,14 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
+
 using Livet;
 using Livet.Commands;
 using Livet.Messaging;
 using Livet.Messaging.IO;
 using Livet.EventListeners;
 using Livet.Messaging.Windows;
+
 
 using Kbtter3.Models;
 using CoreTweet;
@@ -24,6 +26,7 @@ namespace Kbtter3.ViewModels
         MainWindowViewModel mainw;
         Kbtter kbtter = Kbtter.Instance;
         RelationShipResponse fs;
+        PropertyChangedEventListener mwlistener;
         public UserProfilePageViewModel()
         {
 
@@ -33,6 +36,14 @@ namespace Kbtter3.ViewModels
         {
             user = us;
             mainw = vm;
+            mwlistener = new PropertyChangedEventListener(mainw);
+            mwlistener.Add("TabClose", (s, e) =>
+            {
+                if (mainw.ClosedTabTag == this)
+                {
+                    Dispose();
+                }
+            });
         }
 
         public async void Initialize()
@@ -59,6 +70,17 @@ namespace Kbtter3.ViewModels
             IsFollowable = !IsBlocked;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            mainw = null;
+            kbtter = null;
+            user = null;
+            ShowingStatuses.Clear();
+            ShowingFavorites.Clear();
+            ShowingFriends.Clear();
+            ShowingFollowers.Clear();
+        }
 
         #region BannerImageUri変更通知プロパティ
         private Uri _BannerImageUri;

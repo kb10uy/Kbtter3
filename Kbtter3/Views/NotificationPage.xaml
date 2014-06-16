@@ -25,9 +25,12 @@
         </i:EventTrigger>
 
         <!--Windowが閉じたタイミングでViewModelのDisposeメソッドが呼ばれます-->
-        <i:EventTrigger EventName="Closed">
+        
+        <!--
+        <i:EventTrigger EventName="Unloaded">
             <l:DataContextDisposeAction/>
         </i:EventTrigger>
+        -->
 
         <!--WindowのCloseキャンセル処理に対応する場合は、WindowCloseCancelBehaviorの使用を検討してください-->
 

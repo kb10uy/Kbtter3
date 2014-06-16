@@ -40,5 +40,7 @@ namespace Kbtter3.Views
             var s = ((e.NewValue as TreeViewItem).Tag as string);
             if (!string.IsNullOrEmpty(s) && ChildPages.ContainsKey(s)) FramePaging.Content = ChildPages[s];
         }
+
+
     }
 }

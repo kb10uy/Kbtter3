@@ -28,6 +28,12 @@ namespace Kbtter3.ViewModels
         {
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            main = null;
+            CompositeDisposable.Dispose();
+        }
 
         #region ExtractTrueStatus変更通知プロパティ
         private bool _ExtractTrueStatus = true;

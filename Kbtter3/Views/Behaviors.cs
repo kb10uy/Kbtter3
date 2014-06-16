@@ -128,23 +128,109 @@ namespace Kbtter3.Views
                 switch (e.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
-                        AssociatedObject.Items.Insert(e.NewStartingIndex,
-                            new Frame
-                        {
-                            Content = new StatusPage(StatusesSource[e.NewStartingIndex]),
-                            NavigationUIVisibility = NavigationUIVisibility.Hidden
-                        });
+                        var f = new Frame();
+                        f.Content = new StatusPage(StatusesSource[e.NewStartingIndex]);
+                        f.NavigationUIVisibility = NavigationUIVisibility.Hidden;
+                        AssociatedObject.Items.Insert(e.NewStartingIndex, f);
                         break;
                     case NotifyCollectionChangedAction.Remove:
+                        var c = (AssociatedObject.Items[e.OldStartingIndex] as Frame).Content;
+                        if (c != null)
+                        {
+                            var idis = (c as StatusPage).DataContext as IDisposable;
+                            if (idis != null) idis.Dispose();
+                            (c as StatusPage).DataContext = null;
+                        }
                         AssociatedObject.Items.RemoveAt(e.OldStartingIndex);
                         break;
                     case NotifyCollectionChangedAction.Reset:
-                        AssociatedObject.Items.Clear();
+                        for (int i = AssociatedObject.Items.Count - 1; i >= 0; i--)
+                        {
+                            var c2 = (AssociatedObject.Items[i] as Frame).Content;
+                            if (c2 != null)
+                            {
+                                var idis2 = (c2 as StatusPage).DataContext as IDisposable;
+                                if (idis2 != null) idis2.Dispose();
+                            }
+                            AssociatedObject.Items.RemoveAt(i);
+                        }
                         break;
                 }
             }));
+        }
+    }
 
+    internal class Kbtter3NotificationBindingBehavior : Behavior<ListView>
+    {
+        public static DependencyProperty NotificationsSourceProperty =
+            DependencyProperty.Register(
+                "NotificationsSource",
+                typeof(ObservableSynchronizedCollection<NotificationViewModel>),
+                typeof(Kbtter3NotificationBindingBehavior));
 
+        public ObservableSynchronizedCollection<NotificationViewModel> NotificationsSource
+        {
+            get { return GetValue(NotificationsSourceProperty) as ObservableSynchronizedCollection<NotificationViewModel>; }
+            set
+            {
+                SetValue(NotificationsSourceProperty, value);
+                IsSourceEnable = value != null;
+            }
+        }
+
+        private bool IsSourceEnable = false;
+
+        protected override void OnAttached()
+        {
+            if (NotificationsSource != null)
+            {
+                IsSourceEnable = true;
+                NotificationsSource.CollectionChanged += StatusesSource_CollectionChanged;
+            }
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            NotificationsSource.CollectionChanged -= StatusesSource_CollectionChanged;
+        }
+
+        private void StatusesSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
+            {
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        var f = new Frame();
+                        f.Content = new NotificationPage(NotificationsSource[e.NewStartingIndex]);
+                        f.NavigationUIVisibility = NavigationUIVisibility.Hidden;
+                        AssociatedObject.Items.Insert(e.NewStartingIndex, f);
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        var c = (AssociatedObject.Items[e.OldStartingIndex] as Frame).Content;
+                        if (c != null)
+                        {
+                            var idis = (c as NotificationPage).DataContext as IDisposable;
+                            if (idis != null) idis.Dispose();
+                            (c as NotificationPage).DataContext = null;
+                        }
+                        AssociatedObject.Items.RemoveAt(e.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        for (int i = AssociatedObject.Items.Count - 1; i >= 0; i--)
+                        {
+                            var c2 = (AssociatedObject.Items[i] as Frame).Content;
+                            if (c2 != null)
+                            {
+                                var idis2 = (c2 as NotificationPage).DataContext as IDisposable;
+                                if (idis2 != null) idis2.Dispose();
+                            }
+                            AssociatedObject.Items.RemoveAt(i);
+                        }
+                        break;
+                }
+            }));
         }
     }
 }

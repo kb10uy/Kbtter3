@@ -40,9 +40,20 @@ namespace Kbtter3.ViewModels
             CompositeDisposable.Add(listener);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            CompositeDisposable.Dispose();
+        }
+
         public StatusViewModel()
         {
             Console.WriteLine();
+        }
+
+        ~StatusViewModel()
+        {
+
         }
 
         internal void UpdateTime(object sender, PropertyChangedEventArgs e)

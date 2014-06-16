@@ -33,7 +33,7 @@
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Information">
             <l:InformationDialogInteractionMessageAction/>
         </l:InteractionMessageTrigger>
-        
+
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="NewUserTimeline">
             <l:TransitionInteractionMessageAction WindowType="{x:Type v:NewUserTimelineWindow}" Mode="Modal"/>
         </l:InteractionMessageTrigger>
@@ -209,11 +209,12 @@
                         タイムライン<TextBlock Name="TextBlockUnreadStatuses"/>
                     </TextBlock>
                 </TabItem.Header>
-                <ListBox Name="ListBoxTimeline" HorizontalContentAlignment="Stretch"
-                         ItemsSource="{Binding Path=Statuses}"
-                         SelectedItem="{Binding Path=SelectedStatus}"
-                         ScrollViewer.CanContentScroll="False"
-                         />
+                <ListView Name="ListBoxTimeline" HorizontalContentAlignment="Stretch"
+                         ScrollViewer.CanContentScroll="False">
+                    <i:Interaction.Behaviors>
+                        <v:Kbtter3StatusBindingBehavior StatusesSource="{Binding TimelineStatuses}"/>
+                    </i:Interaction.Behaviors>
+                </ListView>
             </TabItem>
             <TabItem Name="TabNotify" Style="{StaticResource RoundTabItem}">
                 <TabItem.Header>
@@ -221,9 +222,13 @@
                         通知<TextBlock Name="TextBlockUnreadNotifications"/>
                     </TextBlock>
                 </TabItem.Header>
-                <ListBox Name="ListBoxNotify" HorizontalContentAlignment="Stretch" 
+                <ListView Name="ListBoxNotify" HorizontalContentAlignment="Stretch" 
                          ScrollViewer.CanContentScroll="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <v:Kbtter3NotificationBindingBehavior NotificationsSource="{Binding TimelineNotifications}"/>
+                    </i:Interaction.Behaviors>
+                </ListView>
             </TabItem>
             <TabItem Name="TabSearch" Style="{StaticResource RoundTabItem}">
                 <TabItem.Header>

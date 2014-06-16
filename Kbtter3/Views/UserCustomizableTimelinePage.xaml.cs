@@ -41,5 +41,10 @@ namespace Kbtter3.Views
         {
             
         }
+
+        ~UserCustomizableTimelinePage()
+        {
+
+        }
     }
 }

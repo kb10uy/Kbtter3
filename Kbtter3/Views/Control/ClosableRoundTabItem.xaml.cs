@@ -51,7 +51,7 @@ namespace Kbtter3.Views.Control
         {
             base.OnApplyTemplate();
             var bt=GetTemplateChild("ButtonClose") as Button;
-            if (bt != null) bt.Click += new RoutedEventHandler(Button_Click);
+            if (bt != null) bt.Click += Button_Click;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

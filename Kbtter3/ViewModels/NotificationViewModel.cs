@@ -24,6 +24,11 @@ namespace Kbtter3.ViewModels
 
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
+
         public NotificationViewModel(EventMessage msg)
         {
             NotificationTime = msg.CreatedAt.LocalDateTime.ToShortTimeString();

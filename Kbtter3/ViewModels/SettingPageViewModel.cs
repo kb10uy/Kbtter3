@@ -24,6 +24,12 @@ namespace Kbtter3.ViewModels
             Setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            CompositeDisposable.Dispose();
+        }
+
         #region DebugBreakCommand
         private ViewModelCommand _DebugBreakCommand;
 

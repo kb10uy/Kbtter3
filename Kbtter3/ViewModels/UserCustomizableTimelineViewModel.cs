@@ -21,7 +21,7 @@ namespace Kbtter3.ViewModels
     {
         Kbtter kbtter = Kbtter.Instance;
         MainWindowViewModel main;
-        PropertyChangedEventListener listener;
+        PropertyChangedEventListener listener,mwlistener;
 
         public UserCustomizableTimelineViewModel(MainWindowViewModel mv)
         {
@@ -29,6 +29,14 @@ namespace Kbtter3.ViewModels
             listener = new PropertyChangedEventListener(kbtter);
             CompositeDisposable.Add(listener);
             listener.Add("Status", OnStatus);
+            mwlistener = new PropertyChangedEventListener(main);
+            mwlistener.Add("TabClose", (s, e) =>
+            {
+                if (main.ClosedTabTag==this)
+                {
+                    Dispose();
+                }
+            });
         }
 
         public UserCustomizableTimelineViewModel()
@@ -38,8 +46,14 @@ namespace Kbtter3.ViewModels
 
         ~UserCustomizableTimelineViewModel()
         {
-            CompositeDisposable.Dispose();
 
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            CompositeDisposable.Dispose();
+            Statuses.Clear();
         }
 
         public void Initialize()
@@ -47,7 +61,7 @@ namespace Kbtter3.ViewModels
             Statuses.Clear();
         }
 
-        private void OnStatus(object sender,PropertyChangedEventArgs e)
+        private void OnStatus(object sender, PropertyChangedEventArgs e)
         {
             var st = kbtter.LatestStatus;
             Query.ClearVariables();

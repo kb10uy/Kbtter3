@@ -26,9 +26,9 @@ namespace Kbtter3.ViewModels
 
         Kbtter kbtter;
         PropertyChangedEventListener listener;
-        public event StatusUpdateEventHandler StatusUpdate;
         public event EventUpdateEventHandler EventUpdate;
         Dictionary<string, string> errors = new Dictionary<string, string>();
+        Kbtter3Setting setting;
 
         public void Initialize()
         {
@@ -37,6 +37,33 @@ namespace Kbtter3.ViewModels
             CompositeDisposable.Add(listener);
             RegisterHandlers();
             kbtter.Initialize();
+            setting = Kbtter3Extension.LoadJson<Kbtter3Setting>(App.ConfigurationFileName);
+            TimelineStatuses.CollectionChanged += (s, e) =>
+            {
+                DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
+                {
+                    if (TimelineStatuses.Count > setting.MainWindow.StatusesShowMax)
+                    {
+                        TimelineStatuses.RemoveAt(setting.MainWindow.StatusesShowMax);
+                    }
+                }));
+            };
+            TimelineNotifications.CollectionChanged += (s, e) =>
+            {
+                DispatcherHelper.UIDispatcher.BeginInvoke((Action)(() =>
+                {
+                    if (TimelineNotifications.Count > setting.MainWindow.NotificationsShowMax)
+                    {
+                        TimelineNotifications.RemoveAt(setting.MainWindow.NotificationsShowMax);
+                    }
+                }));
+            };
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            CompositeDisposable.Dispose();
         }
 
         public void RegisterHandlers()
@@ -63,19 +90,22 @@ namespace Kbtter3.ViewModels
 
         public void OnStatusUpdate(object sender, PropertyChangedEventArgs e)
         {
-            var st = kbtter.ShowingStatuses.Dequeue();
-            if (StatusUpdate != null) StatusUpdate(this, this.CreateStatusViewModel(st));
+            var st = kbtter.LatestStatus.Status;
+            TimelineStatuses.Insert(0, StatusViewModelExtension.CreateStatusViewModel(this, st));
+            RaisePropertyChanged("StatusUpdate");
             if (st.RetweetedStatus != null)
             {
                 if (st.RetweetedStatus.User.Id != kbtter.AuthenticatedUser.Id) return;
                 var vm = new NotificationViewModel(st);
-                if (EventUpdate != null) EventUpdate(this, vm);
+                TimelineNotifications.Insert(0, vm);
+                //if (EventUpdate != null) EventUpdate(this, vm);
                 return;
             }
             if (st.Entities != null && st.Entities.UserMentions.Count(p => p.ScreenName == kbtter.AuthenticatedUser.ScreenName) != 0)
             {
                 var vm = new NotificationViewModel(st, this);
-                if (EventUpdate != null) EventUpdate(this, vm);
+                TimelineNotifications.Insert(0, vm);
+                //if (EventUpdate != null) EventUpdate(this, vm);
             }
         }
 
@@ -83,7 +113,9 @@ namespace Kbtter3.ViewModels
         {
             if (kbtter.LatestEvent.Target.Id != kbtter.AuthenticatedUser.Id) return;
             var vm = new NotificationViewModel(kbtter.LatestEvent);
-            if (EventUpdate != null) EventUpdate(this, vm);
+            TimelineNotifications.Insert(0, vm);
+            RaisePropertyChanged("NotificationUpdate");
+            //if (EventUpdate != null) EventUpdate(this, vm);
         }
 
         public void OnUserProfileUpdate(object sender, PropertyChangedEventArgs e)
@@ -130,6 +162,42 @@ namespace Kbtter3.ViewModels
             }
             return new UserProfilePageViewModel(t, this);
         }
+
+
+        #region TimelineStatuses変更通知プロパティ
+        private ObservableSynchronizedCollection<StatusViewModel> _TimelineStatuses = new ObservableSynchronizedCollection<StatusViewModel>();
+
+        public ObservableSynchronizedCollection<StatusViewModel> TimelineStatuses
+        {
+            get
+            { return _TimelineStatuses; }
+            set
+            {
+                if (_TimelineStatuses == value)
+                    return;
+                _TimelineStatuses = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region TimelineNotifications変更通知プロパティ
+        private ObservableSynchronizedCollection<NotificationViewModel> _TimelineNotifications = new ObservableSynchronizedCollection<NotificationViewModel>();
+
+        public ObservableSynchronizedCollection<NotificationViewModel> TimelineNotifications
+        {
+            get
+            { return _TimelineNotifications; }
+            set
+            {
+                if (_TimelineNotifications == value)
+                    return;
+                _TimelineNotifications = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
 
         #region UserProfileImageUri変更通知プロパティ
@@ -1237,6 +1305,13 @@ namespace Kbtter3.ViewModels
         }
         #endregion
 
+
+        public object ClosedTabTag { get; set; }
+        public void RaiseTabClose(object tag)
+        {
+            ClosedTabTag = tag;
+            RaisePropertyChanged("TabClose");
+        }
 
     }
 

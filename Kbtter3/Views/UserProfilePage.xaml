@@ -17,6 +17,11 @@
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Information">
             <l:InformationDialogInteractionMessageAction/>
         </l:InteractionMessageTrigger>
+        <!--
+        <i:EventTrigger EventName="Unloaded">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+        -->
     </i:Interaction.Triggers>
 
     <Page.Resources>
